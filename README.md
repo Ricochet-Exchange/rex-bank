@@ -46,16 +46,19 @@ On deployment, the bank _owner_ specifies the following parameters:
 
 Once deployed, the bank owner must deposit some debt tokens into the bank's reserve. After depositing debt tokens, users can deposit collateral tokens and borrow the bank's debt tokens. During the borrow, the borrower is charged an origination fee and then interest will accumulate until they repay what they've borrowed plus interest and fees. If at anytime the price of the collateral falls, then the bank owner will liquidate the borrowers collateral to repay their debt.
 
-## Smart Contract Calls by Stakeholder
-This section describes the functions executable by each stakeholder in the Bank Protocol. Find the full implementation details in `contracts/Bank.sol`.
+# Feature Spec
 
-### Owner
-* reserveDeposit: ...
-* reserveWithdraw: ...    
-* updateCollateralPrice: ...
+## Bank's Reserve
+- should allow owner to deposit reserves
+- should allow owner to withdraw reserves
+- should not allow non-owner to deposit reserves
+- should not allow non-owner to withdraw reserves
 
-### Borrower
-* vaultDeposit: ...
-* vaultBorrow: ...
-* vaultRepay: ...
-* vaultWithdraw: ...
+## User's Vault
+- should allow user to deposit collateral into vault
+- should allow user to withdraw collateral from vault
+- should add origination fee to a vault's borrowed amount
+- should accrue interest on a vault's borrowed amount
+- should not allow user to withdraw without debt repayment
+- should not allow user to borrow below the collateralization ratio
+- should calculate correct collateralization ratio for a user's vault

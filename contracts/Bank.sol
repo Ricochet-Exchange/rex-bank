@@ -49,8 +49,16 @@ contract Bank is Ownable {
     _collateralTokenPrice = 1;
   }
 
+  /////////////////////
+  // RESERVE MANAGEMENT
+  /////////////////////
+
   function getReserveBalance() public view returns (uint256) {
     return _debtReserveBalance;
+  }
+
+  function getReserveCollateralBalance() public view returns (uint256) {
+    return _collateralReserveBalance;
   }
 
   function getInterestRate() public view returns (uint256) {
@@ -76,8 +84,15 @@ contract Bank is Ownable {
   }
 
   function reserveWithdraw(uint256 amount) public onlyOwner {
+    require(_debtReserveBalance >= amount, "NOT ENOUGH DEBT TOKENS IN RESERVE");
     // IERC20(_debtToken).transfer(msg.sender, amount);
     _debtReserveBalance -= amount;
+  }
+
+  function reserveWithdrawCollateral(uint256 amount) public onlyOwner {
+    require(_collateralReserveBalance >= amount, "NOT ENOUGH COLLATERAL IN RESERVE");
+    // IERC20(_collateralToken).transfer(msg.sender, amount);
+    _collateralReserveBalance -= amount;
   }
 
   function updatePrice(uint256 debtTokenPrice, uint256 collateralTokenPrice) public onlyOwner {
@@ -87,12 +102,16 @@ contract Bank is Ownable {
   }
 
   function liquidate(address vaultOwner) public onlyOwner {
-    // TODO: Liquidate vault
+    // Require undercollateralization
+    require(_getVaultCollateralizationRatio(vaultOwner) < _collateralizationRatio * 100, "VAULT NOT UNDERCOLLATERALIZED");
+    _collateralReserveBalance += vaults[vaultOwner].collateralAmount;
+    vaults[vaultOwner].collateralAmount = 0;
+    vaults[vaultOwner].debtAmount = 0;
   }
 
-  ////////////////////
+  /////////////////////
   // VAULT MANAGEMENT
-  ////////////////////
+  /////////////////////
 
   function getVaultCollateralAmount() public view returns (uint256) {
     return vaults[msg.sender].collateralAmount;
@@ -112,9 +131,9 @@ contract Bank is Ownable {
   function vaultBorrow(uint256 amount) public {
     require(vaults[msg.sender].debtAmount == 0, "ALREADY BORROWING");
     require(vaults[msg.sender].collateralAmount != 0, "NO COLLATERAL");
-    uint256 maxBorrow = vaults[msg.sender].collateralAmount / _collateralTokenPrice * _debtTokenPrice;
+    uint256 maxBorrow = vaults[msg.sender].collateralAmount * _collateralTokenPrice / _debtTokenPrice / _collateralizationRatio * 100;
     require(amount < maxBorrow, "NOT ENOUGH COLLATERAL");
-    require(amount < _debtReserveBalance, "NOT ENOUGH RESERVES");
+    require(amount <= _debtReserveBalance, "NOT ENOUGH RESERVES");
     vaults[msg.sender].debtAmount += amount + ((amount * _originationFee) / 100);
     _debtReserveBalance -= amount;
     vaults[msg.sender].createdAt = block.timestamp;
@@ -146,5 +165,23 @@ contract Bank is Ownable {
       principal += principal * _interestRate / 100 / 365;
     return principal;
   }
+
+  function getVaultCollateralizationRatio() public view returns (uint256) {
+    return _getVaultCollateralizationRatio(msg.sender);
+  }
+
+  function _getVaultCollateralizationRatio(address vaultOwner) private view returns (uint256) {
+    return _percent(vaults[vaultOwner].collateralAmount * _collateralTokenPrice,
+                    vaults[vaultOwner].debtAmount * _debtTokenPrice,
+                    4);
+  }
+
+  function _percent(uint numerator, uint denominator, uint precision) private pure returns(uint quotient) {
+        uint _numerator  = numerator * 10 ** (precision+1);
+        uint _quotient =  ((_numerator / denominator) + 5) / 10;
+        return ( _quotient);
+  }
+
+
 
 }
