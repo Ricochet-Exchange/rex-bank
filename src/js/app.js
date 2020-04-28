@@ -80,67 +80,101 @@ App = {
     });
   },
 
-
-  handlePurchase: function(event) {
+  handleDeposit: function(event) {
     event.preventDefault();
 
-    var spaceId = parseInt($(event.target).data('id'));
-
-    var cbInstance;
+    var depositAmount = parseFloat($('.input-deposit').val());
+    console.log(depositAmount)
+    var bankInstance;
 
     web3.eth.getAccounts(function(error, accounts) {
       if (error) {
         console.log(error);
       }
-
       var account = accounts[0];
-
-      App.contracts.CryptoBunker.deployed().then(function(instance) {
-        cbInstance = instance;
-        return cbInstance.getSpace(spaceId);
+      App.contracts.Bank.deployed().then(function(instance) {
+        bankInstance = instance;
+        return bankInstance.vaultDeposit(parseInt(depositAmount*1e18), {from: account});
       }).then(function(results) {
-        // area,priceFinney,name,approvedPurchaser,owner
-        return cbInstance.purchase(spaceId, {
-          from: account,
-          value: web3.toWei(results[1], 'finney') // TODO: Replace with dynamic price
-        });
-      }).then(function(result) {
-        return App.markPurchased();
+        App.renderBankUI();
+        console.log(results);
       }).catch(function(err) {
         console.log(err.message);
       });
     });
   },
 
-
-  handleApprovePurchase: function(event) {
+  handleBorrow: function(event) {
     event.preventDefault();
 
-    var spaceId = parseInt($(event.target).data('id'));
-    var to = $('.panel-space').eq(spaceId).find('.input-approve').val().toLowerCase();
-    console.log("Pre approval data");
-    console.log(spaceId);
-    var cbInstance;
+    var borrowAmount = parseFloat($('.input-borrow').val());
+    console.log(borrowAmount)
+    var bankInstance;
 
     web3.eth.getAccounts(function(error, accounts) {
       if (error) {
         console.log(error);
       }
-
       var account = accounts[0];
-
-      App.contracts.CryptoBunker.deployed().then(function(instance) {
-        cbInstance = instance;
-        console.log("Approving purchase for " + spaceId +" (From " + account + " to " + to + ")");
-        return cbInstance.approveForPurchase(to, spaceId, {from: account});
-      }).then(function(result) {
-        console.log("Approved purchase for " + spaceId +" (From " + account + " to " + to + ")");
-        return;
+      App.contracts.Bank.deployed().then(function(instance) {
+        bankInstance = instance;
+        return bankInstance.vaultBorrow(parseInt(borrowAmount*1e18), {from: account});
+      }).then(function(results) {
+        App.renderBankUI();
+        console.log(results);
       }).catch(function(err) {
         console.log(err.message);
       });
     });
-  }
+  },
+
+  handleRepay: function(event) {
+    event.preventDefault();
+
+    var repayAmount = parseFloat($('.input-repay').val());
+    console.log(repayAmount)
+    var bankInstance;
+
+    web3.eth.getAccounts(function(error, accounts) {
+      if (error) {
+        console.log(error);
+      }
+      var account = accounts[0];
+      App.contracts.Bank.deployed().then(function(instance) {
+        bankInstance = instance;
+        return bankInstance.vaultRepay(parseInt(repayAmount*1e18), {from: account});
+      }).then(function(results) {
+        App.renderBankUI();
+        console.log(results);
+      }).catch(function(err) {
+        console.log(err.message);
+      });
+    });
+  },
+
+  handleWithdraw: function(event) {
+    event.preventDefault();
+
+    var withdrawAmount = parseFloat($('.input-withdraw').val());
+    console.log(withdrawAmount)
+    var bankInstance;
+
+    web3.eth.getAccounts(function(error, accounts) {
+      if (error) {
+        console.log(error);
+      }
+      var account = accounts[0];
+      App.contracts.Bank.deployed().then(function(instance) {
+        bankInstance = instance;
+        return bankInstance.vaultWithdraw({from: account});
+      }).then(function(results) {
+        App.renderBankUI();
+        console.log(results);
+      }).catch(function(err) {
+        console.log(err.message);
+      });
+    });
+  },
 
 };
 
