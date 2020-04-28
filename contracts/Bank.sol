@@ -50,16 +50,8 @@ contract Bank is Ownable {
   }
 
   /////////////////////
-  // RESERVE MANAGEMENT
+  // SYSTEM PROPERTIES
   /////////////////////
-
-  function getReserveBalance() public view returns (uint256) {
-    return _debtReserveBalance;
-  }
-
-  function getReserveCollateralBalance() public view returns (uint256) {
-    return _collateralReserveBalance;
-  }
 
   function getInterestRate() public view returns (uint256) {
     return _interestRate;
@@ -75,6 +67,27 @@ contract Bank is Ownable {
 
   function getLiquidationPenalty() public view returns (uint256) {
     return _liquidationPenalty;
+  }
+
+  function getDebtTokenPrice() public view returns (uint256) {
+    return _debtTokenPrice;
+  }
+
+  function getCollateralTokenPrice() public view returns (uint256) {
+    return _collateralTokenPrice;
+  }
+
+
+  /////////////////////
+  // RESERVE MANAGEMENT
+  /////////////////////
+
+  function getReserveBalance() public view returns (uint256) {
+    return _debtReserveBalance;
+  }
+
+  function getReserveCollateralBalance() public view returns (uint256) {
+    return _collateralReserveBalance;
   }
 
   function reserveDeposit(uint256 amount) public onlyOwner {
@@ -171,9 +184,13 @@ contract Bank is Ownable {
   }
 
   function _getVaultCollateralizationRatio(address vaultOwner) private view returns (uint256) {
-    return _percent(vaults[vaultOwner].collateralAmount * _collateralTokenPrice,
-                    vaults[vaultOwner].debtAmount * _debtTokenPrice,
-                    4);
+    if(vaults[vaultOwner].debtAmount == 0 ){
+      return 0;
+    } else {
+      return _percent(vaults[vaultOwner].collateralAmount * _collateralTokenPrice,
+                      vaults[vaultOwner].debtAmount * _debtTokenPrice,
+                      4);
+    }
   }
 
   function _percent(uint numerator, uint denominator, uint precision) private pure returns(uint quotient) {

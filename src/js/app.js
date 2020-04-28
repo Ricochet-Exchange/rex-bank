@@ -3,25 +3,6 @@ App = {
   contracts: {},
 
   init: async function() {
-    // Load spaces.
-    $.getJSON('../spaces.json', function(data) {
-      var spacesRow = $('#spacesRow');
-      var spaceTemplate = $('#spaceTemplate');
-
-      for (i = 0; i < data.length; i ++) {
-        spaceTemplate.find('.panel-title').text(data[i].name);
-        spaceTemplate.find('img').attr('src', data[i].picture);
-        spaceTemplate.find('.space-address').text(data[i].address);
-        spaceTemplate.find('.space-name').text(data[i].name);
-        spaceTemplate.find('.space-dimensions').text(data[i].dimensions);
-        spaceTemplate.find('.btn-purchase').attr('data-id', data[i].id);
-        spaceTemplate.find('.input-approve').attr('data-id', data[i].id);
-        spaceTemplate.find('.btn-approve').attr('data-id', data[i].id);
-
-        spacesRow.append(spaceTemplate.html());
-      }
-    });
-
     return await App.initWeb3();
   },
 
@@ -46,11 +27,11 @@ App = {
 
 
   initContract: function() {
-    $.getJSON('CryptoBunker.json', function(data) {
-      var CryptoBunkerArtifact = data;
-      App.contracts.CryptoBunker = TruffleContract(CryptoBunkerArtifact);
-      App.contracts.CryptoBunker.setProvider(App.web3Provider);
-      return App.markPurchased();
+    $.getJSON('Bank.json', function(data) {
+      var BankArtifact = data;
+      App.contracts.Bank = TruffleContract(BankArtifact);
+      App.contracts.Bank.setProvider(App.web3Provider);
+      return App.renderBankUI();
     })
 
     return App.bindEvents();
@@ -58,13 +39,16 @@ App = {
 
 
   bindEvents: function() {
-    $(document).on('click', '.btn-purchase', App.handlePurchase);
-    $(document).on('click', '.btn-approve', App.handleApprovePurchase);
+    // Bind Customer events to buttons
+    $(document).on('click', '.btn-deposit', App.handleDeposit);
+    $(document).on('click', '.btn-borrow', App.handleBorrow);
+    $(document).on('click', '.btn-repay', App.handleRepay);
+    $(document).on('click', '.btn-withdraw', App.handleWithdraw);
   },
 
 
-  markPurchased: async function(owners, account) {
-    var cbInstance;
+  renderBankUI: async function(owners, account) {
+    var bankInstance;
 
     web3.eth.getAccounts(function(error, accounts) {
       if (error) {
@@ -72,34 +56,25 @@ App = {
       }
 
       var account = accounts[0];
+      var vaultPanel = $('#vaultPanel');
 
-      App.contracts.CryptoBunker.deployed().then(function(instance) {
-        cbInstance = instance;
-
-        return cbInstance.getSpacesCount.call();
-      }).then(async function(numSpaces) {
-        for(i = 0; i < numSpaces; i++) {
-          await new Promise(function(next) {
-            cbInstance.getSpace.call(i).then(function(results) {
-              // area,priceFinny,name,approvedPurchaser,owner
-              console.log(results);
-              if(results[3] === account) {
-                $('.panel-space').eq(i).find('.btn-purchase').text('Purchase').attr('disabled', false);
-              }
-              if(results[4] === account) {
-                $('.panel-space').eq(i).find('.btn-approve').show();
-                $('.panel-space').eq(i).find('.input-approve').show();
-                $('.panel-space').eq(i).find('.btn-purchase').hide();
-                if(results[3] !== "0x0000000000000000000000000000000000000000") {
-                  $('.panel-space').eq(i).find('.input-approve').val(results[3]);
-                }
-              }
-              next();
-            });
-          });
-        }
+      App.contracts.Bank.deployed().then(function(instance) {
+        bankInstance = instance;
+        console.log("Starting");
+        bankInstance.getVaultCollateralAmount.call().then(function(collateral){
+          console.log(collateral.toString());
+          vaultPanel.find('.collateralAmount').text(collateral/1e18);
+        });
+        bankInstance.getVaultRepayAmount.call().then(function(debt){
+          console.log(debt.toString());
+          vaultPanel.find('.debtAmount').text(debt/1e18);
+        });
+        bankInstance.getVaultCollateralizationRatio.call().then(function(ratio){
+          console.log(ratio);
+          vaultPanel.find('.collateralizationRatio').text((ratio/100).toString() + '%');
+        });
       }).catch(function(err) {
-        console.log(err.message);
+        console.log(err);
       });
 
     });

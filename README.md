@@ -1,14 +1,16 @@
 # Bank Protocol
 This is a framework for managing a bank offering collateral-backed loans on Ethereum. This repository contains the core smart contracts and DApp code.
 
+![Bank protocol](./bank-protocol.png)
+
 # Hack Money Development Plan
 ## Phase 1: Tokenless Protocol
 First, make the protocol work without transferring tokens around. Build and test that all of the protocol functionality can work correctly without moving tokens around.
 
 ### Tasks:
-- [ ] Develop smart contract code
-- [ ] Write tests for the smart contract
-- [ ] Build a UI for interacting with the contract
+- [x] Develop smart contract code
+- [x] Write tests for the smart contract
+- [ ] Build a Customer UI for interacting with the contract
 
 ## Phase 2: Token Integration
 Second, make the protocol work with transferring tokens for collateral and debt. Use a `updatePrice` function to manually enter the collateral and debt token prices.
@@ -19,6 +21,9 @@ Second, make the protocol work with transferring tokens for collateral and debt.
 
 ## Phase 3: Oracle Integration
 Finally, integrate the Tellor oracle for updating the collateral and debt token prices.
+
+- [ ] Update price using Tellor Oracle
+- [ ] Build Owner UI
 
 # Design Considerations
 
@@ -46,19 +51,10 @@ On deployment, the bank _owner_ specifies the following parameters:
 
 Once deployed, the bank owner must deposit some debt tokens into the bank's reserve. After depositing debt tokens, users can deposit collateral tokens and borrow the bank's debt tokens. During the borrow, the borrower is charged an origination fee and then interest will accumulate until they repay what they've borrowed plus interest and fees. If at anytime the price of the collateral falls, then the bank owner will liquidate the borrowers collateral to repay their debt.
 
-# Feature Spec
-
-## Bank's Reserve
-- should allow owner to deposit reserves
-- should allow owner to withdraw reserves
-- should not allow non-owner to deposit reserves
-- should not allow non-owner to withdraw reserves
-
-## User's Vault
-- should allow user to deposit collateral into vault
-- should allow user to withdraw collateral from vault
-- should add origination fee to a vault's borrowed amount
-- should accrue interest on a vault's borrowed amount
-- should not allow user to withdraw without debt repayment
-- should not allow user to borrow below the collateralization ratio
-- should calculate correct collateralization ratio for a user's vault
+# Usage on Ganache
+First, `truffle migrate` the contract to deploy to Ganache, then setup the contract using `truffle develop`:
+```
+let instance = await Bank.deployed()
+let accounts = await web3.eth.getAccounts()
+await instance.reserveDeposit(web3.utils.toWei("100", "ether"), {from: accounts[0]})
+```

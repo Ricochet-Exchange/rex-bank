@@ -21,38 +21,68 @@
     <div class="container">
       <div class="row">
         <div class="col-xs-12 col-sm-8 col-sm-push-2">
-          <h1 class="text-center">Crypto Bunker</h1>
+          <h1 class="text-center">Bank Protocol</h1>
           <hr/>
           <br/>
         </div>
       </div>
 
-      <div id="spacesRow" class="row">
-        <!-- SPACES LOAD HERE -->
-      </div>
-    </div>
-
-    <div id="spaceTemplate" style="display: none;">
-      <div class="col-sm-6 col-md-4 col-lg-3">
-        <div class="panel panel-default panel-space">
-          <div class="panel-heading">
-            <h3 class="panel-title">Alpha</h3>
+      <div class="row">
+        <div class="col-md-8">
+          <div id="vault">
+            <div class="panel panel-default panel-space">
+              <div class="panel-heading">
+                <h3 class="panel-title">Vault</h3>
+              </div>
+              <div class="panel-body" id="vaultPanel">
+                <strong>Total Collateral Locked</strong>: <span class="collateralAmount">0</span><br/>
+                <strong>Total Debt Owned</strong>: <span class="debtAmount">0</span><br/>
+                <strong>Collateralization Ratio</strong>: <span class="collateralizationRatio">0</span><br/>
+              </div>
+            </div>
           </div>
-          <div class="panel-body">
-            <img alt="140x140" data-src="holder.js/140x140" class="img-rounded img-center" style="width: 100%;" src="https://animalso.com/wp-content/uploads/2017/01/Golden-Retriever_6.jpg" data-holder-rendered="true">
-            <br/><br/>
-            <strong>Address</strong>: <span class="space-address">Golden Retriever</span><br/>
-            <strong>Name</strong>: <span class="space-name">3</span><br/>
-            <strong>Dimensions</strong>: <span class="space-dimensions">5' x 6'</span><br/><br/>
-            <button class="btn btn-default btn-purchase" type="button" disabled="true" data-id="0">Owned</button>
-            <br/>
-            <input class="input-approve" type="text" style="display:none"></input>
-            <button class="btn btn-default btn-approve" type="button" style="display:none" data-id="0">Approve Purchaser</button>
-
+        </div>
+        <div class="col-md-4">
+          <div>
+            <div class="panel panel-default panel-space">
+              <div class="panel-heading">
+                <h3 class="panel-title">Actions</h3>
+              </div>
+              <div class="panel-body" id="vaultActionsPanel">
+                <div class="input-group">
+                  <input type="text" class="form-control input-deposit" placeholder="0">
+                  <span class="input-group-btn">
+                    <button class="btn btn-default btn-deposit" type="button">Deposit Collateral</button>
+                  </span>
+                </div><!-- /input-group -->
+                <br/>
+                <div class="input-group">
+                  <input type="text" class="form-control input-borrow" placeholder="0">
+                  <span class="input-group-btn">
+                    <button class="btn btn-default btn-borrow" type="button">Borrow</button>
+                  </span>
+                </div><!-- /input-group -->
+                <br/>
+                <div class="input-group">
+                  <input type="text" class="form-control input-repay" placeholder="0">
+                  <span class="input-group-btn">
+                    <button class="btn btn-default btn-repay" type="button">Repay Debt</button>
+                  </span>
+                </div><!-- /input-group -->
+                <br/>
+                <div class="input-group">
+                  <input type="text" class="form-control" placeholder="0">
+                  <span class="input-group-btn">
+                    <button class="btn btn-default btn-withdraw" type="button">Withdraw Collateral</button>
+                  </span>
+                </div><!-- /input-group -->
+              </div>
+            </div>
           </div>
         </div>
       </div>
     </div>
+
 
     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
