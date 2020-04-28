@@ -57,10 +57,19 @@ App = {
 
       var account = accounts[0];
       var vaultPanel = $('#vaultPanel');
+      var reservePanel = $('#reservePanel');
+      $('.input-deposit').val('');
+      $('.input-borrow').val('');
+      $('.input-repay').val('');
+      $('.input-withdraw').val('');
 
       App.contracts.Bank.deployed().then(function(instance) {
         bankInstance = instance;
         console.log("Starting");
+        bankInstance.getReserveBalance.call().then(function(reserveBalance){
+          console.log("Reserve: " + reserveBalance.toString());
+          reservePanel.find('.debtReserveBalance').text(reserveBalance/1e18);
+        });
         bankInstance.getVaultCollateralAmount.call().then(function(collateral){
           console.log(collateral.toString());
           vaultPanel.find('.collateralAmount').text(collateral/1e18);
