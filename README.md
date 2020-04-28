@@ -10,7 +10,7 @@ First, make the protocol work without transferring tokens around. Build and test
 ### Tasks:
 - [x] Develop smart contract code
 - [x] Write tests for the smart contract
-- [ ] Build a Customer UI for interacting with the contract
+- [x] Build a Customer UI for interacting with the contract
 
 ## Phase 2: Token Integration
 Second, make the protocol work with transferring tokens for collateral and debt. Use a `updatePrice` function to manually enter the collateral and debt token prices.
