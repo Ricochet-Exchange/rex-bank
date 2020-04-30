@@ -32,11 +32,11 @@
           <div id="vault">
             <div class="panel panel-default panel-space">
               <div class="panel-heading">
-                <h3 class="panel-title">Vault</h3>
+                <h3 class="panel-title">Your Vault</h3>
               </div>
               <div class="panel-body" id="vaultPanel">
-                <strong>Total Collateral Locked</strong>: <span class="collateralAmount">0</span><br/>
-                <strong>Total Debt Owned</strong>: <span class="debtAmount">0</span><br/>
+                <strong>Total Collateral Locked</strong>: <span class="collateralAmount">0</span> GLD<br/>
+                <strong>Total Debt Owned</strong>: <span class="debtAmount">0</span> USDT<br/>
                 <strong>Collateralization Ratio</strong>: <span class="collateralizationRatio">0</span><br/>
               </div>
             </div>
@@ -44,10 +44,17 @@
           <div id="reserve">
             <div class="panel panel-default panel-space">
               <div class="panel-heading">
-                <h3 class="panel-title">Reserve</h3>
+                <h3 class="panel-title">Bank</h3>
               </div>
               <div class="panel-body" id="reservePanel">
-                <strong>Total Available to Borrow</strong>: <span class="debtReserveBalance">0</span><br/>
+                <strong>Total Available to Borrow</strong>: <span class="debtReserveBalance">0</span> USDT<br/>
+                <hr/>
+                <strong>GLD Price (USD)</strong>: $<span class="collateralTokenPrice">0</span><br/>
+                <strong>USDT Price (USD)</strong>: $<span class="debtTokenPrice">0</span><br/>
+                <strong>Interest Rate</strong>: <span class="interstRate">0</span>%<br/>
+                <strong>Origination Fee</strong>: <span class="originationFee">0</span>%<br/>
+                <strong>Collateralization Ratio</strong>: <span class="collateralizationRatio">0</span>%<br/>
+                <strong>Liquidation Penalty</strong>: <span class="liquidationPenalty">0</span>%<br/>
               </div>
             </div>
           </div>
@@ -56,39 +63,56 @@
           <div>
             <div class="panel panel-default panel-space">
               <div class="panel-heading">
-                <h3 class="panel-title">Actions</h3>
+                <h3 class="panel-title">Account Management</h3>
               </div>
               <div class="panel-body" id="vaultActionsPanel">
+                <strong>Debt Token Balance</strong>: <span class="debtTokenBalance">0</span> USDT  <br/>
+                <div class="input-group">
+                  <input type="text" class="form-control input-dt-approve" placeholder="0">
+                  <span class="input-group-btn">
+                    <button class="btn btn-default btn-dt-approve" type="button">Approve for Repay</button>
+                  </span>
+                </div><!-- /input-group -->
+
+                <strong>Collateral Token Balance</strong>: <span class="collateralTokenBalance">0</span> GLD  <br/>
+                <div class="input-group">
+                  <input type="text" class="form-control input-ct-approve" placeholder="0">
+                  <span class="input-group-btn">
+                    <button class="btn btn-default btn-ct-approve" type="button">Approve for Deposit</button>
+                  </span>
+                </div><!-- /input-group -->
+                <hr/>
                 <div class="input-group">
                   <input type="text" class="form-control input-deposit" placeholder="0">
                   <span class="input-group-btn">
-                    <button class="btn btn-default btn-deposit" type="button">Deposit Collateral</button>
+                    <button class="btn btn-default btn-deposit" type="button">Deposit GLD</button>
                   </span>
                 </div><!-- /input-group -->
                 <br/>
                 <div class="input-group">
                   <input type="text" class="form-control input-borrow" placeholder="0">
                   <span class="input-group-btn">
-                    <button class="btn btn-default btn-borrow" type="button">Borrow</button>
+                    <button class="btn btn-default btn-borrow" type="button">Borrow USDT</button>
                   </span>
                 </div><!-- /input-group -->
                 <br/>
                 <div class="input-group">
                   <input type="text" class="form-control input-repay" placeholder="0">
                   <span class="input-group-btn">
-                    <button class="btn btn-default btn-repay" type="button">Repay Debt</button>
+                    <button class="btn btn-default btn-repay" type="button">Repay USDT</button>
                   </span>
                 </div><!-- /input-group -->
                 <br/>
                 <div class="input-group">
                   <input type="text" class="form-control input-withdraw" placeholder="0">
                   <span class="input-group-btn">
-                    <button class="btn btn-default btn-withdraw" type="button">Withdraw Collateral</button>
+                    <button class="btn btn-default btn-withdraw" type="button">Withdraw GLD</button>
                   </span>
                 </div><!-- /input-group -->
               </div>
             </div>
           </div>
+
         </div>
       </div>
     </div>

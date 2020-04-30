@@ -1,7 +1,5 @@
-# Bank Protocol
-This is a framework for managing a bank offering collateral-backed loans on Ethereum. This repository contains the core smart contracts and DApp code.
-
 ![Bank protocol](./bank-protocol.png)
+This is a framework for managing a collateral-backed loans on Ethereum. This repository contains the core smart contracts and DApp code.
 
 # Hack Money Development Plan
 ## Phase 1: Tokenless Protocol
@@ -16,14 +14,17 @@ First, make the protocol work without transferring tokens around. Build and test
 Second, make the protocol work with transferring tokens for collateral and debt. Use a `updatePrice` function to manually enter the collateral and debt token prices.
 
 ### Tasks:
-- [ ] Develop support for depositing collateral and borrowing
-- [ ] Create a test plan for testing locally (how to deploy test ERC20 tokens to use?)
+- [x] Develop support for depositing collateral and borrowing
+- [x] Create a test plan for testing locally (how to deploy test ERC20 tokens to use?)
+- [x] Create video demo running on localhost
 
 ## Phase 3: Oracle Integration
 Finally, integrate the Tellor oracle for updating the collateral and debt token prices.
 
 - [ ] Update price using Tellor Oracle
-- [ ] Build Owner UI
+- [ ] Build Bank Owner UI
+- [ ] Create video demo running on localhost
+
 
 # Design Considerations
 
@@ -52,9 +53,13 @@ On deployment, the bank _owner_ specifies the following parameters:
 Once deployed, the bank owner must deposit some debt tokens into the bank's reserve. After depositing debt tokens, users can deposit collateral tokens and borrow the bank's debt tokens. During the borrow, the borrower is charged an origination fee and then interest will accumulate until they repay what they've borrowed plus interest and fees. If at anytime the price of the collateral falls, then the bank owner will liquidate the borrowers collateral to repay their debt.
 
 # Usage on Ganache
-First, `truffle migrate` the contract to deploy to Ganache, then setup the contract using `truffle develop`:
+First, `truffle migrate` the contract to deploy to Ganache, then setup the contract using `truffle console`.
+
+From the console, approve and deposit debt tokens (i.e. `USDToken`) into the bank's reserve.
 ```
-let instance = await Bank.deployed()
+let bank = await Bank.deployed()
+let dt = await USDToken.deployed()
 let accounts = await web3.eth.getAccounts()
-await instance.reserveDeposit(web3.utils.toWei("100", "ether"), {from: accounts[0]})
+await dt.approve(bank.address, web3.utils.toWei("100", "ether"), {from: accounts[0]})
+await bank.reserveDeposit(web3.utils.toWei("100", "ether"), {from: accounts[0]})
 ```

@@ -6,11 +6,11 @@ import "@openzeppelin/contracts/ownership/Ownable.sol";
 
 contract Bank is Ownable {
 
-  // address _collateralToken;
+  address _collateralToken;
   uint256 _collateralTokenPrice;
   uint256 _collateralReserveBalance;
 
-  // address _debtToken;
+  address _debtToken;
   uint256 _debtTokenPrice;
   uint256 _debtReserveBalance;
 
@@ -30,19 +30,19 @@ contract Bank is Ownable {
   mapping (address => Vault) public vaults;
 
   constructor(
-    // address collateralToken,
-    // address debtToken,
     uint256 interestRate,
     uint256 originationFee,
     uint256 collateralizationRatio,
-    uint256 liquidationPenalty) public {
+    uint256 liquidationPenalty,
+    address collateralToken,
+    address debtToken) public {
 
-    // _collateralToken = collateralToken
-    // _debtToken = debtToken
     _interestRate = interestRate;
     _originationFee = originationFee;
     _collateralizationRatio = collateralizationRatio;
     _liquidationPenalty = liquidationPenalty;
+    _collateralToken = collateralToken;
+    _debtToken = debtToken;
 
     // TODO: Get price from oracle
     _debtTokenPrice = 1;
@@ -92,19 +92,19 @@ contract Bank is Ownable {
 
   function reserveDeposit(uint256 amount) public onlyOwner {
     // NOTE: Assumes amount has been approved
-    // IERC20(_debtToken).transferFrom(msg.sender, this, amount);
+    IERC20(_debtToken).transferFrom(msg.sender, address(this), amount);
     _debtReserveBalance += amount;
   }
 
   function reserveWithdraw(uint256 amount) public onlyOwner {
     require(_debtReserveBalance >= amount, "NOT ENOUGH DEBT TOKENS IN RESERVE");
-    // IERC20(_debtToken).transfer(msg.sender, amount);
+    IERC20(_debtToken).transfer(msg.sender, amount);
     _debtReserveBalance -= amount;
   }
 
   function reserveWithdrawCollateral(uint256 amount) public onlyOwner {
     require(_collateralReserveBalance >= amount, "NOT ENOUGH COLLATERAL IN RESERVE");
-    // IERC20(_collateralToken).transfer(msg.sender, amount);
+    IERC20(_collateralToken).transfer(msg.sender, amount);
     _collateralReserveBalance -= amount;
   }
 
@@ -137,7 +137,7 @@ contract Bank is Ownable {
   function vaultDeposit(uint256 amount) public {
     // NOTE: Assumes amount has been approved
     require(vaults[msg.sender].collateralAmount == 0, "ALREADY DEPOSITED COLLATERAL");
-    // IERC20(_collateralToken).transferFrom(msg.sender, this, amount);
+    IERC20(_collateralToken).transferFrom(msg.sender, address(this), amount);
     vaults[msg.sender].collateralAmount += amount;
   }
 
@@ -149,8 +149,8 @@ contract Bank is Ownable {
     require(amount <= _debtReserveBalance, "NOT ENOUGH RESERVES");
     vaults[msg.sender].debtAmount += amount + ((amount * _originationFee) / 100);
     _debtReserveBalance -= amount;
+    IERC20(_debtToken).transfer(msg.sender, amount);
     vaults[msg.sender].createdAt = block.timestamp;
-    // IERC20(_debtToken).transfer(msg.sender, amount);
   }
 
   function vaultRepay(uint256 amount) public {
@@ -158,16 +158,15 @@ contract Bank is Ownable {
     vaults[msg.sender].debtAmount = getVaultRepayAmount();
     // Subtract amount from debtAmount
     require(amount <= vaults[msg.sender].debtAmount, "CANNOT REPAY MORE THAN OWED");
-    // IERC20(_debtToken).transferFrom(msg.sender, this, amount);
+    IERC20(_debtToken).transferFrom(msg.sender, address(this), amount);
     vaults[msg.sender].debtAmount -= amount;
     _debtReserveBalance += amount;
-    // Reset createdAt for this vault to start recalculating interest with new debtAmount
-    vaults[msg.sender].createdAt = block.timestamp;
+    vaults[msg.sender].createdAt = block.timestamp; // reset to correctly accure interest
   }
 
   function vaultWithdraw() public {
     require(vaults[msg.sender].debtAmount == 0, "DEBT OWED");
-    // IERC20(_collateralToken).transfer(msg.sender, vaults[msg.sender].collateralAmount);
+    IERC20(_collateralToken).transfer(msg.sender, vaults[msg.sender].collateralAmount);
     vaults[msg.sender].collateralAmount = 0;
   }
 
