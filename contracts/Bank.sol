@@ -2,22 +2,27 @@ pragma solidity ^0.5.0;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/ownership/Ownable.sol";
+import '../node_modules/usingtellor/contracts/UsingTellor.sol';
 
 
-contract Bank is Ownable {
+contract Bank is Ownable, UsingTellor {
 
   address _collateralToken;
   uint256 _collateralTokenPrice;
+  uint256 _collateralTokenPriceGranularity;
   uint256 _collateralReserveBalance;
 
   address _debtToken;
   uint256 _debtTokenPrice;
+  uint256 _debtTokenPriceGranularity;
   uint256 _debtReserveBalance;
 
   uint256 _interestRate;
   uint256 _originationFee;
   uint256 _collateralizationRatio;
   uint256 _liquidationPenalty;
+
+  address _oracleContract;
 
   uint256 _period = 86400; // One day
 
@@ -35,7 +40,8 @@ contract Bank is Ownable {
     uint256 collateralizationRatio,
     uint256 liquidationPenalty,
     address collateralToken,
-    address debtToken) public {
+    address debtToken,
+    address oracleContract ) public UsingTellor(oracleContract) {
 
     _interestRate = interestRate;
     _originationFee = originationFee;
@@ -43,10 +49,14 @@ contract Bank is Ownable {
     _liquidationPenalty = liquidationPenalty;
     _collateralToken = collateralToken;
     _debtToken = debtToken;
+    _oracleContract = oracleContract;
 
     // TODO: Get price from oracle
-    _debtTokenPrice = 1;
-    _collateralTokenPrice = 1;
+    // _debtTokenPriceRequest, _debtTokenPriceGranularity
+    _debtTokenPriceGranularity = 1000;
+    _debtTokenPrice = 1000;
+    _collateralTokenPriceGranularity = 1000;
+    _collateralTokenPrice = 1000;
   }
 
   /////////////////////
@@ -73,8 +83,16 @@ contract Bank is Ownable {
     return _debtTokenPrice;
   }
 
+  function getDebtTokenPriceGranularity() public view returns (uint256) {
+    return _debtTokenPriceGranularity;
+  }
+
   function getCollateralTokenPrice() public view returns (uint256) {
     return _collateralTokenPrice;
+  }
+
+  function getCollateralTokenPriceGranularity() public view returns (uint256) {
+    return _collateralTokenPriceGranularity;
   }
 
 
@@ -108,10 +126,14 @@ contract Bank is Ownable {
     _collateralReserveBalance -= amount;
   }
 
-  function updatePrice(uint256 debtTokenPrice, uint256 collateralTokenPrice) public onlyOwner {
+  function updatePrice() public onlyOwner {
     // TODO: Integrate with Tellor Oracle
-    _debtTokenPrice = debtTokenPrice;
-    _collateralTokenPrice = collateralTokenPrice;
+    bool ifRetrieve;
+    uint256 _timestampRetrieved;
+
+    (ifRetrieve, _debtTokenPrice, _timestampRetrieved) = getCurrentValue(1);
+    (ifRetrieve, _collateralTokenPrice, _timestampRetrieved) = getCurrentValue(2);
+
   }
 
   function liquidate(address vaultOwner) public onlyOwner {
@@ -145,6 +167,8 @@ contract Bank is Ownable {
     require(vaults[msg.sender].debtAmount == 0, "ALREADY BORROWING");
     require(vaults[msg.sender].collateralAmount != 0, "NO COLLATERAL");
     uint256 maxBorrow = vaults[msg.sender].collateralAmount * _collateralTokenPrice / _debtTokenPrice / _collateralizationRatio * 100;
+    maxBorrow *= _debtTokenPriceGranularity;
+    maxBorrow /= _collateralTokenPriceGranularity;
     require(amount < maxBorrow, "NOT ENOUGH COLLATERAL");
     require(amount <= _debtReserveBalance, "NOT ENOUGH RESERVES");
     vaults[msg.sender].debtAmount += amount + ((amount * _originationFee) / 100);
@@ -161,7 +185,9 @@ contract Bank is Ownable {
     IERC20(_debtToken).transferFrom(msg.sender, address(this), amount);
     vaults[msg.sender].debtAmount -= amount;
     _debtReserveBalance += amount;
-    vaults[msg.sender].createdAt = block.timestamp; // reset to correctly accure interest
+    // Update createdAt time to account for adjustment in principal
+    uint256 periodsElapsed = (block.timestamp / _period) - (vaults[msg.sender].createdAt / _period);
+    vaults[msg.sender].createdAt += periodsElapsed * _period;
   }
 
   function vaultWithdraw() public {

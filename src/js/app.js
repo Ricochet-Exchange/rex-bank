@@ -79,12 +79,16 @@ App = {
         console.log("Starting");
 
         bankInstance.getDebtTokenPrice.call().then(function(debtTokenPrice){
-          console.log("Reserve debtTokenPrice: " + debtTokenPrice.toString());
-          reservePanel.find('.debtTokenPrice').text(debtTokenPrice);
+          bankInstance.getDebtTokenPriceGranularity.call().then(function(debtTokenPriceGranularity){
+            console.log("Reserve debtTokenPrice: " + debtTokenPrice.toString());
+            reservePanel.find('.debtTokenPrice').text(debtTokenPrice/debtTokenPriceGranularity);
+          });
         });
         bankInstance.getCollateralTokenPrice.call().then(function(collateralTokenPrice){
-          console.log("Reserve collateralTokenPrice: " + collateralTokenPrice.toString());
-          reservePanel.find('.collateralTokenPrice').text(collateralTokenPrice);
+          bankInstance.getCollateralTokenPriceGranularity.call().then(function(collateralTokenPriceGranularity){
+            console.log("Reserve collateralTokenPrice: " + collateralTokenPrice.toString());
+            reservePanel.find('.collateralTokenPrice').text(collateralTokenPrice/collateralTokenPriceGranularity);
+          });
         });
         bankInstance.getInterestRate.call().then(function(interestRate){
           console.log("Reserve interstRate: " + interestRate.toString());
@@ -157,7 +161,7 @@ App = {
       var account = accounts[0];
       App.contracts.Bank.deployed().then(function(instance) {
         bankInstance = instance;
-        return bankInstance.vaultDeposit(parseInt(depositAmount*1e18), {from: account});
+        return bankInstance.vaultDeposit(depositAmount*1e18, {from: account});
       }).then(function(results) {
         App.renderBankUI();
         console.log(results);
@@ -181,7 +185,8 @@ App = {
       var account = accounts[0];
       App.contracts.Bank.deployed().then(function(instance) {
         bankInstance = instance;
-        return bankInstance.vaultBorrow(parseInt(borrowAmount*1e18), {from: account});
+        console.log("Borrowing USDT:" + borrowAmount*1e18);
+        return bankInstance.vaultBorrow(borrowAmount*1e18, {from: account});
       }).then(function(results) {
         App.renderBankUI();
         console.log(results);
@@ -205,7 +210,8 @@ App = {
       var account = accounts[0];
       App.contracts.Bank.deployed().then(function(instance) {
         bankInstance = instance;
-        return bankInstance.vaultRepay(parseInt(repayAmount*1e18), {from: account});
+        console.log("Repaying USDT:" + repayAmount*1e18);
+        return bankInstance.vaultRepay(repayAmount*1e18, {from: account});
       }).then(function(results) {
         App.renderBankUI();
         console.log(results);
@@ -253,7 +259,7 @@ App = {
       var account = accounts[0];
       App.contracts.Bank.deployed().then(function(bank) {
         App.contracts.DT.deployed().then(function(instance) {
-          return instance.approve(bank.address, parseInt(approveAmt*1e18), {from: account});
+          return instance.approve(bank.address, approveAmt*1e18, {from: account});
         }).then(function(results) {
           App.renderBankUI();
           console.log(results);
@@ -281,7 +287,7 @@ App = {
       App.contracts.Bank.deployed().then(function(bank) {
         App.contracts.CT.deployed().then(function(ct) {
           console.log(bank.address)
-          console.log(parseInt(approveAmt*1e18))
+          console.log(approveAmt*1e18)
           console.log(account)
           return ct.approve(bank.address, approveAmt*1e18, {from: account});
         }).then(function(results) {
