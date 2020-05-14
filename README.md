@@ -59,7 +59,6 @@ From the console, approve and deposit debt tokens (i.e. `USDToken`) into the ban
 ```
 let bank = await Bank.deployed()
 let dt = await USDToken.deployed()
-let oracle = await TellorMaster.deployed()
 let accounts = await web3.eth.getAccounts()
 await dt.approve(bank.address, web3.utils.toWei("1000", "ether"), {from: accounts[0]})
 await bank.reserveDeposit(web3.utils.toWei("1000", "ether"), {from: accounts[0]})
@@ -79,9 +78,9 @@ await web3.eth.sendTransaction({to: oracleAddress, from: accounts[0], gas: 40000
 ```
 Next, submit 5 values through mining:
 ```
-await web3.eth.sendTransaction({to: oracle.address, from: accounts[1],gas:4000000, data: oracle2.methods.submitMiningSolution("nonce", 2, 1700000).encodeABI()})
-await web3.eth.sendTransaction({to: oracle.address, from: accounts[2],gas:4000000, data: oracle2.methods.submitMiningSolution("nonce", 2, 1700000).encodeABI()})
-await web3.eth.sendTransaction({to: oracle.address, from: accounts[3],gas:4000000, data: oracle2.methods.submitMiningSolution("nonce", 2, 1700000).encodeABI()})
+await web3.eth.sendTransaction({to: oracle.address, from: accounts[1],gas:4000000, data: oracle2.methods.submitMiningSolution("nonce", 2, 1500000).encodeABI()})
+await web3.eth.sendTransaction({to: oracle.address, from: accounts[2],gas:4000000, data: oracle2.methods.submitMiningSolution("nonce", 2, 1500000).encodeABI()})
+await web3.eth.sendTransaction({to: oracle.address, from: accounts[3],gas:4000000, data: oracle2.methods.submitMiningSolution("nonce", 2, 1500000).encodeABI()})
 await web3.eth.sendTransaction({to: oracle.address, from: accounts[4],gas:4000000, data: oracle2.methods.submitMiningSolution("nonce", 2, 1700000).encodeABI()})
 await web3.eth.sendTransaction({to: oracle.address, from: accounts[5],gas:4000000, data: oracle2.methods.submitMiningSolution("nonce", 2, 1700000).encodeABI()})
 ```
@@ -89,4 +88,9 @@ Because the Bank contract is UsingTellor, you can get the current data from the 
 ```
 let vars = await bank.getCurrentValue.call(1)
 ```
-And the price will be contained in `vars[1]`
+And the price will be contained in `vars[1]`.
+
+And you can update the price with:
+```
+await bank.updatePrice({from: accounts[0]})
+```

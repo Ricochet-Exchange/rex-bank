@@ -7,14 +7,17 @@ import '../node_modules/usingtellor/contracts/UsingTellor.sol';
 
 contract Bank is Ownable, UsingTellor {
 
+  // TODO: Refactor into struct
   address _collateralToken;
   uint256 _collateralTokenPrice;
   uint256 _collateralTokenPriceGranularity;
+  uint256 _collateralTokenTellorRequestId;
   uint256 _collateralReserveBalance;
 
   address _debtToken;
   uint256 _debtTokenPrice;
   uint256 _debtTokenPriceGranularity;
+  uint256 _debtTokenTellorRequestId;
   uint256 _debtReserveBalance;
 
   uint256 _interestRate;
@@ -40,7 +43,13 @@ contract Bank is Ownable, UsingTellor {
     uint256 collateralizationRatio,
     uint256 liquidationPenalty,
     address collateralToken,
+    uint256 collateralTokenTellorRequestId,
+    uint256 collateralTokenPriceGranularity,
+    uint256 collateralTokenPrice,
     address debtToken,
+    uint256 debtTokenTellorRequestId,
+    uint256 debtTokenPriceGranularity,
+    uint256 debtTokenPrice,
     address oracleContract ) public UsingTellor(oracleContract) {
 
     _interestRate = interestRate;
@@ -51,12 +60,14 @@ contract Bank is Ownable, UsingTellor {
     _debtToken = debtToken;
     _oracleContract = oracleContract;
 
-    // TODO: Get price from oracle
-    // _debtTokenPriceRequest, _debtTokenPriceGranularity
-    _debtTokenPriceGranularity = 1000;
-    _debtTokenPrice = 1000;
-    _collateralTokenPriceGranularity = 1000;
-    _collateralTokenPrice = 1000;
+
+    _debtTokenPrice = debtTokenPrice;
+    _debtTokenPriceGranularity = debtTokenPriceGranularity;
+    _debtTokenTellorRequestId = debtTokenTellorRequestId;
+    _collateralTokenPrice = collateralTokenPrice;
+    _collateralTokenPriceGranularity = collateralTokenPriceGranularity;
+    _collateralTokenTellorRequestId = collateralTokenTellorRequestId;
+
   }
 
   /////////////////////
@@ -131,8 +142,8 @@ contract Bank is Ownable, UsingTellor {
     bool ifRetrieve;
     uint256 _timestampRetrieved;
 
-    (ifRetrieve, _debtTokenPrice, _timestampRetrieved) = getCurrentValue(1);
-    (ifRetrieve, _collateralTokenPrice, _timestampRetrieved) = getCurrentValue(2);
+    (ifRetrieve, _debtTokenPrice, _timestampRetrieved) = getCurrentValue(_debtTokenTellorRequestId);
+    (ifRetrieve, _collateralTokenPrice, _timestampRetrieved) = getCurrentValue(_collateralTokenTellorRequestId);
 
   }
 
@@ -212,8 +223,8 @@ contract Bank is Ownable, UsingTellor {
     if(vaults[vaultOwner].debtAmount == 0 ){
       return 0;
     } else {
-      return _percent(vaults[vaultOwner].collateralAmount * _collateralTokenPrice,
-                      vaults[vaultOwner].debtAmount * _debtTokenPrice,
+      return _percent(vaults[vaultOwner].collateralAmount * _collateralTokenPrice * 1000 / _collateralTokenPriceGranularity,
+                      vaults[vaultOwner].debtAmount * _debtTokenPrice * 1000 / _debtTokenPriceGranularity,
                       4);
     }
   }

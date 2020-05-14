@@ -13,11 +13,11 @@ module.exports = {
       port: 7545,
       network_id: '*'
     },
-    ropsten: {
+    rinkeby: {
       provider: () => new HDWalletProvider(
         process.env.MNEMONIC,
-        process.env.ROPSTEN_URL),
-      network_id: 3
+        process.env.RINKEBY_URL),
+      network_id: 4
     },
   }
 }
