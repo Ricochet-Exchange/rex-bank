@@ -15,9 +15,9 @@ App = {
         console.error("User denied account access")
       }
     }
-    else if (window.web3) {
-      App.web3Provider = window.web3.currentProvider;
-    }
+    // else if (window.web3) {
+    //   App.web3Provider = window.web3.currentProvider;
+    // }
     else {
       App.web3Provider = new Web3.providers.HttpProvider('https://rinkeby.infura.io/v3/af8276083f02406390d70dab5bff7070');
     }
@@ -31,12 +31,14 @@ App = {
       var BankArtifact = data;
       App.contracts.Bank = TruffleContract(BankArtifact);
       App.contracts.Bank.setProvider(App.web3Provider);
-      return $.getJSON('USDToken.json', function(dt) {
+      return $.getJSON('DAI.json', function(dt) {
         var DT = dt;
+        console.log(dt);
         App.contracts.DT = TruffleContract(DT);
         App.contracts.DT.setProvider(App.web3Provider);
-        return $.getJSON('GLDToken.json', function(ct) {
+        return $.getJSON('Tellor.json', function(ct) {
           var CT = ct;
+          console.log(dt);
           App.contracts.CT = TruffleContract(CT);
           App.contracts.CT.setProvider(App.web3Provider);
           return App.renderBankUI();
@@ -185,7 +187,7 @@ App = {
       var account = accounts[0];
       App.contracts.Bank.deployed().then(function(instance) {
         bankInstance = instance;
-        console.log("Borrowing USDT:" + borrowAmount*1e18);
+        console.log("Borrowing DAI:" + borrowAmount*1e18);
         return bankInstance.vaultBorrow(borrowAmount*1e18, {from: account});
       }).then(function(results) {
         App.renderBankUI();
@@ -210,7 +212,7 @@ App = {
       var account = accounts[0];
       App.contracts.Bank.deployed().then(function(instance) {
         bankInstance = instance;
-        console.log("Repaying USDT:" + repayAmount*1e18);
+        console.log("Repaying DAI:" + repayAmount*1e18);
         return bankInstance.vaultRepay(repayAmount*1e18, {from: account});
       }).then(function(results) {
         App.renderBankUI();

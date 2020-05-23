@@ -421,6 +421,7 @@ var contract = (function(module) {
       val.then = function(fn) {
         return self.detectNetwork().then(function() {
           // We don't have a network config for the one we found
+          console.log(self._json.networks)
           if (self._json.networks[self.network_id] == null) {
             throw new Error(self.contract_name + " has not been deployed to detected network (network/artifact mismatch)");
           }
@@ -6805,8 +6806,8 @@ module.exports = function isHexPrefixed(str) {
   var PADDING = [6, 1536, 393216, 100663296];
   var SHIFT = [0, 8, 16, 24];
   var RC = [1, 0, 32898, 0, 32906, 2147483648, 2147516416, 2147483648, 32907, 0, 2147483649,
-            0, 2147516545, 2147483648, 32777, 2147483648, 138, 0, 136, 0, 2147516425, 0, 
-            2147483658, 0, 2147516555, 0, 139, 2147483648, 32905, 2147483648, 32771, 
+            0, 2147516545, 2147483648, 32777, 2147483648, 138, 0, 136, 0, 2147516425, 0,
+            2147483658, 0, 2147516555, 0, 139, 2147483648, 32905, 2147483648, 32771,
             2147483648, 32770, 2147483648, 128, 2147483648, 32778, 0, 2147483658, 2147483648,
             2147516545, 2147483648, 32896, 2147483648, 2147483649, 0, 2147516424, 2147483648];
   var BITS = [224, 256, 384, 512];
@@ -6894,9 +6895,9 @@ module.exports = function isHexPrefixed(str) {
     if (notString && message.constructor == root.ArrayBuffer) {
       message = new Uint8Array(message);
     }
-    var length = message.length, blocks = this.blocks, byteCount = this.byteCount, 
+    var length = message.length, blocks = this.blocks, byteCount = this.byteCount,
         blockCount = this.blockCount, index = 0, s = this.s, i, code;
-    
+
     while (index < length) {
       if (this.reset) {
         this.reset = false;
@@ -6965,7 +6966,7 @@ module.exports = function isHexPrefixed(str) {
   Keccak.prototype.toString = Keccak.prototype.hex = function () {
     this.finalize();
 
-    var blockCount = this.blockCount, s = this.s, outputBlocks = this.outputBlocks, 
+    var blockCount = this.blockCount, s = this.s, outputBlocks = this.outputBlocks,
         extraBytes = this.extraBytes, i = 0, j = 0;
     var hex = '', block;
     while (j < outputBlocks) {
@@ -6999,7 +7000,7 @@ module.exports = function isHexPrefixed(str) {
   Keccak.prototype.arrayBuffer = function () {
     this.finalize();
 
-    var blockCount = this.blockCount, s = this.s, outputBlocks = this.outputBlocks, 
+    var blockCount = this.blockCount, s = this.s, outputBlocks = this.outputBlocks,
         extraBytes = this.extraBytes, i = 0, j = 0;
     var bytes = this.outputBits >> 3;
     var buffer;
@@ -7029,7 +7030,7 @@ module.exports = function isHexPrefixed(str) {
   Keccak.prototype.digest = Keccak.prototype.array = function () {
     this.finalize();
 
-    var blockCount = this.blockCount, s = this.s, outputBlocks = this.outputBlocks, 
+    var blockCount = this.blockCount, s = this.s, outputBlocks = this.outputBlocks,
         extraBytes = this.extraBytes, i = 0, j = 0;
     var array = [], offset, block;
     while (j < outputBlocks) {
@@ -7062,9 +7063,9 @@ module.exports = function isHexPrefixed(str) {
   };
 
   var f = function (s) {
-    var h, l, n, c0, c1, c2, c3, c4, c5, c6, c7, c8, c9, 
-        b0, b1, b2, b3, b4, b5, b6, b7, b8, b9, b10, b11, b12, b13, b14, b15, b16, b17, 
-        b18, b19, b20, b21, b22, b23, b24, b25, b26, b27, b28, b29, b30, b31, b32, b33, 
+    var h, l, n, c0, c1, c2, c3, c4, c5, c6, c7, c8, c9,
+        b0, b1, b2, b3, b4, b5, b6, b7, b8, b9, b10, b11, b12, b13, b14, b15, b16, b17,
+        b18, b19, b20, b21, b22, b23, b24, b25, b26, b27, b28, b29, b30, b31, b32, b33,
         b34, b35, b36, b37, b38, b39, b40, b41, b42, b43, b44, b45, b46, b47, b48, b49;
     for (n = 0;n < 48;n += 2) {
       c0 = s[0] ^ s[10] ^ s[20] ^ s[30] ^ s[40];

@@ -127,18 +127,17 @@ contract Bank is Ownable, UsingTellor {
 
   function reserveWithdraw(uint256 amount) public onlyOwner {
     require(_debtReserveBalance >= amount, "NOT ENOUGH DEBT TOKENS IN RESERVE");
-    IERC20(_debtToken).transfer(msg.sender, amount);
+    require(IERC20(_debtToken).transfer(msg.sender, amount));
     _debtReserveBalance -= amount;
   }
 
   function reserveWithdrawCollateral(uint256 amount) public onlyOwner {
     require(_collateralReserveBalance >= amount, "NOT ENOUGH COLLATERAL IN RESERVE");
-    IERC20(_collateralToken).transfer(msg.sender, amount);
+    require(IERC20(_collateralToken).transfer(msg.sender, amount));
     _collateralReserveBalance -= amount;
   }
 
   function updatePrice() public onlyOwner {
-    // TODO: Integrate with Tellor Oracle
     bool ifRetrieve;
     uint256 _timestampRetrieved;
 
@@ -150,8 +149,10 @@ contract Bank is Ownable, UsingTellor {
   function liquidate(address vaultOwner) public onlyOwner {
     // Require undercollateralization
     require(_getVaultCollateralizationRatio(vaultOwner) < _collateralizationRatio * 100, "VAULT NOT UNDERCOLLATERALIZED");
-    _collateralReserveBalance += vaults[vaultOwner].collateralAmount;
-    vaults[vaultOwner].collateralAmount = 0;
+    uint256 debtOwned = vaults[vaultOwner].debtAmount + (vaults[vaultOwner].debtAmount * 100 * _liquidationPenalty / 100);
+    uint256 collateralToLiquidate = debtOwned / _collateralTokenPrice;
+    _collateralReserveBalance +=  collateralToLiquidate;
+    vaults[vaultOwner].collateralAmount -= collateralToLiquidate;
     vaults[vaultOwner].debtAmount = 0;
   }
 
@@ -170,6 +171,7 @@ contract Bank is Ownable, UsingTellor {
   function vaultDeposit(uint256 amount) public {
     // NOTE: Assumes amount has been approved
     require(vaults[msg.sender].collateralAmount == 0, "ALREADY DEPOSITED COLLATERAL");
+    // TODO: require
     IERC20(_collateralToken).transferFrom(msg.sender, address(this), amount);
     vaults[msg.sender].collateralAmount += amount;
   }
@@ -184,7 +186,8 @@ contract Bank is Ownable, UsingTellor {
     require(amount <= _debtReserveBalance, "NOT ENOUGH RESERVES");
     vaults[msg.sender].debtAmount += amount + ((amount * _originationFee) / 100);
     _debtReserveBalance -= amount;
-    IERC20(_debtToken).transfer(msg.sender, amount);
+    // TODO: require
+    require(IERC20(_debtToken).transfer(msg.sender, amount));
     vaults[msg.sender].createdAt = block.timestamp;
   }
 
@@ -193,6 +196,7 @@ contract Bank is Ownable, UsingTellor {
     vaults[msg.sender].debtAmount = getVaultRepayAmount();
     // Subtract amount from debtAmount
     require(amount <= vaults[msg.sender].debtAmount, "CANNOT REPAY MORE THAN OWED");
+    // TODO: require
     IERC20(_debtToken).transferFrom(msg.sender, address(this), amount);
     vaults[msg.sender].debtAmount -= amount;
     _debtReserveBalance += amount;
@@ -203,7 +207,8 @@ contract Bank is Ownable, UsingTellor {
 
   function vaultWithdraw() public {
     require(vaults[msg.sender].debtAmount == 0, "DEBT OWED");
-    IERC20(_collateralToken).transfer(msg.sender, vaults[msg.sender].collateralAmount);
+    // TODO: Require
+    require(IERC20(_collateralToken).transfer(msg.sender, vaults[msg.sender].collateralAmount));
     vaults[msg.sender].collateralAmount = 0;
   }
 
