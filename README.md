@@ -21,9 +21,9 @@ Second, make the protocol work with transferring tokens for collateral and debt.
 ## Phase 3: Oracle Integration
 Finally, integrate the Tellor oracle for updating the collateral and debt token prices.
 
-- [ ] Update price using Tellor Oracle
-- [ ] Build Bank Owner UI
-- [ ] Create video demo running on localhost
+- [x] Update price using Tellor Oracle
+- [x] Build Bank Owner UI
+- [x] Create video demo running on Rinkeby
 
 
 # Design Considerations
