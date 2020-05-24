@@ -40,6 +40,13 @@ Finally, integrate the Tellor oracle for updating the collateral and debt token 
   - Deployment and configuration is simple enough for anyone familiar with Ethereum
   - Interactions with the contract are simple and intuitive for end users
 
+# Deployment
+For deployment on test or main networks, edit the `migrations/3_tellor_contracts.js` and comment out everything except the contract deployment:
+```
+await deployer.deploy(Bank, 12, 1, 150, 25, "0xfe41cb708cd98c5b20423433309e55b53f79134a", 50, 1000000, 1000000, "0x5592EC0cfb4dbc12D3aB100b257153436a1f0FEa", 39, 1000000, 1000000, "0x0D17ED8DDE4AF196ff638F3704e94A77419Df2b8");
+```
+Replace the values with those you wish to use for your bank deployment and visit the `Bank.sol` constructor for more details about these parameters.
+
 # Protocol Summary
 On deployment, the bank _owner_ specifies the following parameters:
 
