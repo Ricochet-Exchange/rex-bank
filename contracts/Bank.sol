@@ -37,6 +37,13 @@ contract Bank is Ownable, UsingTellor {
 
   mapping (address => Vault) public vaults;
 
+  event ReserveDeposit(uint256 amount);
+  event ReserveWithdraw(address token, uint256 amount);
+  event VaultDeposit(address owner, uint256 amount);
+  event VaultBorrow(address borrower, uint256 amount);
+  event VaultRepay(address borrower, uint256 amount);
+  event VaultWithdraw(address borrower);
+
   constructor(
     uint256 interestRate,
     uint256 originationFee,
@@ -78,24 +85,48 @@ contract Bank is Ownable, UsingTellor {
     return _interestRate;
   }
 
+  function setInterestRate(uint256 interestRate) public onlyOwner {
+    _interestRate = interestRate;
+  }
+
   function getOriginationFee() public view returns (uint256) {
     return _originationFee;
+  }
+
+  function setOriginationFee(uint256 originationFee) public onlyOwner {
+    _originationFee = originationFee;
   }
 
   function getCollateralizationRatio() public view returns (uint256) {
     return _collateralizationRatio;
   }
 
+  function setCollateralizationRatio(uint256 collateralizationRatio) public onlyOwner {
+    _collateralizationRatio = collateralizationRatio;
+  }
+
   function getLiquidationPenalty() public view returns (uint256) {
     return _liquidationPenalty;
+  }
+
+  function setLiquidationPenalty(uint256 liquidationPenalty) public onlyOwner {
+    _liquidationPenalty = liquidationPenalty;
   }
 
   function getDebtTokenPrice() public view returns (uint256) {
     return _debtTokenPrice;
   }
 
+  function setDebtTokenPrice(uint256 debtTokenPrice) public onlyOwner {
+    _debtTokenPrice = debtTokenPrice;
+  }
+
   function getDebtTokenPriceGranularity() public view returns (uint256) {
     return _debtTokenPriceGranularity;
+  }
+
+  function setDebtTokenPriceGranularity(uint256 debtTokenPriceGranularity) public onlyOwner {
+    _debtTokenPriceGranularity = debtTokenPriceGranularity;
   }
 
   function getCollateralTokenPrice() public view returns (uint256) {
@@ -123,18 +154,21 @@ contract Bank is Ownable, UsingTellor {
     // NOTE: Assumes amount has been approved
     IERC20(_debtToken).transferFrom(msg.sender, address(this), amount);
     _debtReserveBalance += amount;
+    emit ReserveDeposit(amount);
   }
 
   function reserveWithdraw(uint256 amount) public onlyOwner {
     require(_debtReserveBalance >= amount, "NOT ENOUGH DEBT TOKENS IN RESERVE");
     require(IERC20(_debtToken).transfer(msg.sender, amount));
     _debtReserveBalance -= amount;
+    emit ReserveWithdraw(_debtToken, amount);
   }
 
   function reserveWithdrawCollateral(uint256 amount) public onlyOwner {
     require(_collateralReserveBalance >= amount, "NOT ENOUGH COLLATERAL IN RESERVE");
     require(IERC20(_collateralToken).transfer(msg.sender, amount));
     _collateralReserveBalance -= amount;
+    emit ReserveWithdraw(_collateralToken, amount);
   }
 
   function updatePrice() public onlyOwner {
@@ -143,7 +177,6 @@ contract Bank is Ownable, UsingTellor {
 
     (ifRetrieve, _debtTokenPrice, _timestampRetrieved) = getCurrentValue(_debtTokenTellorRequestId);
     (ifRetrieve, _collateralTokenPrice, _timestampRetrieved) = getCurrentValue(_collateralTokenTellorRequestId);
-
   }
 
   function liquidate(address vaultOwner) public onlyOwner {
@@ -174,6 +207,8 @@ contract Bank is Ownable, UsingTellor {
     // TODO: require
     IERC20(_collateralToken).transferFrom(msg.sender, address(this), amount);
     vaults[msg.sender].collateralAmount += amount;
+    emit VaultDeposit(msg.sender, amount);
+
   }
 
   function vaultBorrow(uint256 amount) public {
@@ -189,6 +224,7 @@ contract Bank is Ownable, UsingTellor {
     // TODO: require
     require(IERC20(_debtToken).transfer(msg.sender, amount));
     vaults[msg.sender].createdAt = block.timestamp;
+    emit VaultBorrow(msg.sender, amount);
   }
 
   function vaultRepay(uint256 amount) public {
@@ -203,13 +239,14 @@ contract Bank is Ownable, UsingTellor {
     // Update createdAt time to account for adjustment in principal
     uint256 periodsElapsed = (block.timestamp / _period) - (vaults[msg.sender].createdAt / _period);
     vaults[msg.sender].createdAt += periodsElapsed * _period;
+    emit VaultRepay(msg.sender, amount);
   }
 
   function vaultWithdraw() public {
     require(vaults[msg.sender].debtAmount == 0, "DEBT OWED");
-    // TODO: Require
     require(IERC20(_collateralToken).transfer(msg.sender, vaults[msg.sender].collateralAmount));
     vaults[msg.sender].collateralAmount = 0;
+    emit VaultWithdraw(msg.sender);
   }
 
   function getVaultRepayAmount() public view returns (uint256) {

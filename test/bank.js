@@ -304,10 +304,16 @@ contract("Bank", function(_accounts) {
     const debtAmount = await this.bank.getVaultDebtAmount({from: _accounts[1]});
     const debtReserveBalance = await this.bank.getReserveBalance();
     const collateralReserveBalance = await this.bank.getReserveCollateralBalance();
-    expect(collateralAmount).to.be.bignumber.equal(this.zero);
+    expect(collateralAmount).to.be.bignumber.equal(this.zero); // TODO: Should not zero out balance
     expect(debtAmount).to.be.bignumber.equal(this.zero);
     expect(debtReserveBalance).to.be.bignumber.equal(ether(new BN(25)));
     expect(collateralReserveBalance).to.be.bignumber.equal(this.depositAmount);
   });
+
+  // Test liquidationPenalty
+
+  // Test set system properties
+
+  // Confirm events are emitted
 
 });
