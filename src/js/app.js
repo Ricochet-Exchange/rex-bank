@@ -163,7 +163,7 @@ App = {
       var account = accounts[0];
       App.contracts.Bank.deployed().then(function(instance) {
         bankInstance = instance;
-        return bankInstance.vaultDeposit(depositAmount*1e18, {from: account});
+        return bankInstance.vaultDeposit(depositAmount*1e18, {from: account, gas: getGasPrice()});
       }).then(function(results) {
         App.renderBankUI();
         console.log(results);

@@ -85,48 +85,25 @@ contract Bank is Ownable, UsingTellor {
     return _interestRate;
   }
 
-  function setInterestRate(uint256 interestRate) public onlyOwner {
-    _interestRate = interestRate;
-  }
 
   function getOriginationFee() public view returns (uint256) {
     return _originationFee;
-  }
-
-  function setOriginationFee(uint256 originationFee) public onlyOwner {
-    _originationFee = originationFee;
   }
 
   function getCollateralizationRatio() public view returns (uint256) {
     return _collateralizationRatio;
   }
 
-  function setCollateralizationRatio(uint256 collateralizationRatio) public onlyOwner {
-    _collateralizationRatio = collateralizationRatio;
-  }
-
   function getLiquidationPenalty() public view returns (uint256) {
     return _liquidationPenalty;
-  }
-
-  function setLiquidationPenalty(uint256 liquidationPenalty) public onlyOwner {
-    _liquidationPenalty = liquidationPenalty;
   }
 
   function getDebtTokenPrice() public view returns (uint256) {
     return _debtTokenPrice;
   }
 
-  function setDebtTokenPrice(uint256 debtTokenPrice) public onlyOwner {
-    _debtTokenPrice = debtTokenPrice;
-  }
-
   function getDebtTokenPriceGranularity() public view returns (uint256) {
     return _debtTokenPriceGranularity;
-  }
-
-  function setDebtTokenPriceGranularity(uint256 debtTokenPriceGranularity) public onlyOwner {
-    _debtTokenPriceGranularity = debtTokenPriceGranularity;
   }
 
   function getCollateralTokenPrice() public view returns (uint256) {
@@ -182,6 +159,7 @@ contract Bank is Ownable, UsingTellor {
   function liquidate(address vaultOwner) public onlyOwner {
     // Require undercollateralization
     require(_getVaultCollateralizationRatio(vaultOwner) < _collateralizationRatio * 100, "VAULT NOT UNDERCOLLATERALIZED");
+    // TODO: Confirm this is calculated correctly
     uint256 debtOwned = vaults[vaultOwner].debtAmount + (vaults[vaultOwner].debtAmount * 100 * _liquidationPenalty / 100);
     uint256 collateralToLiquidate = debtOwned / _collateralTokenPrice;
     _collateralReserveBalance +=  collateralToLiquidate;
