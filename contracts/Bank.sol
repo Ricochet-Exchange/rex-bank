@@ -160,12 +160,13 @@ contract Bank is Ownable, UsingTellor {
     // Require undercollateralization
     require(_getVaultCollateralizationRatio(vaultOwner) < _collateralizationRatio * 100, "VAULT NOT UNDERCOLLATERALIZED");
     // TODO: Confirm this is calculated correctly
-    uint256 debtOwned = vaults[vaultOwner].debtAmount + (vaults[vaultOwner].debtAmount * 100 * _liquidationPenalty / 100);
-    uint256 collateralToLiquidate = debtOwned / _collateralTokenPrice;
+    uint256 debtOwned = vaults[vaultOwner].debtAmount + (vaults[vaultOwner].debtAmount * 100 * _liquidationPenalty / 100 / 100);
+    uint256 collateralToLiquidate = debtOwned * _debtTokenPrice / _collateralTokenPrice;
     _collateralReserveBalance +=  collateralToLiquidate;
     vaults[vaultOwner].collateralAmount -= collateralToLiquidate;
     vaults[vaultOwner].debtAmount = 0;
   }
+
 
   /////////////////////
   // VAULT MANAGEMENT
