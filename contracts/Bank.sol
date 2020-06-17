@@ -34,7 +34,7 @@ contract Bank is BankStorage, Ownable, UsingTellor {
     uint256 debtTokenTellorRequestId,
     uint256 debtTokenPriceGranularity,
     uint256 debtTokenPrice,
-    address oracleContract ) public UsingTellor(oracleContract) {
+    address payable oracleContract ) public UsingTellor(oracleContract) {
     _interestRate = interestRate;
     _originationFee = originationFee;
     _collateralizationRatio = collateralizationRatio;
@@ -140,7 +140,7 @@ contract Bank is BankStorage, Ownable, UsingTellor {
     require(amount < maxBorrow, "NOT ENOUGH COLLATERAL");
     require(amount <= _debtReserveBalance, "NOT ENOUGH RESERVES");
     vaults[msg.sender].debtAmount += amount + ((amount * _originationFee) / 100);
-    vaults[msg.sender].createdAt = block.timestamp;//probably no re-entrancy risk but general this should be moved bevore transrfer
+    vaults[msg.sender].createdAt = block.timestamp;//Probably no re-entrancy risk but in general the transfer should happen at the end
     _debtReserveBalance -= amount;
     require(IERC20(_debtToken).transfer(msg.sender, amount));
     emit VaultBorrow(msg.sender, amount);

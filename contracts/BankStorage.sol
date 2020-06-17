@@ -170,7 +170,7 @@ contract BankStorage{
   /**
   * @dev This function calculates the percent of the given numerator, denominator to the
   * specified precision
-  * @return debt amount
+  * @return _quotient
   */
   function _percent(uint numerator, uint denominator, uint precision) private pure returns(uint256 _quotient) {
         _quotient =  ((numerator * 10 ** (precision+1) / denominator) + 5) / 10;
