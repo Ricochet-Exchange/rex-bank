@@ -1,4 +1,3 @@
-const UserContract = artifacts.require("../node_modules/usingtellor/contracts/UserContract.sol");
 const UsingTellor = artifacts.require("../node_modules/usingtellor/contracts/UsingTellor.sol");
 const TellorMaster = artifacts.require("../node_modules/usingtellor/contracts/testContracts/TellorMaster.sol");
 const Tellor = artifacts.require("../node_modules/usingtellor/contracts/Tellor.sol"); // globally injected artifacts helper
@@ -22,6 +21,7 @@ contract("Bank", function(_accounts) {
   const ORIGINATION_FEE = 1;
   const COLLATERALIZATION_RATIO = 150;
   const LIQUIDATION_PENALTY = 25;
+  const PERIOD = 86400;
 
   beforeEach(async function () {
     // Tellor
@@ -30,18 +30,17 @@ contract("Bank", function(_accounts) {
     this.master = await new web3.eth.Contract(TellorMaster.abi,this.oracle.address);
     this.oa = (web3.utils.toChecksumAddress(this.oracle.address))
     this.oracle2 = await new web3.eth.Contract(Tellor.abi,this.oa);
-    this.userContract = await UserContract.new(this.oa);
 
     // Bank set up
     this.ct = await CT.new(ether(new BN(10000)));
     this.dt = await DT.new(ether(new BN(10000)));
-    this.bank = await Bank.new(INTEREST_RATE, ORIGINATION_FEE, COLLATERALIZATION_RATIO, LIQUIDATION_PENALTY, this.ct.address, 2, 1000, 1000, this.dt.address, 1, 1000, 1000, this.userContract.address);
+    this.bank = await Bank.new(INTEREST_RATE, ORIGINATION_FEE, COLLATERALIZATION_RATIO, LIQUIDATION_PENALTY, PERIOD, this.ct.address, 2, 1000, 1000, this.dt.address, 1, 1000, 1000, this.oracle.address);
     this.depositAmount = ether(new BN(100));
     this.largeDepositAmount = ether(new BN(5000));
     this.withdrawAmount = ether(new BN(50));
     this.borrowAmount = ether(new BN(66));
     this.largeBorrowAmount = ether(new BN(75));
-    this.smallBorrowAmount = ether(new BN(10));
+    this.smallBorrowAmount = ether(new BN(30));
     this.two = new BN(2);
     this.one = new BN(1);
     this.zero = new BN(0);
@@ -68,9 +67,6 @@ contract("Bank", function(_accounts) {
     vars = await this.bank.getCurrentValue.call(2);
     assert(vars[0] == true, "ifRetreive is not true");
     assert(vars[1] == 210000, "Get last value should work");
-
-    // Update oracle price
-    await this.bank.updatePrice.call();
 
   });
 
@@ -132,6 +128,7 @@ contract("Bank", function(_accounts) {
     expect(tokenBalance).to.be.bignumber.equal(this.depositAmount);
   });
 
+
   it('should allow user to withdraw collateral from vault', async function () {
     await this.ct.approve(this.bank.address, this.depositAmount, {from: _accounts[1]});
     await this.bank.vaultDeposit(this.depositAmount, {from: _accounts[1]});
@@ -162,6 +159,33 @@ contract("Bank", function(_accounts) {
     const debtBalance = await this.dt.balanceOf(this.bank.address);
     expect(collateralBalance).to.be.bignumber.equal(this.depositAmount);
     expect(debtBalance).to.be.bignumber.equal(ether(new BN(34)));
+  });
+
+  it('should allow the user to borrow more', async function () {
+    await this.dt.approve(this.bank.address, this.depositAmount);
+    await this.bank.reserveDeposit(this.depositAmount);
+    await this.ct.approve(this.bank.address, this.depositAmount, {from: _accounts[1]});
+    await this.bank.vaultDeposit(this.depositAmount, {from: _accounts[1]});
+    await this.bank.vaultBorrow(this.smallBorrowAmount, {from: _accounts[1]});
+    await time.increase(60*60*24*2+10);
+    await this.bank.vaultBorrow(this.smallBorrowAmount, {from: _accounts[1]});
+    //await this.bank.vaultBorrow(this.smallBorrowAmount, {from: _accounts[1]});
+    const collateralAmount = await this.bank.getVaultCollateralAmount({from: _accounts[1]});
+    const debtAmount = await this.bank.getVaultDebtAmount({from: _accounts[1]});
+    expect(collateralAmount).to.be.bignumber.equal(this.depositAmount);
+    // Calculate borrowed amount, use pays origination fee on 2 borrows
+    var s_amount = new BN(this.smallBorrowAmount);
+    var b_amount = s_amount.add(s_amount.mul(new BN(ORIGINATION_FEE)).div(new BN(100)));
+    b_amount = b_amount.add(b_amount.mul(new BN(INTEREST_RATE)).div(new BN(100)).div(new BN(365)));
+    b_amount = b_amount.add(b_amount.mul(new BN(INTEREST_RATE)).div(new BN(100)).div(new BN(365)));
+    b_amount = b_amount.add(s_amount.mul(new BN(ORIGINATION_FEE)).div(new BN(100)));
+    b_amount = b_amount.add(s_amount);
+    expect(debtAmount).to.be.bignumber.equal(b_amount.toString());
+
+    const collateralBalance = await this.ct.balanceOf(this.bank.address);
+    const debtBalance = await this.dt.balanceOf(this.bank.address);
+    expect(collateralBalance).to.be.bignumber.equal(this.depositAmount);
+    expect(debtBalance).to.be.bignumber.equal(ether(new BN(40)));
   });
 
   it('should accrue interest on a vault\'s borrowed amount', async function () {
@@ -236,6 +260,7 @@ contract("Bank", function(_accounts) {
       await web3.eth.sendTransaction({to: this.oracle.address,from:_accounts[i],gas:4000000,data:this.oracle2.methods.submitMiningSolution("nonce", 2, 1700000).encodeABI()})
     }
     await this.bank.updatePrice();
+
     let debtPrice = await this.bank.getDebtTokenPrice();
     let collateralPrice = await this.bank.getCollateralTokenPrice();
     expect(debtPrice).to.be.bignumber.equal("1000")
@@ -246,7 +271,7 @@ contract("Bank", function(_accounts) {
     await this.ct.approve(this.bank.address, ether(this.one), {from: _accounts[1]});
     await this.bank.vaultDeposit(ether(this.one), {from: _accounts[1]});
     await this.bank.vaultBorrow(ether(new BN(1100)), {from: _accounts[1]});
-    const collateralizationRatio = await this.bank.getVaultCollateralizationRatio({from: _accounts[1]});
+    const collateralizationRatio = await this.bank.getVaultCollateralizationRatio(_accounts[1]);
     expect(collateralizationRatio).to.be.bignumber.equal("15302");
   });
 
@@ -281,7 +306,7 @@ contract("Bank", function(_accounts) {
     await this.ct.approve(this.bank.address, this.depositAmount, {from: _accounts[1]});
     await this.bank.vaultDeposit(this.depositAmount, {from: _accounts[1]});
     await this.bank.vaultBorrow(this.largeBorrowAmount, {from: _accounts[1]});
-    var collateralizationRatio = await this.bank.getVaultCollateralizationRatio({from: _accounts[1]});
+    var collateralizationRatio = await this.bank.getVaultCollateralizationRatio(_accounts[1]);
     expect(collateralizationRatio).to.be.bignumber.equal("26403");
 
     // Lower the price of collateral, push the vault into undercollateralized
@@ -297,7 +322,7 @@ contract("Bank", function(_accounts) {
     await this.bank.updatePrice();
 
 
-    collateralizationRatio = await this.bank.getVaultCollateralizationRatio({from: _accounts[1]});
+    collateralizationRatio = await this.bank.getVaultCollateralizationRatio(_accounts[1]);
     expect(collateralizationRatio).to.be.bignumber.equal("13201");
     await this.bank.liquidate(_accounts[1]);
     const collateralAmount = await this.bank.getVaultCollateralAmount({from: _accounts[1]});
