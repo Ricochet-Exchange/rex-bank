@@ -7,46 +7,43 @@ import '../node_modules/usingtellor/contracts/UsingTellor.sol';
 
 contract BankStorage{
   /*Variables*/
-  // TODO: Refactor into struct
-  address _collateralToken;
-  uint256 _collateralTokenPrice;
-  uint256 _collateralTokenPriceGranularity;
-  uint256 _collateralTokenTellorRequestId;
-  uint256 _collateralReserveBalance;
+  struct Reserve {
+    uint256 collateralBalance;
+    uint256 debtBalance;
+    uint256 interestRate;
+    uint256 originationFee;
+    uint256 collateralizationRatio;
+    uint256 liquidationPenalty;
+    address oracleContract;
+    uint256 period;
+  }
 
-  address _debtToken;
-  uint256 _debtTokenPrice;
-  uint256 _debtTokenPriceGranularity;
-  uint256 _debtTokenTellorRequestId;
-  uint256 _debtReserveBalance;
-
-  uint256 _interestRate;
-  uint256 _originationFee;
-  uint256 _collateralizationRatio;
-  uint256 _liquidationPenalty;
-
-  address _oracleContract;
-
-  uint256 _period = 86400; // One day
+  struct Token {
+    address tokenAddress;
+    uint256 price;
+    uint256 priceGranularity;
+    uint256 tellorRequestId;
+    uint256 reserveBalance;
+  }
 
   struct Vault {
     uint256 collateralAmount;
     uint256 debtAmount;
     uint256 createdAt;
   }
-  
-  mapping (address => Vault) public vaults;
 
-  /////////////////////
-  // SYSTEM PROPERTIES
-  /////////////////////
+  mapping (address => Vault) public vaults;
+  Token debt;
+  Token collateral;
+  Reserve reserve;
+
 
   /**
   * @dev Getter function for the current interest rate
   * @return interest rate
   */
   function getInterestRate() public view returns (uint256) {
-    return _interestRate;
+    return reserve.interestRate;
   }
 
   /**
@@ -54,7 +51,7 @@ contract BankStorage{
   * @return origination fee
   */
   function getOriginationFee() public view returns (uint256) {
-    return _originationFee;
+    return reserve.originationFee;
   }
 
   /**
@@ -62,7 +59,7 @@ contract BankStorage{
   * @return collateralization ratio
   */
   function getCollateralizationRatio() public view returns (uint256) {
-    return _collateralizationRatio;
+    return reserve.collateralizationRatio;
   }
 
   /**
@@ -70,7 +67,7 @@ contract BankStorage{
   * @return liquidation penalty
   */
   function getLiquidationPenalty() public view returns (uint256) {
-    return _liquidationPenalty;
+    return reserve.liquidationPenalty;
   }
 
   /**
@@ -78,7 +75,7 @@ contract BankStorage{
   * @return debt token price
   */
   function getDebtTokenPrice() public view returns (uint256) {
-    return _debtTokenPrice;
+    return debt.price;
   }
 
   /**
@@ -86,15 +83,15 @@ contract BankStorage{
   * @return debt token price granularity
   */
   function getDebtTokenPriceGranularity() public view returns (uint256) {
-    return _debtTokenPriceGranularity;
+    return debt.priceGranularity;
   }
 
   /**
-  * @dev Getter function for the collateral token price 
+  * @dev Getter function for the collateral token price
   * @return collateral token price
   */
   function getCollateralTokenPrice() public view returns (uint256) {
-    return _collateralTokenPrice;
+    return collateral.price;
   }
 
   /**
@@ -102,20 +99,15 @@ contract BankStorage{
   * @return collateral token price granularity
   */
   function getCollateralTokenPriceGranularity() public view returns (uint256) {
-    return _collateralTokenPriceGranularity;
+    return collateral.priceGranularity;
   }
-
-
-  /////////////////////
-  // RESERVE MANAGEMENT
-  /////////////////////
 
   /**
   * @dev Getter function for the debt token(reserve) balance
   * @return debt reserve balance
   */
   function getReserveBalance() public view returns (uint256) {
-    return _debtReserveBalance;
+    return reserve.debtBalance;
   }
 
   /**
@@ -123,7 +115,7 @@ contract BankStorage{
   * @return collateral reserve balance
   */
   function getReserveCollateralBalance() public view returns (uint256) {
-    return _collateralReserveBalance;
+    return reserve.collateralBalance;
   }
 
   /**
@@ -148,9 +140,10 @@ contract BankStorage{
   */
   //I think there's a smarter way to do this than a loop...
   function getVaultRepayAmount() public view returns (uint256 principal) {
-    principal = vaults[msg.sender].debtAmount;
-    for (uint256 i = vaults[msg.sender].createdAt / _period; i < block.timestamp / _period; i++)
-      principal += principal * _interestRate / 100 / 365;
+    principal = vaults[msg.sender].debtAmount;    
+    for (uint256 i = vaults[msg.sender].createdAt / reserve.period; i < block.timestamp / reserve.period; i++)
+      principal += principal * reserve.interestRate / 100 / 365;
+
   }
 
   /**
@@ -161,8 +154,8 @@ contract BankStorage{
     if(vaults[vaultOwner].debtAmount == 0 ){
       return 0;
     } else {
-      return _percent(vaults[vaultOwner].collateralAmount * _collateralTokenPrice * 1000 / _collateralTokenPriceGranularity,
-                      vaults[vaultOwner].debtAmount * _debtTokenPrice * 1000 / _debtTokenPriceGranularity,
+      return _percent(vaults[vaultOwner].collateralAmount * collateral.price * 1000 / collateral.priceGranularity,
+                      vaults[vaultOwner].debtAmount * debt.price * 1000 / debt.priceGranularity,
                       4);
     }
   }

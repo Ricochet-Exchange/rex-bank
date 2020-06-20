@@ -3,12 +3,11 @@ pragma solidity ^0.5.0;
 import "./BankStorage.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/ownership/Ownable.sol";
-//import "usingtellor/contracts/UsingTellor.sol";
 
 /**
 * @title Bank
-* This contract allows the Bank owner to deposit reserves(debt token), earn interest and
-* origination fees and users can come collateralize and borrow against their collateral.
+* This contract allows the owner to deposit reserves(debt token), earn interest and
+* origination fees from users that borrow against their collateral.
 * The oracle for Bank is Tellor.
 */
 contract Bank is BankStorage, Ownable, UsingTellor {
@@ -26,6 +25,7 @@ contract Bank is BankStorage, Ownable, UsingTellor {
     uint256 originationFee,
     uint256 collateralizationRatio,
     uint256 liquidationPenalty,
+    uint256 period,
     address collateralToken,
     uint256 collateralTokenTellorRequestId,
     uint256 collateralTokenPriceGranularity,
@@ -35,19 +35,20 @@ contract Bank is BankStorage, Ownable, UsingTellor {
     uint256 debtTokenPriceGranularity,
     uint256 debtTokenPrice,
     address payable oracleContract ) public UsingTellor(oracleContract) {
-    _interestRate = interestRate;
-    _originationFee = originationFee;
-    _collateralizationRatio = collateralizationRatio;
-    _liquidationPenalty = liquidationPenalty;
-    _collateralToken = collateralToken;
-    _debtToken = debtToken;
-    _oracleContract = oracleContract;
-    _debtTokenPrice = debtTokenPrice;
-    _debtTokenPriceGranularity = debtTokenPriceGranularity;
-    _debtTokenTellorRequestId = debtTokenTellorRequestId;
-    _collateralTokenPrice = collateralTokenPrice;
-    _collateralTokenPriceGranularity = collateralTokenPriceGranularity;
-    _collateralTokenTellorRequestId = collateralTokenTellorRequestId;
+    reserve.interestRate = interestRate;
+    reserve.originationFee = originationFee;
+    reserve.collateralizationRatio = collateralizationRatio;
+    reserve.liquidationPenalty = liquidationPenalty;
+    reserve.period = period;
+    collateral.tokenAddress = collateralToken;
+    debt.tokenAddress = debtToken;
+    reserve.oracleContract = oracleContract;
+    debt.price = debtTokenPrice;
+    debt.priceGranularity = debtTokenPriceGranularity;
+    debt.tellorRequestId = debtTokenTellorRequestId;
+    collateral.price = collateralTokenPrice;
+    collateral.priceGranularity = collateralTokenPriceGranularity;
+    collateral.tellorRequestId = collateralTokenTellorRequestId;
   }
 
   /*Functions*/
@@ -56,8 +57,8 @@ contract Bank is BankStorage, Ownable, UsingTellor {
   * @param amount is the amount to deposit
   */
   function reserveDeposit(uint256 amount) external onlyOwner {
-    require(IERC20(_debtToken).transferFrom(msg.sender, address(this), amount));
-    _debtReserveBalance += amount;
+    require(IERC20(debt.tokenAddress).transferFrom(msg.sender, address(this), amount));
+    reserve.debtBalance += amount;
     emit ReserveDeposit(amount);
   }
 
@@ -66,23 +67,25 @@ contract Bank is BankStorage, Ownable, UsingTellor {
   * @param amount is the amount to withdraw
   */
   //for reserveWithdraw or reserveWithdrawCollateral, should it not update the price and make sure it's collateralized?
+  // Not needed, collaterlization happens on the vaults
   function reserveWithdraw(uint256 amount) external onlyOwner {
-    require(_debtReserveBalance >= amount, "NOT ENOUGH DEBT TOKENS IN RESERVE");
-    require(IERC20(_debtToken).transfer(msg.sender, amount));
-    _debtReserveBalance -= amount;
-    emit ReserveWithdraw(_debtToken, amount);
+    require(reserve.debtBalance >= amount, "NOT ENOUGH DEBT TOKENS IN RESERVE");
+    require(IERC20(debt.tokenAddress).transfer(msg.sender, amount));
+    reserve.debtBalance -= amount;
+    emit ReserveWithdraw(debt.tokenAddress, amount);
   }
 
   /**
-  * @dev This function allows the user to withdraw their collateral 
+  * @dev This function allows the user to withdraw their collateral
   * @param amount is the amount to withdraw
   */
-  //should the _collateralReserveBalance be adjusted to remove the origination fee and interest???
+  //should the reserve.collateralBalance be adjusted to remove the origination fee and interest???
+  // No, origination fee and interest are collecting through debt, not collateraltokens
   function reserveWithdrawCollateral(uint256 amount) external onlyOwner {
-    require(_collateralReserveBalance >= amount, "NOT ENOUGH COLLATERAL IN RESERVE");
-    require(IERC20(_collateralToken).transfer(msg.sender, amount));
-    _collateralReserveBalance -= amount;
-    emit ReserveWithdraw(_collateralToken, amount);
+    require(reserve.collateralBalance >= amount, "NOT ENOUGH COLLATERAL IN RESERVE");
+    require(IERC20(collateral.tokenAddress).transfer(msg.sender, amount));
+    reserve.collateralBalance -= amount;
+    emit ReserveWithdraw(collateral.tokenAddress, amount);
   }
 
   /**
@@ -92,23 +95,20 @@ contract Bank is BankStorage, Ownable, UsingTellor {
   function updatePrice() external{
     bool ifRetrieve;
     uint256 _timestampRetrieved;
-    (ifRetrieve, _debtTokenPrice, _timestampRetrieved) = getDataBefore(_debtTokenTellorRequestId,now - 1 hours);
-    (ifRetrieve, _collateralTokenPrice, _timestampRetrieved) = getDataBefore(_collateralTokenTellorRequestId,now - 1 hours);
+    (ifRetrieve, debt.price, _timestampRetrieved) = getCurrentValue(debt.tellorRequestId); //,now - 1 hours);
+    (ifRetrieve, collateral.price, _timestampRetrieved) = getCurrentValue(collateral.tellorRequestId); //,now - 1 hours);
   }
 
   /**
-  * @dev The Bank owner can use this function to liquidate debt and take the collateral
+  * @dev Anyone can use this function to liquidate a vault's debt, the bank owner gets the collateral liquidated
   * @param vaultOwner is the user the bank owner wants to liquidate
   */
-  //should you make it so anyone can liquidate? I think this makes sense, since anyone could run the fx but
-  //only the vaultowner gets the $$
-  function liquidate(address vaultOwner) external onlyOwner {
+  function liquidate(address vaultOwner) external {
     // Require undercollateralization
-    require(getVaultCollateralizationRatio(vaultOwner) < _collateralizationRatio * 100, "VAULT NOT UNDERCOLLATERALIZED");
-    // TODO: Confirm this is calculated correctly
-    uint256 debtOwned = vaults[vaultOwner].debtAmount + (vaults[vaultOwner].debtAmount * 100 * _liquidationPenalty / 100 / 100);
-    uint256 collateralToLiquidate = debtOwned * _debtTokenPrice / _collateralTokenPrice;
-    _collateralReserveBalance +=  collateralToLiquidate;
+    require(getVaultCollateralizationRatio(vaultOwner) < reserve.collateralizationRatio * 100, "VAULT NOT UNDERCOLLATERALIZED");
+    uint256 debtOwned = vaults[vaultOwner].debtAmount + (vaults[vaultOwner].debtAmount * 100 * reserve.liquidationPenalty / 100 / 100);
+    uint256 collateralToLiquidate = debtOwned * debt.price / collateral.price;
+    reserve.collateralBalance +=  collateralToLiquidate;
     vaults[vaultOwner].collateralAmount -= collateralToLiquidate;
     vaults[vaultOwner].debtAmount = 0;
   }
@@ -119,12 +119,9 @@ contract Bank is BankStorage, Ownable, UsingTellor {
   * @param amount is the collateral amount
   */
   function vaultDeposit(uint256 amount) external {
-    //why does it have to be zero? can you not add???
-    require(vaults[msg.sender].collateralAmount == 0, "ALREADY DEPOSITED COLLATERAL");
-    require(IERC20(_collateralToken).transferFrom(msg.sender, address(this), amount));
+    require(IERC20(collateral.tokenAddress).transferFrom(msg.sender, address(this), amount));
     vaults[msg.sender].collateralAmount += amount;
     emit VaultDeposit(msg.sender, amount);
-
   }
 
   /**
@@ -132,17 +129,19 @@ contract Bank is BankStorage, Ownable, UsingTellor {
   * @param amount to borrow
   */
   function vaultBorrow(uint256 amount) external {
-    require(vaults[msg.sender].debtAmount == 0, "ALREADY BORROWING");//can you not borrow more?
-    require(vaults[msg.sender].collateralAmount != 0, "NO COLLATERAL");//isn't this require reduntant considering the maxBorrow/_debtReserveBalance statements?
-    uint256 maxBorrow = vaults[msg.sender].collateralAmount * _collateralTokenPrice / _debtTokenPrice / _collateralizationRatio * 100;
-    maxBorrow *= _debtTokenPriceGranularity;
-    maxBorrow /= _collateralTokenPriceGranularity;
+    if (vaults[msg.sender].debtAmount != 0) {
+      vaults[msg.sender].debtAmount = getVaultRepayAmount();
+    }
+    uint256 maxBorrow = vaults[msg.sender].collateralAmount * collateral.price / debt.price / reserve.collateralizationRatio * 100;
+    maxBorrow *= debt.priceGranularity;
+    maxBorrow /= collateral.priceGranularity;
+    maxBorrow -= vaults[msg.sender].debtAmount;
     require(amount < maxBorrow, "NOT ENOUGH COLLATERAL");
-    require(amount <= _debtReserveBalance, "NOT ENOUGH RESERVES");
-    vaults[msg.sender].debtAmount += amount + ((amount * _originationFee) / 100);
-    vaults[msg.sender].createdAt = block.timestamp;//Probably no re-entrancy risk but in general the transfer should happen at the end
-    _debtReserveBalance -= amount;
-    require(IERC20(_debtToken).transfer(msg.sender, amount));
+    require(amount <= reserve.debtBalance, "NOT ENOUGH RESERVES");
+    vaults[msg.sender].debtAmount += amount + ((amount * reserve.originationFee) / 100);
+    vaults[msg.sender].createdAt = block.timestamp;
+    reserve.debtBalance -= amount;
+    require(IERC20(debt.tokenAddress).transfer(msg.sender, amount));
     emit VaultBorrow(msg.sender, amount);
   }
 
@@ -153,13 +152,13 @@ contract Bank is BankStorage, Ownable, UsingTellor {
   */
   function vaultRepay(uint256 amount) external {
     vaults[msg.sender].debtAmount = getVaultRepayAmount();
-    require(amount <= vaults[msg.sender].debtAmount, "CANNOT REPAY MORE THAN OWED");//I get that they should not pay more than they owe 
+    require(amount <= vaults[msg.sender].debtAmount, "CANNOT REPAY MORE THAN OWED");//I get that they should not pay more than they owe
     //but there is no harm if they do, then just allow them to  withdraw so long as debt< 0
-    require(IERC20(_debtToken).transferFrom(msg.sender, address(this), amount));
+    require(IERC20(debt.tokenAddress).transferFrom(msg.sender, address(this), amount));
     vaults[msg.sender].debtAmount -= amount;
-    _debtReserveBalance += amount;
-    uint256 periodsElapsed = (block.timestamp / _period) - (vaults[msg.sender].createdAt / _period);
-    vaults[msg.sender].createdAt += periodsElapsed * _period;
+    reserve.debtBalance += amount;
+    uint256 periodsElapsed = (block.timestamp / reserve.period) - (vaults[msg.sender].createdAt / reserve.period);
+    vaults[msg.sender].createdAt += periodsElapsed * reserve.period;
     emit VaultRepay(msg.sender, amount);
   }
 
@@ -167,10 +166,36 @@ contract Bank is BankStorage, Ownable, UsingTellor {
   * @dev Allows users to withdraw their collateral from the vault
   */
   function vaultWithdraw() external {
-    require(vaults[msg.sender].debtAmount == 0, "DEBT OWED"); //should you not be able to just withdraw part?  
-    require(IERC20(_collateralToken).transfer(msg.sender, vaults[msg.sender].collateralAmount));
+    require(vaults[msg.sender].debtAmount == 0, "DEBT OWED"); //should you not be able to just withdraw part?
+    require(IERC20(collateral.tokenAddress).transfer(msg.sender, vaults[msg.sender].collateralAmount));
     vaults[msg.sender].collateralAmount = 0;
     emit VaultWithdraw(msg.sender);
   }
+
+  /**
+    * @dev Allows the user to get the first value for the requestId after the specified timestamp
+    * @param _requestId is the requestId to look up the value for
+    * @param _timestamp after which to search for first verified value
+    * @return bool true if it is able to retreive a value, the value, and the value's timestamp
+    */
+    function getDataBefore(uint256 _requestId, uint256 _timestamp)
+        public
+        view
+        returns (bool _ifRetrieve, uint256 _value, uint256 _timestampRetrieved)
+    {
+        uint256 _count = _tellorm.getNewValueCountbyRequestId(_requestId);
+        if (_count > 0) {
+            for (uint256 i = 1; i <= _count; i++) {
+                uint256 _time = _tellorm.getTimestampbyRequestIDandIndex(_requestId, i - 1);
+                if (_time <= _timestamp && _tellorm.isInDispute(_requestId,_time) == false) {
+                    _timestampRetrieved = _time;
+                }
+            }
+            if (_timestampRetrieved > 0) {
+                return (true, _tellorm.retrieveData(_requestId, _timestampRetrieved), _timestampRetrieved);
+            }
+        }
+        return (false, 0, 0);
+    }
 
 }
