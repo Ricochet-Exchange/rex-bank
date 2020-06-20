@@ -1,30 +1,5 @@
 ![Bank protocol](./bank-protocol.png)
-This is a framework for managing a collateral-backed loans on Ethereum. This repository contains the core smart contracts and DApp code.
-
-# Hack Money Development Plan
-## Phase 1: Tokenless Protocol
-First, make the protocol work without transferring tokens around. Build and test that all of the protocol functionality can work correctly without moving tokens around.
-
-### Tasks:
-- [x] Develop smart contract code
-- [x] Write tests for the smart contract
-- [x] Build a Customer UI for interacting with the contract
-
-## Phase 2: Token Integration
-Second, make the protocol work with transferring tokens for collateral and debt. Use a `updatePrice` function to manually enter the collateral and debt token prices.
-
-### Tasks:
-- [x] Develop support for depositing collateral and borrowing
-- [x] Create a test plan for testing locally (how to deploy test ERC20 tokens to use?)
-- [x] Create video demo running on localhost
-
-## Phase 3: Oracle Integration
-Finally, integrate the Tellor oracle for updating the collateral and debt token prices.
-
-- [x] Update price using Tellor Oracle
-- [x] Build Bank Owner UI
-- [x] Create video demo running on Rinkeby
-
+This is a framework fixed-rate collateral-backed loans on Ethereum. This repository contains the core smart contracts and DApp code.
 
 # Design Considerations
 
@@ -43,7 +18,7 @@ Finally, integrate the Tellor oracle for updating the collateral and debt token 
 # Deployment
 For deployment on test or main networks, edit the `migrations/3_tellor_contracts.js` and comment out everything except the contract deployment:
 ```
-await deployer.deploy(Bank, 12, 1, 150, 25, "0xfe41cb708cd98c5b20423433309e55b53f79134a", 50, 1000000, 1000000, "0x5592EC0cfb4dbc12D3aB100b257153436a1f0FEa", 39, 1000000, 1000000, "0x0D17ED8DDE4AF196ff638F3704e94A77419Df2b8");
+await deployer.deploy(Bank, 12, 1, 150, 25, 846000, "0xfe41cb708cd98c5b20423433309e55b53f79134a", 50, 1000000, 1000000, "0x5592EC0cfb4dbc12D3aB100b257153436a1f0FEa", 39, 1000000, 1000000, "0x0D17ED8DDE4AF196ff638F3704e94A77419Df2b8");
 ```
 Replace the values with those you wish to use for your bank deployment and visit the `Bank.sol` constructor for more details about these parameters.
 
@@ -56,6 +31,7 @@ On deployment, the bank _owner_ specifies the following parameters:
 * **Origination Fee:** The fixed fee charged to borrowers
 * **Collateralization Ratio:** The loan-to-value amount borrowers must maintain to avoid a liquidation
 * **Liquidation Penalty:** The fixed fee charged to borrowers who get liquidated
+* **Period:** The period for calculating interest in seconds
 
 Once deployed, the bank owner must deposit some debt tokens into the bank's reserve. After depositing debt tokens, users can deposit collateral tokens and borrow the bank's debt tokens. During the borrow, the borrower is charged an origination fee and then interest will accumulate until they repay what they've borrowed plus interest and fees. If at anytime the price of the collateral falls, then the bank owner will liquidate the borrowers collateral to repay their debt.
 
