@@ -165,10 +165,14 @@ contract Bank is BankStorage, Ownable, UsingTellor {
   /**
   * @dev Allows users to withdraw their collateral from the vault
   */
-  function vaultWithdraw() external {
-    require(vaults[msg.sender].debtAmount == 0, "DEBT OWED"); //should you not be able to just withdraw part?
-    require(IERC20(collateral.tokenAddress).transfer(msg.sender, vaults[msg.sender].collateralAmount));
-    vaults[msg.sender].collateralAmount = 0;
+  function vaultWithdraw(uint256 amount) external {
+    uint256 maxBorrowAfterWithdraw = (vaults[msg.sender].collateralAmount - amount) * collateral.price / debt.price / reserve.collateralizationRatio * 100;
+    maxBorrowAfterWithdraw *= debt.priceGranularity;
+    maxBorrowAfterWithdraw /= collateral.priceGranularity;
+    require(vaults[msg.sender].debtAmount <= maxBorrowAfterWithdraw, "CANNOT UNDERCOLLATERALIZE VAULT");
+    require(IERC20(collateral.tokenAddress).transfer(msg.sender, amount));
+    vaults[msg.sender].collateralAmount -= amount;
+    reserve.collateralBalance -= amount;
     emit VaultWithdraw(msg.sender);
   }
 

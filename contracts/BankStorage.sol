@@ -71,6 +71,14 @@ contract BankStorage{
   }
 
   /**
+  * @dev Getter function for debt token address
+  * @return debt token price
+  */
+  function getDebtTokenAddress() public view returns (address) {
+    return debt.tokenAddress;
+  }
+
+  /**
   * @dev Getter function for the debt token(reserve) price
   * @return debt token price
   */
@@ -84,6 +92,14 @@ contract BankStorage{
   */
   function getDebtTokenPriceGranularity() public view returns (uint256) {
     return debt.priceGranularity;
+  }
+
+  /**
+  * @dev Getter function for debt token address
+  * @return debt token price
+  */
+  function getCollateralTokenAddress() public view returns (address) {
+    return collateral.tokenAddress;
   }
 
   /**
@@ -140,7 +156,7 @@ contract BankStorage{
   */
   //I think there's a smarter way to do this than a loop...
   function getVaultRepayAmount() public view returns (uint256 principal) {
-    principal = vaults[msg.sender].debtAmount;    
+    principal = vaults[msg.sender].debtAmount;
     for (uint256 i = vaults[msg.sender].createdAt / reserve.period; i < block.timestamp / reserve.period; i++)
       principal += principal * reserve.interestRate / 100 / 365;
 

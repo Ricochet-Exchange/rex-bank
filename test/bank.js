@@ -78,6 +78,8 @@ contract("Bank", function(_accounts) {
     const reserveBalance = await this.bank.getReserveBalance();
     const reserveCollateralBalance = await this.bank.getReserveCollateralBalance();
     const owner = await this.bank.owner();
+    const dtAddress = await this.bank.getDebtTokenAddress()
+    const ctAddress = await this.bank.getCollateralTokenAddress()
 
     assert.equal(owner, _accounts[0]);
     assert.equal(interestRate, INTEREST_RATE);
@@ -86,6 +88,8 @@ contract("Bank", function(_accounts) {
     assert.equal(liquidationPenalty, LIQUIDATION_PENALTY);
     assert.equal(reserveBalance, 0);
     assert.equal(reserveCollateralBalance, 0);
+    assert.equal(dtAddress, this.dt.address);
+    assert.equal(ctAddress, this.ct.address);
   });
 
   it('should allow owner to deposit reserves', async function () {
@@ -132,13 +136,22 @@ contract("Bank", function(_accounts) {
   it('should allow user to withdraw collateral from vault', async function () {
     await this.ct.approve(this.bank.address, this.depositAmount, {from: _accounts[1]});
     await this.bank.vaultDeposit(this.depositAmount, {from: _accounts[1]});
-    await this.bank.vaultWithdraw({from: _accounts[1]});
+    await this.bank.vaultWithdraw(this.depositAmount, {from: _accounts[1]});
     const collateralAmount = await this.bank.getVaultCollateralAmount({from: _accounts[1]});
     const debtAmount = await this.bank.getVaultDebtAmount({from: _accounts[1]});
     const tokenBalance = await this.ct.balanceOf(this.bank.address);
     expect(collateralAmount).to.be.bignumber.equal(this.zero);
     expect(debtAmount).to.be.bignumber.equal(this.zero);
     expect(tokenBalance).to.be.bignumber.equal(this.zero);
+  });
+
+  it('should not allow user to withdraw collateral from vault if undercollateralized', async function () {
+    await this.dt.approve(this.bank.address, this.depositAmount);
+    await this.bank.reserveDeposit(this.depositAmount);
+    await this.ct.approve(this.bank.address, this.depositAmount, {from: _accounts[1]});
+    await this.bank.vaultDeposit(this.depositAmount, {from: _accounts[1]});
+    await this.bank.vaultBorrow(this.borrowAmount, {from: _accounts[1]});
+    await expectRevert(this.bank.vaultWithdraw(this.depositAmount, {from: _accounts[1]}), "CANNOT UNDERCOLLATERALIZE VAULT");
   });
 
   it('should add origination fee to a vault\'s borrowed amount', async function () {
@@ -234,7 +247,7 @@ contract("Bank", function(_accounts) {
     await this.bank.vaultDeposit(this.depositAmount, {from: _accounts[1]});
     await this.bank.vaultBorrow(this.borrowAmount, {from: _accounts[1]});
     await time.increase(60*60*24*2+10) // Let two days pass
-    await expectRevert(this.bank.vaultWithdraw({from: _accounts[1]}), "DEBT OWED");
+    await expectRevert(this.bank.vaultWithdraw(this.depositAmount, {from: _accounts[1]}), "CANNOT UNDERCOLLATERALIZE VAUL");
   });
 
   it('should not allow user to borrow below the collateralization ratio', async function () {
