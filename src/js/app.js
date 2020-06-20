@@ -19,7 +19,7 @@ App = {
     //   App.web3Provider = window.web3.currentProvider;
     // }
     else {
-      App.web3Provider = new Web3.providers.HttpProvider('https://rinkeby.infura.io/v3/af8276083f02406390d70dab5bff7070');
+      App.web3Provider = new Web3.providers.HttpProvider('https://rinkeby.infura.io/v3/');
     }
     web3 = new Web3(App.web3Provider);
     return App.initContract();
