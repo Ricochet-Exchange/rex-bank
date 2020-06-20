@@ -18,7 +18,6 @@
     "chai": "^4.2.0",
     "chai-bignumber": "^3.0.0",
     "chai-bn": "^0.2.1",
-    "lite-server": "^2.5.4",
     "mocha": "^7.1.2"
   },
   "dependencies": {
