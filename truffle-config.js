@@ -4,6 +4,7 @@ require("babel-register")({
 });
 require("babel-polyfill");
 require('dotenv').config();
+require('web3');
 const HDWalletProvider = require("truffle-hdwallet-provider");
 
 module.exports = {
@@ -17,7 +18,8 @@ module.exports = {
       provider: () => new HDWalletProvider(
         process.env.MNEMONIC,
         process.env.RINKEBY_URL),
-      network_id: 4
+      network_id: 4,
+      gasPrice: 20000000000
     },
   }
 }

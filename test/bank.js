@@ -272,7 +272,8 @@ contract("Bank", function(_accounts) {
     for(var i = 0;i <=4 ;i++){
       await web3.eth.sendTransaction({to: this.oracle.address,from:_accounts[i],gas:4000000,data:this.oracle2.methods.submitMiningSolution("nonce", 2, 1700000).encodeABI()})
     }
-    await this.bank.updatePrice();
+    await this.bank.updateCollateralPrice();
+    await this.bank.updateDebtPrice();
 
     let debtPrice = await this.bank.getDebtTokenPrice();
     let collateralPrice = await this.bank.getCollateralTokenPrice();
@@ -310,7 +311,8 @@ contract("Bank", function(_accounts) {
     for(var i = 0;i <=4 ;i++){
       await web3.eth.sendTransaction({to: this.oracle.address,from:_accounts[i],gas:4000000,data:this.oracle2.methods.submitMiningSolution("nonce", 2, 2000).encodeABI()})
     }
-    await this.bank.updatePrice();
+    await this.bank.updateCollateralPrice();
+    await this.bank.updateDebtPrice();
     let debtPrice = await this.bank.getDebtTokenPrice();
     let collateralPrice = await this.bank.getCollateralTokenPrice();
     expect(debtPrice).to.be.bignumber.equal("1000")
@@ -332,7 +334,8 @@ contract("Bank", function(_accounts) {
     for(var i = 0;i <=4 ;i++){
       await web3.eth.sendTransaction({to: this.oracle.address,from:_accounts[i],gas:4000000,data:this.oracle2.methods.submitMiningSolution("nonce", 2, 1000).encodeABI()})
     }
-    await this.bank.updatePrice();
+    await this.bank.updateCollateralPrice();
+    await this.bank.updateDebtPrice();
 
 
     collateralizationRatio = await this.bank.getVaultCollateralizationRatio(_accounts[1]);

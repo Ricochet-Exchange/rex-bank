@@ -85,14 +85,22 @@ contract Bank is BankStorage, Ownable, UsingTellor {
   }
 
   /**
-  * @dev Use this function to get and update the price for the collateral and debt token
+  * @dev Use this function to get and update the price for the collateral token
   * using the Tellor Oracle.
   */
-  function updatePrice() external {
+  function updateCollateralPrice() external {
+    bool ifRetrieve;
+    uint256 _timestampRetrieved;
+    (ifRetrieve, collateral.price, _timestampRetrieved) = getCurrentValue(collateral.tellorRequestId); //,now - 1 hours);
+  }
+  /**
+  * @dev Use this function to get and update the price for the debt token
+  * using the Tellor Oracle.
+  */
+  function updateDebtPrice() external {
     bool ifRetrieve;
     uint256 _timestampRetrieved;
     (ifRetrieve, debt.price, _timestampRetrieved) = getCurrentValue(debt.tellorRequestId); //,now - 1 hours);
-    (ifRetrieve, collateral.price, _timestampRetrieved) = getCurrentValue(collateral.tellorRequestId); //,now - 1 hours);
   }
 
   /**
