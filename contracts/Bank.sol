@@ -66,8 +66,6 @@ contract Bank is BankStorage, Ownable, UsingTellor {
   * @dev This function allows the Bank owner to withdraw the reserve (debt tokens)
   * @param amount is the amount to withdraw
   */
-  //for reserveWithdraw or reserveWithdrawCollateral, should it not update the price and make sure it's collateralized?
-  // Not needed, collaterlization happens on the vaults
   function reserveWithdraw(uint256 amount) external onlyOwner {
     require(reserve.debtBalance >= amount, "NOT ENOUGH DEBT TOKENS IN RESERVE");
     require(IERC20(debt.tokenAddress).transfer(msg.sender, amount));
@@ -79,8 +77,6 @@ contract Bank is BankStorage, Ownable, UsingTellor {
   * @dev This function allows the user to withdraw their collateral
   * @param amount is the amount to withdraw
   */
-  //should the reserve.collateralBalance be adjusted to remove the origination fee and interest???
-  // No, origination fee and interest are collecting through debt, not collateraltokens
   function reserveWithdrawCollateral(uint256 amount) external onlyOwner {
     require(reserve.collateralBalance >= amount, "NOT ENOUGH COLLATERAL IN RESERVE");
     require(IERC20(collateral.tokenAddress).transfer(msg.sender, amount));
@@ -92,7 +88,7 @@ contract Bank is BankStorage, Ownable, UsingTellor {
   * @dev Use this function to get and update the price for the collateral and debt token
   * using the Tellor Oracle.
   */
-  function updatePrice() external{
+  function updatePrice() external {
     bool ifRetrieve;
     uint256 _timestampRetrieved;
     (ifRetrieve, debt.price, _timestampRetrieved) = getCurrentValue(debt.tellorRequestId); //,now - 1 hours);
@@ -177,29 +173,29 @@ contract Bank is BankStorage, Ownable, UsingTellor {
   }
 
   /**
-    * @dev Allows the user to get the first value for the requestId after the specified timestamp
-    * @param _requestId is the requestId to look up the value for
-    * @param _timestamp after which to search for first verified value
-    * @return bool true if it is able to retreive a value, the value, and the value's timestamp
-    */
-    function getDataBefore(uint256 _requestId, uint256 _timestamp)
-        public
-        view
-        returns (bool _ifRetrieve, uint256 _value, uint256 _timestampRetrieved)
-    {
-        uint256 _count = _tellorm.getNewValueCountbyRequestId(_requestId);
-        if (_count > 0) {
-            for (uint256 i = 1; i <= _count; i++) {
-                uint256 _time = _tellorm.getTimestampbyRequestIDandIndex(_requestId, i - 1);
-                if (_time <= _timestamp && _tellorm.isInDispute(_requestId,_time) == false) {
-                    _timestampRetrieved = _time;
-                }
-            }
-            if (_timestampRetrieved > 0) {
-                return (true, _tellorm.retrieveData(_requestId, _timestampRetrieved), _timestampRetrieved);
-            }
-        }
-        return (false, 0, 0);
-    }
+  * @dev Allows the user to get the first value for the requestId after the specified timestamp
+  * @param _requestId is the requestId to look up the value for
+  * @param _timestamp after which to search for first verified value
+  * @return bool true if it is able to retreive a value, the value, and the value's timestamp
+  */
+  function getDataBefore(uint256 _requestId, uint256 _timestamp)
+      public
+      view
+      returns (bool _ifRetrieve, uint256 _value, uint256 _timestampRetrieved)
+  {
+      uint256 _count = _tellorm.getNewValueCountbyRequestId(_requestId);
+      if (_count > 0) {
+          for (uint256 i = 1; i <= _count; i++) {
+              uint256 _time = _tellorm.getTimestampbyRequestIDandIndex(_requestId, i - 1);
+              if (_time <= _timestamp && _tellorm.isInDispute(_requestId,_time) == false) {
+                  _timestampRetrieved = _time;
+              }
+          }
+          if (_timestampRetrieved > 0) {
+              return (true, _tellorm.retrieveData(_requestId, _timestampRetrieved), _timestampRetrieved);
+          }
+      }
+      return (false, 0, 0);
+  }
 
 }
