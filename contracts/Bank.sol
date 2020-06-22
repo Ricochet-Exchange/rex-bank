@@ -93,6 +93,7 @@ contract Bank is BankStorage, Ownable, UsingTellor {
     uint256 _timestampRetrieved;
     (ifRetrieve, collateral.price, _timestampRetrieved) = getCurrentValue(collateral.tellorRequestId); //,now - 1 hours);
   }
+
   /**
   * @dev Use this function to get and update the price for the debt token
   * using the Tellor Oracle.
