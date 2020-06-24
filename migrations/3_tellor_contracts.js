@@ -16,40 +16,37 @@ var DT = artifacts.require("USDToken");
 
 //userContractAddress = ;
 /****Uncomment the body below to run this with Truffle migrate for truffle testing*/
-module.exports = async function (deployer) {
-  // Rinkeby Deploy
-  await deployer.deploy(Bank, 12, 1, 150, 25, 86400, "0xfe41cb708cd98c5b20423433309e55b53f79134a", 50, 1000000, 1000000, "0x5592EC0cfb4dbc12D3aB100b257153436a1f0FEa", 39, 1000000, 1000000, "0xFe41Cb708CD98C5B20423433309E55b53F79134a");
+module.exports = async function (deployer, network) {
+  if (network == "rinkeby") {
 
-  // // deploy transfer
-  // await deployer.deploy(TellorTransfer);
-  //
-  // // deploy dispute
-  // await deployer.deploy(TellorDispute);
-  //
-  // // deploy getters lib
-  // await deployer.deploy(TellorGettersLibrary);
-  //
-  // // deploy lib
-  // await deployer.link(TellorTransfer, TellorLibrary);
-  // await deployer.deploy(TellorLibrary);
-  //
-  // // deploy tellor
-  // await deployer.link(TellorTransfer,Tellor);
-  // await deployer.link(TellorDispute,Tellor);
-  // await deployer.link(TellorLibrary,Tellor);
-  // await deployer.deploy(Tellor);
-  // // deploy tellor master
-  // await deployer.link(TellorTransfer,TellorMaster);
-  // await deployer.link(TellorGettersLibrary,TellorMaster);
-  // await deployer.deploy(Tellor).then(async function() {
-  //   await deployer.deploy(TellorMaster, Tellor.address).then(async function(){
-  //     await deployer.deploy(CT, "10000000000000000000000").then(function() {
-  //       return deployer.deploy(DT, "10000000000000000000000").then(function() {
-  //         return deployer.deploy(Bank, 12, 1, 150, 25, 86400, CT.address, 1, 1000000, 1000000, DT.address, 2, 1000000, 1000000, TellorMaster.address)
-  //       });
-  //     });
-  //   })
-  // });
+    await deployer.deploy(Bank, 12, 1, 150, 25, 86400, "0xfe41cb708cd98c5b20423433309e55b53f79134a", 50, 1000000, 1000000, "0x5592EC0cfb4dbc12D3aB100b257153436a1f0FEa", 39, 1000000, 1000000, "0xFe41Cb708CD98C5B20423433309E55b53F79134a");
+
+  } else if(network == "development") {
+
+    await deployer.deploy(TellorTransfer);
+    await deployer.deploy(TellorDispute);
+    await deployer.deploy(TellorGettersLibrary);
+
+    await deployer.link(TellorTransfer, TellorLibrary);
+    await deployer.deploy(TellorLibrary);
+
+    await deployer.link(TellorTransfer,Tellor);
+    await deployer.link(TellorDispute,Tellor);
+    await deployer.link(TellorLibrary,Tellor);
+    await deployer.deploy(Tellor);
+
+    await deployer.link(TellorTransfer,TellorMaster);
+    await deployer.link(TellorGettersLibrary,TellorMaster);
+    await deployer.deploy(Tellor).then(async function() {
+      await deployer.deploy(TellorMaster, Tellor.address).then(async function(){
+        await deployer.deploy(CT, "10000000000000000000000").then(function() {
+          return deployer.deploy(DT, "10000000000000000000000").then(function() {
+            return deployer.deploy(Bank, 12, 1, 150, 25, 86400, CT.address, 1, 1000000, 1000000, DT.address, 2, 1000000, 1000000, TellorMaster.address)
+          });
+        });
+      })
+    });
+}
 
 
 };

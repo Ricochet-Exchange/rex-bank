@@ -17,7 +17,9 @@ contract Bank is BankStorage, Ownable, UsingTellor {
   event VaultDeposit(address owner, uint256 amount);
   event VaultBorrow(address borrower, uint256 amount);
   event VaultRepay(address borrower, uint256 amount);
-  event VaultWithdraw(address borrower);
+  event VaultWithdraw(address borrower, uint256 amount);
+  event PriceUpdate(address token, uint256 price);
+  event Liquidation(address borrower, uint256 debtAmount);
 
   /*Constructor*/
   constructor(
@@ -40,15 +42,15 @@ contract Bank is BankStorage, Ownable, UsingTellor {
     reserve.collateralizationRatio = collateralizationRatio;
     reserve.liquidationPenalty = liquidationPenalty;
     reserve.period = period;
-    collateral.tokenAddress = collateralToken;
     debt.tokenAddress = debtToken;
-    reserve.oracleContract = oracleContract;
     debt.price = debtTokenPrice;
     debt.priceGranularity = debtTokenPriceGranularity;
     debt.tellorRequestId = debtTokenTellorRequestId;
+    collateral.tokenAddress = collateralToken;
     collateral.price = collateralTokenPrice;
     collateral.priceGranularity = collateralTokenPriceGranularity;
     collateral.tellorRequestId = collateralTokenTellorRequestId;
+    reserve.oracleContract = oracleContract;
   }
 
   /*Functions*/
@@ -92,6 +94,7 @@ contract Bank is BankStorage, Ownable, UsingTellor {
     bool ifRetrieve;
     uint256 _timestampRetrieved;
     (ifRetrieve, collateral.price, _timestampRetrieved) = getCurrentValue(collateral.tellorRequestId); //,now - 1 hours);
+    emit PriceUpdate(collateral.tokenAddress, collateral.price);
   }
 
   /**
@@ -102,10 +105,12 @@ contract Bank is BankStorage, Ownable, UsingTellor {
     bool ifRetrieve;
     uint256 _timestampRetrieved;
     (ifRetrieve, debt.price, _timestampRetrieved) = getCurrentValue(debt.tellorRequestId); //,now - 1 hours);
+    emit PriceUpdate(debt.tokenAddress, debt.price);
   }
 
   /**
-  * @dev Anyone can use this function to liquidate a vault's debt, the bank owner gets the collateral liquidated
+  * @dev Anyone can use this function to liquidate a vault's debt,
+  * the bank owner gets the collateral liquidated
   * @param vaultOwner is the user the bank owner wants to liquidate
   */
   function liquidate(address vaultOwner) external {
@@ -113,9 +118,17 @@ contract Bank is BankStorage, Ownable, UsingTellor {
     require(getVaultCollateralizationRatio(vaultOwner) < reserve.collateralizationRatio * 100, "VAULT NOT UNDERCOLLATERALIZED");
     uint256 debtOwned = vaults[vaultOwner].debtAmount + (vaults[vaultOwner].debtAmount * 100 * reserve.liquidationPenalty / 100 / 100);
     uint256 collateralToLiquidate = debtOwned * debt.price / collateral.price;
-    reserve.collateralBalance +=  collateralToLiquidate;
-    vaults[vaultOwner].collateralAmount -= collateralToLiquidate;
+
+    if(collateralToLiquidate <= vaults[vaultOwner].collateralAmount) {
+      reserve.collateralBalance +=  collateralToLiquidate;
+      vaults[vaultOwner].collateralAmount -= collateralToLiquidate;
+    } else {
+      reserve.collateralBalance +=  vaults[vaultOwner].collateralAmount;
+      vaults[vaultOwner].collateralAmount = 0;
+    }
+
     vaults[vaultOwner].debtAmount = 0;
+    emit Liquidation(vaultOwner, debtOwned);
   }
 
 
@@ -157,8 +170,7 @@ contract Bank is BankStorage, Ownable, UsingTellor {
   */
   function vaultRepay(uint256 amount) external {
     vaults[msg.sender].debtAmount = getVaultRepayAmount();
-    require(amount <= vaults[msg.sender].debtAmount, "CANNOT REPAY MORE THAN OWED");//I get that they should not pay more than they owe
-    //but there is no harm if they do, then just allow them to  withdraw so long as debt< 0
+    require(amount <= vaults[msg.sender].debtAmount, "CANNOT REPAY MORE THAN OWED");
     require(IERC20(debt.tokenAddress).transferFrom(msg.sender, address(this), amount));
     vaults[msg.sender].debtAmount -= amount;
     reserve.debtBalance += amount;
@@ -178,7 +190,7 @@ contract Bank is BankStorage, Ownable, UsingTellor {
     require(IERC20(collateral.tokenAddress).transfer(msg.sender, amount));
     vaults[msg.sender].collateralAmount -= amount;
     reserve.collateralBalance -= amount;
-    emit VaultWithdraw(msg.sender);
+    emit VaultWithdraw(msg.sender, amount);
   }
 
   /**
