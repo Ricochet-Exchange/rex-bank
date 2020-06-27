@@ -32,13 +32,13 @@ App = {
       App.contracts.Bank = TruffleContract(BankArtifact);
       App.contracts.Bank.setProvider(App.web3Provider);
       // TODO: Should be env for filenames
-      return $.getJSON('USDToken.json', function(dt) {
+      return $.getJSON('DAI.json', function(dt) {
         var DT = dt;
         console.log(dt);
         App.contracts.DT = TruffleContract(DT);
         App.contracts.DT.setProvider(App.web3Provider);
         // TODO: Should be env for filenames
-        return $.getJSON('GLDToken.json', function(ct) {
+        return $.getJSON('Tellor.json', function(ct) {
           var CT = ct;
           console.log(ct);
           App.contracts.CT = TruffleContract(CT);
