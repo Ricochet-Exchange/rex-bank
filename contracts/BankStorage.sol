@@ -157,9 +157,11 @@ contract BankStorage{
   //I think there's a smarter way to do this than a loop...
   function getVaultRepayAmount() public view returns (uint256 principal) {
     principal = vaults[msg.sender].debtAmount;
-    for (uint256 i = vaults[msg.sender].createdAt / reserve.period; i < block.timestamp / reserve.period; i++)
-      principal += principal * reserve.interestRate / 100 / 365;
-
+    uint256 periodsPerYear = 365 days / reserve.period;
+    uint256 periodsElapsed = (block.timestamp / reserve.period) - (vaults[msg.sender].createdAt / reserve.period);
+    principal += principal * reserve.interestRate / 100 / periodsPerYear * periodsElapsed;
+    // for (uint256 i = vaults[msg.sender].createdAt / reserve.period; i < block.timestamp / reserve.period; i++)
+    //   principal += principal * reserve.interestRate / 100 / 365;
   }
 
   /**

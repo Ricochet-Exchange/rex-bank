@@ -93,8 +93,8 @@ App = {
           });
         });
         bankInstance.getInterestRate.call().then(function(interestRate){
-          console.log("Reserve interstRate: " + interestRate.toString());
-          reservePanel.find('.interstRate').text(interestRate);
+          console.log("Reserve interestRate: " + interestRate.toString());
+          reservePanel.find('.interestRate').text(interestRate);
         });
         bankInstance.getOriginationFee.call().then(function(originationFee){
           console.log("Reserve originationFee: " + originationFee.toString());

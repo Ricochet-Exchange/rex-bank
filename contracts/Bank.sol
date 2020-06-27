@@ -157,7 +157,10 @@ contract Bank is BankStorage, Ownable, UsingTellor {
     require(amount < maxBorrow, "NOT ENOUGH COLLATERAL");
     require(amount <= reserve.debtBalance, "NOT ENOUGH RESERVES");
     vaults[msg.sender].debtAmount += amount + ((amount * reserve.originationFee) / 100);
-    vaults[msg.sender].createdAt = block.timestamp;
+    if (block.timestamp - vaults[msg.sender].createdAt > reserve.period) {
+      // Only adjust if more than 1 interest rate period has past 
+      vaults[msg.sender].createdAt = block.timestamp;
+    }
     reserve.debtBalance -= amount;
     require(IERC20(debt.tokenAddress).transfer(msg.sender, amount));
     emit VaultBorrow(msg.sender, amount);

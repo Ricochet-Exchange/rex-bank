@@ -189,11 +189,11 @@ contract("Bank", function(_accounts) {
     // Calculate borrowed amount, use pays origination fee on 2 borrows
     var s_amount = new BN(this.smallBorrowAmount);
     var b_amount = s_amount.add(s_amount.mul(new BN(ORIGINATION_FEE)).div(new BN(100)));
-    b_amount = b_amount.add(b_amount.mul(new BN(INTEREST_RATE)).div(new BN(100)).div(new BN(365)));
-    b_amount = b_amount.add(b_amount.mul(new BN(INTEREST_RATE)).div(new BN(100)).div(new BN(365)));
-    b_amount = b_amount.add(s_amount.mul(new BN(ORIGINATION_FEE)).div(new BN(100)));
-    b_amount = b_amount.add(s_amount);
-    expect(debtAmount).to.be.bignumber.equal(b_amount.toString());
+    var f_b_amount = b_amount.add(b_amount.mul(new BN(INTEREST_RATE)).div(new BN(100)).div(new BN(365)));
+    f_b_amount = f_b_amount.add(b_amount.mul(new BN(INTEREST_RATE)).div(new BN(100)).div(new BN(365)));
+    f_b_amount = f_b_amount.add(s_amount.mul(new BN(ORIGINATION_FEE)).div(new BN(100)));
+    f_b_amount = f_b_amount.add(s_amount);
+    expect(debtAmount).to.be.bignumber.equal(f_b_amount.toString());
 
     const collateralBalance = await this.ct.balanceOf(this.bank.address);
     const debtBalance = await this.dt.balanceOf(this.bank.address);
@@ -211,14 +211,42 @@ contract("Bank", function(_accounts) {
     const repayAmount = await this.bank.getVaultRepayAmount({from: _accounts[1]});
     var b_amount = new BN(this.borrowAmount);
     b_amount = b_amount.add(b_amount.mul(new BN(ORIGINATION_FEE)).div(new BN(100)));
-    b_amount = b_amount.add(b_amount.mul(new BN(INTEREST_RATE)).div(new BN(100)).div(new BN(365))); // Day 1 interest rate
-    b_amount = b_amount.add(b_amount.mul(new BN(INTEREST_RATE)).div(new BN(100)).div(new BN(365))); // Day 2 interest rate
-    expect(repayAmount).to.be.bignumber.equal(b_amount.toString());
+    var f_b_amount = b_amount.add(b_amount.mul(new BN(INTEREST_RATE)).div(new BN(100)).div(new BN(365))); // Day 1 interest rate
+    f_b_amount = f_b_amount.add(b_amount.mul(new BN(INTEREST_RATE)).div(new BN(100)).div(new BN(365))); // Day 2 interest rate
+    expect(repayAmount).to.be.bignumber.equal(f_b_amount.toString());
     const collateralBalance = await this.ct.balanceOf(this.bank.address);
     const debtBalance = await this.dt.balanceOf(this.bank.address);
     // Calculate debt, collateral left after borrow
     expect(collateralBalance).to.be.bignumber.equal(this.depositAmount);
-    expect(debtBalance).to.be.bignumber.equal(ether(new BN(34)));
+    expect(debtBalance).to.be.bignumber.equal(this.depositAmount.sub(this.borrowAmount));
+  });
+
+  it('should accrue interest on a vault\'s borrowed amount with repayment', async function () {
+    await this.dt.approve(this.bank.address, this.depositAmount);
+    await this.bank.reserveDeposit(this.depositAmount);
+    await this.ct.approve(this.bank.address, this.depositAmount, {from: _accounts[1]});
+    await this.bank.vaultDeposit(this.depositAmount, {from: _accounts[1]});
+    await this.bank.vaultBorrow(this.borrowAmount, {from: _accounts[1]});
+    await time.increase(60*60*24+10) // Let one days pass
+    var repayAmount = await this.bank.getVaultRepayAmount({from: _accounts[1]});
+    var b_amount = new BN(this.borrowAmount);
+    b_amount = b_amount.add(b_amount.mul(new BN(ORIGINATION_FEE)).div(new BN(100)));
+    b_amount = b_amount.add(b_amount.mul(new BN(INTEREST_RATE)).div(new BN(100)).div(new BN(365))); // Day 1 interest rate
+    expect(repayAmount).to.be.bignumber.equal(b_amount.toString());
+
+    await this.dt.approve(this.bank.address, this.smallBorrowAmount, {from: _accounts[1]});
+    await this.bank.vaultRepay(this.smallBorrowAmount, {from: _accounts[1]});
+    await time.increase(60*60*24+10) // Let one days pass
+    b_amount = b_amount.sub(this.smallBorrowAmount);
+    b_amount = b_amount.add(b_amount.mul(new BN(INTEREST_RATE)).div(new BN(100)).div(new BN(365))); // Day 1 interest rate
+    var repayAmount = await this.bank.getVaultRepayAmount({from: _accounts[1]});
+    expect(repayAmount).to.be.bignumber.equal(b_amount.toString());
+
+    const collateralBalance = await this.ct.balanceOf(this.bank.address);
+    const debtBalance = await this.dt.balanceOf(this.bank.address);
+    // Calculate debt, collateral left after borrow
+    expect(collateralBalance).to.be.bignumber.equal(this.depositAmount);
+    expect(debtBalance).to.be.bignumber.equal(this.depositAmount.sub(this.borrowAmount.sub(this.smallBorrowAmount)));
   });
 
   it('should allow user to withdraw after debt repayment', async function () {
@@ -233,11 +261,15 @@ contract("Bank", function(_accounts) {
     await this.bank.vaultRepay(repayAmount, {from: _accounts[1]});
     const debtAmount = await this.bank.getVaultDebtAmount({from: _accounts[1]});
     expect(debtAmount).to.be.bignumber.equal(this.zero);
+    var b_amount = new BN(this.borrowAmount);
+    b_amount = b_amount.add(b_amount.mul(new BN(ORIGINATION_FEE)).div(new BN(100)));
+    var f_b_amount = b_amount.add(b_amount.mul(new BN(INTEREST_RATE)).div(new BN(100)).div(new BN(365))); // Day 1 interest rate
+    f_b_amount = f_b_amount.add(b_amount.mul(new BN(INTEREST_RATE)).div(new BN(100)).div(new BN(365))); // Day 2 interest rate
     // The debt balance should be the original + fees and interest
     const collateralBalance = await this.ct.balanceOf(this.bank.address);
     const debtBalance = await this.dt.balanceOf(this.bank.address);
     expect(collateralBalance).to.be.bignumber.equal(this.depositAmount);
-    expect(debtBalance).to.be.bignumber.equal(new BN("100703838438010883842"));
+    expect(debtBalance).to.be.bignumber.equal(this.depositAmount.sub(this.borrowAmount).add(f_b_amount));
   });
 
   it('should not allow user to withdraw without debt repayment', async function () {
