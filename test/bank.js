@@ -370,7 +370,7 @@ contract("Bank", function(_accounts) {
     }
     await this.bank.updateCollateralPrice();
     await this.bank.updateDebtPrice();
-
+    const repayAmount = await this.bank.getVaultRepayAmount({from: _accounts[1]});
 
     collateralizationRatio = await this.bank.getVaultCollateralizationRatio(_accounts[1]);
     expect(collateralizationRatio).to.be.bignumber.equal("13201");
@@ -381,7 +381,7 @@ contract("Bank", function(_accounts) {
     const collateralReserveBalance = await this.bank.getReserveCollateralBalance();
     expect(collateralAmount).to.be.bignumber.equal("5312500000000000000"); // TODO: Check math
     expect(debtAmount).to.be.bignumber.equal(this.zero);
-    expect(debtReserveBalance).to.be.bignumber.equal(ether(new BN(25)));
+    expect(debtReserveBalance).to.be.bignumber.equal(this.depositAmount.sub(this.largeBorrowAmount).add(repayAmount));
     expect(collateralReserveBalance).to.be.bignumber.equal("94687500000000000000");
   });
 

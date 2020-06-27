@@ -57,15 +57,15 @@ let accounts = await web3.eth.getAccounts()
 ```
 Then make a request to the oracle:
 ```
-await web3.eth.sendTransaction({to: oracleAddress, from: accounts[0], gas: 4000000, data: oracle2.methods.requestData("GLD","GLD/USD",1000,0).encodeABI()})
+await web3.eth.sendTransaction({to: oracleAddress, from: accounts[0], gas: 4000000, data: oracle2.methods.requestData("USDT","USDT/USD",1000,0).encodeABI()})
 ```
 Next, submit 5 values through mining:
 ```
-await web3.eth.sendTransaction({to: oracle.address, from: accounts[1],gas:4000000, data: oracle2.methods.submitMiningSolution("nonce", 2, 1500000).encodeABI()})
-await web3.eth.sendTransaction({to: oracle.address, from: accounts[2],gas:4000000, data: oracle2.methods.submitMiningSolution("nonce", 2, 1500000).encodeABI()})
-await web3.eth.sendTransaction({to: oracle.address, from: accounts[3],gas:4000000, data: oracle2.methods.submitMiningSolution("nonce", 2, 1500000).encodeABI()})
-await web3.eth.sendTransaction({to: oracle.address, from: accounts[4],gas:4000000, data: oracle2.methods.submitMiningSolution("nonce", 2, 1700000).encodeABI()})
-await web3.eth.sendTransaction({to: oracle.address, from: accounts[5],gas:4000000, data: oracle2.methods.submitMiningSolution("nonce", 2, 1700000).encodeABI()})
+await web3.eth.sendTransaction({to: oracle.address, from: accounts[1],gas:4000000, data: oracle2.methods.submitMiningSolution("nonce", 2, 1000000).encodeABI()})
+await web3.eth.sendTransaction({to: oracle.address, from: accounts[2],gas:4000000, data: oracle2.methods.submitMiningSolution("nonce", 2, 1000000).encodeABI()})
+await web3.eth.sendTransaction({to: oracle.address, from: accounts[3],gas:4000000, data: oracle2.methods.submitMiningSolution("nonce", 2, 1000000).encodeABI()})
+await web3.eth.sendTransaction({to: oracle.address, from: accounts[4],gas:4000000, data: oracle2.methods.submitMiningSolution("nonce", 2, 1000000).encodeABI()})
+await web3.eth.sendTransaction({to: oracle.address, from: accounts[5],gas:4000000, data: oracle2.methods.submitMiningSolution("nonce", 2, 1000000).encodeABI()})
 ```
 Because the Bank contract is UsingTellor, you can get the current data from the oracle using:
 ```
@@ -77,3 +77,15 @@ And you can update the price with:
 ```
 await bank.updatePrice({from: accounts[0]})
 ```
+
+## Regression Test Plan
+Run these tests manually on localhost, Rinkeby, to confirm things work as built.
+
+- [ ] Update the debt and collateral token prices
+- [ ] As the owner, deposit debt tokens
+- [ ] As a borrower, deposit collateral and withdraw some debt
+- [ ] - Borrow and repay debt
+- [ ] - Add and remove collateral
+- [ ] - Repay all the debt and withdraw all collateral
+- [ ] With a borrower undercollateralized, liquidate the borrower
+- [ ] As the owner, withdraw collateral and debt
