@@ -4,7 +4,10 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/ownership/Ownable.sol";
 import '../node_modules/usingtellor/contracts/UsingTellor.sol';
 
-
+/**
+* @title BankStorage
+* This contract provides the data structures, variables, and getters for Bank
+*/
 contract BankStorage{
   /*Variables*/
   struct Reserve {
@@ -152,16 +155,14 @@ contract BankStorage{
 
   /**
   * @dev Getter function for the user's vault debt amount
+  *   uses a simple interest formula (i.e. not compound  interest)
   * @return debt amount
   */
-  //I think there's a smarter way to do this than a loop...
   function getVaultRepayAmount() public view returns (uint256 principal) {
     principal = vaults[msg.sender].debtAmount;
     uint256 periodsPerYear = 365 days / reserve.period;
     uint256 periodsElapsed = (block.timestamp / reserve.period) - (vaults[msg.sender].createdAt / reserve.period);
     principal += principal * reserve.interestRate / 100 / periodsPerYear * periodsElapsed;
-    // for (uint256 i = vaults[msg.sender].createdAt / reserve.period; i < block.timestamp / reserve.period; i++)
-    //   principal += principal * reserve.interestRate / 100 / 365;
   }
 
   /**
