@@ -120,6 +120,8 @@ App = {
         });
         bankInstance.getVaultRepayAmount.call().then(function(debt){
           console.log(debt.toString());
+          $('.input-repay').val(debt/1e18);
+          $('.input-dt-approve').val(debt/1e18);
           vaultPanel.find('.debtAmount').text(debt/1e18);
         });
         bankInstance.getVaultCollateralizationRatio.call(account).then(function(ratio){
