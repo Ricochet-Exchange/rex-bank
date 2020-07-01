@@ -25,20 +25,23 @@ module.exports = async function (deployer, network) {
   let daiusdRequestId = 39;
   let initialPrice = 1000000;
   let priceGranularity = 1000000;
+  let daiAddress;
+  let trbAddress;
+  let tellorOracleAddress;
 
   if (network == "rinkeby") {
 
-    let daiAddress = "0x5592EC0cfb4dbc12D3aB100b257153436a1f0FEa";
-    let trbAddress = "0xfe41cb708cd98c5b20423433309e55b53f79134a";
-    let tellorOracleAddress = "0xFe41Cb708CD98C5B20423433309E55b53F79134a";
+    daiAddress = "0x5592EC0cfb4dbc12D3aB100b257153436a1f0FEa";
+    trbAddress = "0xfe41cb708cd98c5b20423433309e55b53f79134a";
+    tellorOracleAddress = "0xFe41Cb708CD98C5B20423433309E55b53F79134a";
 
   } else if (network == "mainnet") {
 
-    let daiAddress = "0x5592EC0cfb4dbc12D3aB100b257153436a1f0FEa";
-    let trbAddress = "0xfe41cb708cd98c5b20423433309e55b53f79134a";
-    let tellorOracleAddress = "0xFe41Cb708CD98C5B20423433309E55b53F79134a";
+    daiAddress = "0x6b175474e89094c44da98b954eedeac495271d0f";
+    trbAddress = "0x0ba45a8b5d5575935b8158a88c631e9f9c95a2e5";
+    tellorOracleAddress = "0x0ba45a8b5d5575935b8158a88c631e9f9c95a2e5";
 
-  }else if(network == "development") {
+  } else if(network == "development") {
 
     await deployer.deploy(TellorTransfer);
     await deployer.deploy(TellorDispute);
@@ -55,9 +58,9 @@ module.exports = async function (deployer, network) {
     await deployer.deploy(TellorMaster, Tellor.address);
     await deployer.deploy(CT, "10000000000000000000000");
     await deployer.deploy(DT, "10000000000000000000000");
-    let daiAddress = DT.address;
-    let trbAddress = CT.address;
-    let tellorOracleAddress = TellorMaster.address;
+    daiAddress = DT.address;
+    trbAddress = CT.address;
+    tellorOracleAddress = TellorMaster.address;
 
   }
 
