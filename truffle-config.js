@@ -22,5 +22,12 @@ module.exports = {
       network_id: 4,
       gasPrice: 20000000000
     },
+    mainnet: {
+      provider: () => new HDWalletProvider(
+        process.env.MNEMONIC,
+        process.env.MAINNET_URL),
+      network_id: 4,
+      gasPrice: 20000000000
+    },
   }
 }
