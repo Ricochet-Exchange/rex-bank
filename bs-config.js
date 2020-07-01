@@ -1,6 +1,6 @@
 var abiDir;
 if (process.env.NETWORK) {
-  abiDir = "./build/"+process.env.NETWORK
+  abiDir = "./build/abis"
 } else {
   abiDir = "./build/contracts"
 }

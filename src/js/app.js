@@ -31,11 +31,13 @@ App = {
       var BankArtifact = data;
       App.contracts.Bank = TruffleContract(BankArtifact);
       App.contracts.Bank.setProvider(App.web3Provider);
+      // TODO: Should be env for filenames
       return $.getJSON('DAI.json', function(dt) {
         var DT = dt;
         console.log(dt);
         App.contracts.DT = TruffleContract(DT);
         App.contracts.DT.setProvider(App.web3Provider);
+        // TODO: Should be env for filenames
         return $.getJSON('Tellor.json', function(ct) {
           var CT = ct;
           console.log(ct);
@@ -118,6 +120,8 @@ App = {
         });
         bankInstance.getVaultRepayAmount.call().then(function(debt){
           console.log(debt.toString());
+          $('.input-repay').val(debt/1e18);
+          $('.input-dt-approve').val(debt/1e18);
           vaultPanel.find('.debtAmount').text(debt/1e18);
         });
         bankInstance.getVaultCollateralizationRatio.call(account).then(function(ratio){
