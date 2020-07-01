@@ -228,7 +228,11 @@
   "networks": {
     "4": {
       "address": "0xfe41cb708cd98c5b20423433309e55b53f79134a",
-      "transactionHash": " 0x99f6c868393dc5d8f29bc31707a814c1c24c32b6c5ae280386720737cbf03644"
+      "transactionHash": "0x99f6c868393dc5d8f29bc31707a814c1c24c32b6c5ae280386720737cbf03644"
+    },
+    "1": {
+      "address": "0x0ba45a8b5d5575935b8158a88c631e9f9c95a2e5",
+      "transactionHash": "0x46e83f921fa5c822dd74ceda65461a3db8829c505f5badf570f169da94943bd2"
     }
   }
 }
