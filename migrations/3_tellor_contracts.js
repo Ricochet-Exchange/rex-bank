@@ -64,9 +64,10 @@ module.exports = async function (deployer, network) {
 
   }
 
-  await deployer.deploy(Bank, interestRate, originationFee, collateralizationRatio, liquidationPenalty, period,
-                        trbAddress, trbusdRequestId, initialPrice, priceGranularity,
-                        daiAddress, daiusdRequestId, initialPrice, priceGranularity,
-                        tellorOracleAddress);
+  await deployer.deploy(Bank, tellorOracleAddress);
+  let bank = await Bank.deployed()
+  await deployer.deploy(BankFactory, bank.address);
+  let bankFactory = await BankFactory.deployed();
+  
 
 };

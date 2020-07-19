@@ -22,7 +22,11 @@ contract Bank is BankStorage, Ownable, UsingTellor {
   event Liquidation(address borrower, uint256 debtAmount);
 
   /*Constructor*/
-  constructor(
+  constructor(address payable oracleContract) public UsingTellor(oracleContract) {
+    reserve.oracleContract = oracleContract;
+  }
+
+  function init(
     uint256 interestRate,
     uint256 originationFee,
     uint256 collateralizationRatio,
@@ -35,8 +39,8 @@ contract Bank is BankStorage, Ownable, UsingTellor {
     address debtToken,
     uint256 debtTokenTellorRequestId,
     uint256 debtTokenPriceGranularity,
-    uint256 debtTokenPrice,
-    address payable oracleContract ) public UsingTellor(oracleContract) {
+    uint256 debtTokenPrice) public  {
+    require(reserve.interestRate == 0); // Ensure not init'd already
     reserve.interestRate = interestRate;
     reserve.originationFee = originationFee;
     reserve.collateralizationRatio = collateralizationRatio;
@@ -50,8 +54,9 @@ contract Bank is BankStorage, Ownable, UsingTellor {
     collateral.price = collateralTokenPrice;
     collateral.priceGranularity = collateralTokenPriceGranularity;
     collateral.tellorRequestId = collateralTokenTellorRequestId;
-    reserve.oracleContract = oracleContract;
+    owner = msg.sender;
   }
+
 
   /*Functions*/
   /**

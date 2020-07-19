@@ -5,7 +5,7 @@ require("babel-register")({
 require("babel-polyfill");
 require('dotenv').config();
 require('web3');
-const HDWalletProvider = require("truffle-hdwallet-provider");
+// const HDWalletProvider = require("truffle-hdwallet-provider");
 
 module.exports = {
   plugins: ["solidity-coverage"],
@@ -15,19 +15,19 @@ module.exports = {
       port: 7545,
       network_id: '*'
     },
-    rinkeby: {
-      provider: () => new HDWalletProvider(
-        process.env.RINKEBY_MNEMONIC,
-        process.env.RINKEBY_URL),
-      network_id: 4,
-      gasPrice: 20000000000
-    },
-    mainnet: {
-      provider: () => new HDWalletProvider(
-        process.env.MAINNET_MNEMONIC,
-        process.env.MAINNET_URL),
-      network_id: 1,
-      gasPrice: 50000000000
-    },
+    // rinkeby: {
+    //   provider: () => new HDWalletProvider(
+    //     process.env.RINKEBY_MNEMONIC,
+    //     process.env.RINKEBY_URL),
+    //   network_id: 4,
+    //   gasPrice: 20000000000
+    // },
+    // mainnet: {
+    //   provider: () => new HDWalletProvider(
+    //     process.env.MAINNET_MNEMONIC,
+    //     process.env.MAINNET_URL),
+    //   network_id: 1,
+    //   gasPrice: 50000000000
+    // },
   }
 }
