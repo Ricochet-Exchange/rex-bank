@@ -6,6 +6,8 @@ require("babel-polyfill");
 require('dotenv').config();
 require('web3');
 const HDWalletProvider = require("truffle-hdwallet-provider");
+var NonceTrackerSubprovider = require("web3-provider-engine/subproviders/nonce-tracker")
+
 
 module.exports = {
   plugins: ["solidity-coverage"],
@@ -23,11 +25,15 @@ module.exports = {
       gasPrice: 20000000000
     },
     mainnet: {
-      provider: () => new HDWalletProvider(
-        process.env.MAINNET_MNEMONIC,
-        process.env.MAINNET_URL),
+      provider: function() {
+        var wallet = new HDWalletProvider(process.env.MAINNET_MNEMONIC,process.env.MAINNET_URL)
+        // var nonceTracker = new NonceTrackerSubprovider()
+        // wallet.engine._providers.unshift(nonceTracker)
+        // nonceTracker.setEngine(wallet.engine)
+        return wallet
+      },
       network_id: 1,
-      gasPrice: 50000000000
+      gasPrice: 35000000000
     },
   }
 }

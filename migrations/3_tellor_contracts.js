@@ -25,9 +25,9 @@ module.exports = async function (deployer, network) {
   let daiusdRequestId = 39;
   let initialPrice = 1000000;
   let priceGranularity = 1000000;
-  var daiAddress;
-  var trbAddress;
-  var tellorOracleAddress;
+  let daiAddress;
+  let trbAddress;
+  let tellorOracleAddress;
 
   if (network == "rinkeby") {
 
