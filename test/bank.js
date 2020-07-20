@@ -35,7 +35,7 @@ contract("Bank", function(_accounts) {
     this.ct = await CT.new(ether(new BN(10000)));
     this.dt = await DT.new(ether(new BN(10000)));
     this.bank = await Bank.new(this.oracle.address);
-    await this.bank.init(_accounts[0], INTEREST_RATE, ORIGINATION_FEE, COLLATERALIZATION_RATIO, LIQUIDATION_PENALTY, PERIOD);
+    await this.bank.init(_accounts[0], INTEREST_RATE, ORIGINATION_FEE, COLLATERALIZATION_RATIO, LIQUIDATION_PENALTY, PERIOD, this.oracle.address);
     await this.bank.setCollateral(this.ct.address, 2, 1000, 1000);
     await this.bank.setDebt(this.dt.address, 1, 1000, 1000);
     this.depositAmount = ether(new BN(100));

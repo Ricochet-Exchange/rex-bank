@@ -74,7 +74,7 @@ module.exports = async function (deployer, network, accounts) {
     // Local development setup two banks
 
     // TRB/DAI
-    let clone1 = await bankFactory.createBank(interestRate, originationFee, collateralizationRatio, liquidationPenalty, period);
+    let clone1 = await bankFactory.createBank(interestRate, originationFee, collateralizationRatio, liquidationPenalty, period, tellorOracleAddress);
     let bankClone1 = await Bank.at(clone1.logs[0].args.newBankAddress);
     await bankClone1.setCollateral(trbAddress, trbusdRequestId, initialPrice, priceGranularity);
     await bankClone1.setDebt(daiAddress, daiusdRequestId, initialPrice, priceGranularity);
@@ -84,7 +84,7 @@ module.exports = async function (deployer, network, accounts) {
     await bankClone1.reserveDeposit(web3.utils.toWei("1000", "ether"))
 
     // DAI/TRB
-    let clone2 = await bankFactory.createBank(interestRate, originationFee, collateralizationRatio, liquidationPenalty, period);
+    let clone2 = await bankFactory.createBank(interestRate, originationFee, collateralizationRatio, liquidationPenalty, period, tellorOracleAddress);
     let bankClone2 = await Bank.at(clone2.logs[0].args.newBankAddress);
     await bankClone2.setDebt(trbAddress, trbusdRequestId, initialPrice, priceGranularity);
     await bankClone2.setCollateral(daiAddress, daiusdRequestId, initialPrice, priceGranularity);

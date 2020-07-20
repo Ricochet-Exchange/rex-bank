@@ -51,8 +51,8 @@ contract Bank is BankStorage, UsingTellor {
     uint256 originationFee,
     uint256 collateralizationRatio,
     uint256 liquidationPenalty,
-    address payable oracleContract,
-    uint256 period) public  {
+    uint256 period,
+    address payable oracleContract) public  {
     require(reserve.interestRate == 0); // Ensure not init'd already
     reserve.interestRate = interestRate;
     reserve.originationFee = originationFee;
@@ -61,7 +61,7 @@ contract Bank is BankStorage, UsingTellor {
     reserve.liquidationPenalty = liquidationPenalty;
     reserve.period = period;
     tellorStorageAddress = oracleContract;
-     _tellorm = TellorMaster(tellorStorageAddress);
+    _tellorm = TellorMaster(tellorStorageAddress);
     _owner = creator; // Make the creator the first admin
   }
 

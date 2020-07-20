@@ -56,7 +56,7 @@ contract("BankFactory", function(_accounts) {
 
   it("should create a bank clone with correct parameters", async function(){
     var clone = await this.bankFactory.createBank(
-      INTEREST_RATE, ORIGINATION_FEE, COLLATERALIZATION_RATIO, LIQUIDATION_PENALTY, PERIOD,
+      INTEREST_RATE, ORIGINATION_FEE, COLLATERALIZATION_RATIO, LIQUIDATION_PENALTY, PERIOD, this.oracle.address,
       {"from": _accounts[1]}
     );
     let bankClone = await Bank.at(clone.logs[0].args.newBankAddress);

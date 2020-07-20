@@ -27,10 +27,11 @@ contract BankFactory is Ownable, CloneFactory {
     uint256 originationFee,
     uint256 collateralizationRatio,
     uint256 liquidationPenalty,
-    uint256 period) public returns(address) {
+    uint256 period,
+    address payable oracleAddress) public returns(address) {
 
     address clone = createClone(bankAddress);
-    Bank(clone).init(msg.sender, interestRate, originationFee, collateralizationRatio, liquidationPenalty, period);
+    Bank(clone).init(msg.sender, interestRate, originationFee, collateralizationRatio, liquidationPenalty, period, oracleAddress);
     banks.push(clone);
     emit BankCreated(clone);
   }
