@@ -54,23 +54,27 @@ contract("BankFactory", function(_accounts) {
 
   });
 
-  it("should create bank clones with correct parameters", async function(){
-    var clone = this.bankFactory.createBank(
+  it("should create a bank clone with correct parameters", async function(){
+    var clone = await this.bankFactory.createBank(
       INTEREST_RATE, ORIGINATION_FEE, COLLATERALIZATION_RATIO, LIQUIDATION_PENALTY, PERIOD,
-      this.ct.address, 2, 1000, 1000, this.dt.address, 1, 1000, 1000, {from: _accounts[1]}
+      {"from": _accounts[1]}
     );
-    const interestRate = await this.bank.getInterestRate();
-    const originationFee = await clone.getOriginationFee();
-    const collateralizationRatio = await clone.getCollateralizationRatio();
-    const liquidationPenalty = await clone.getLiquidationPenalty();
-    const reserveBalance = await clone.getReserveBalance();
-    const reserveCollateralBalance = await clone.getReserveCollateralBalance();
-    const owner = await clone.owner();
-    const dtAddress = await clone.getDebtTokenAddress();
-    const ctAddress = await clone.getCollateralTokenAddress();
-    const banks = await bankFactory.getBankAddresses();
+    let bankClone = await Bank.at(clone.logs[0].args.newBankAddress);
 
-    assert.eqaul(banks[0], clone.address);
+    await bankClone.setCollateral(this.ct.address, 2, 1000, 1000, {"from": _accounts[1]});
+    await bankClone.setDebt(this.dt.address, 1, 1000, 1000, {"from": _accounts[1]});
+    const interestRate = await bankClone.getInterestRate();
+    const originationFee = await bankClone.getOriginationFee();
+    const collateralizationRatio = await bankClone.getCollateralizationRatio();
+    const liquidationPenalty = await bankClone.getLiquidationPenalty();
+    const reserveBalance = await bankClone.getReserveBalance();
+    const reserveCollateralBalance = await bankClone.getReserveCollateralBalance();
+    const owner = await bankClone.owner();
+    const dtAddress = await bankClone.getDebtTokenAddress();
+    const ctAddress = await bankClone.getCollateralTokenAddress();
+    const banks = await this.bankFactory.getBankAddresses();
+
+    assert.equal(banks[0], bankClone.address);
     assert.equal(owner, _accounts[1]);
     assert.equal(interestRate, INTEREST_RATE);
     assert.equal(originationFee, ORIGINATION_FEE);

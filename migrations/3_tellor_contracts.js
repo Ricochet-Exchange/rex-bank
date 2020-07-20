@@ -7,6 +7,7 @@ var Tellor = artifacts.require("../node_modules/usingtellor/contracts/Tellor.sol
 var TellorMaster = artifacts.require("../node_modules/usingtellor/contracts/TellorMaster.sol");
 /****Uncomment the body to run this with Truffle migrate for truffle testing*/
 var Bank = artifacts.require("Bank");
+var BankFactory = artifacts.require("BankFactory");
 var CT = artifacts.require("GLDToken");
 var DT = artifacts.require("USDToken");
 
@@ -14,7 +15,7 @@ var DT = artifacts.require("USDToken");
 *@dev Use this for setting up contracts for testing
 */
 
-module.exports = async function (deployer, network) {
+module.exports = async function (deployer, network, accounts) {
 
   let interestRate = 12;
   let originationFee = 1;
@@ -68,6 +69,10 @@ module.exports = async function (deployer, network) {
   let bank = await Bank.deployed()
   await deployer.deploy(BankFactory, bank.address);
   let bankFactory = await BankFactory.deployed();
-  
+  let clone = await bankFactory.createBank(interestRate, originationFee, collateralizationRatio, liquidationPenalty, period);
+  let bankClone = await Bank.at(clone.logs[0].args.newBankAddress);
+  await bankClone.setCollateral(trbAddress, trbusdRequestId, initialPrice, priceGranularity);
+  await bankClone.setDebt(daiAddress, daiusdRequestId, initialPrice, priceGranularity);
+
 
 };

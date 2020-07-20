@@ -1,38 +1,24 @@
-pragma solidity ^0.5.0;pragma solidity ^0.5.0;
+pragma solidity ^0.5.0;
 
 import "./Bank.sol";
 import "@optionality.io/clone-factory/contracts/CloneFactory.sol";
-import "zeppelin-solidity/contracts/ownership/Ownable.sol";
+import "@openzeppelin/contracts/ownership/Ownable.sol";
 
-contract IBank {
-  function getInterestRate() public view returns (uint256);
-  function getOriginationFee() public view returns (uint256);
-  function getCollateralizationRatio() public view returns (uint256);
-  function getLiquidationPenalty() public view returns (uint256);
-  function getDebtTokenAddress() public view returns (address);
-  function getDebtTokenPrice() public view returns (uint256);
-  function getDebtTokenPriceGranularity() public view returns (uint256);
-  function getCollateralTokenAddress() public view returns (address);
-  function getCollateralTokenPrice() public view returns (uint256);
-  function getCollateralTokenPriceGranularity() public view returns (uint256);
-  function getReserveBalance() public view returns (uint256);
-  function getReserveCollateralBalance() public view returns (uint256);
-}
 
 contract BankFactory is Ownable, CloneFactory {
 
   /*Variables*/
   address [] banks;
-  address public libraryAddress;
+  address public bankAddress;
 
   event BankCreated(address newBankAddress);
 
-  constructor(address _libraryAddress) public {
-    libraryAddress = _libraryAddress;
+  constructor(address _bankAddress) public {
+    bankAddress = _bankAddress;
   }
 
-  function setLibraryAddress(address _libraryAddress) public onlyOwner {
-    libraryAddress = _libraryAddress;
+  function setBankAddress(address _bankAddress) public onlyOwner {
+    bankAddress = _bankAddress;
   }
 
   function createBank(
@@ -40,26 +26,15 @@ contract BankFactory is Ownable, CloneFactory {
     uint256 originationFee,
     uint256 collateralizationRatio,
     uint256 liquidationPenalty,
-    uint256 period,
-    address collateralToken,
-    uint256 collateralTokenTellorRequestId,
-    uint256 collateralTokenPriceGranularity,
-    uint256 collateralTokenPrice,
-    address debtToken,
-    uint256 debtTokenTellorRequestId,
-    uint256 debtTokenPriceGranularity,
-    uint256 debtTokenPrice) public onlyOwner returns(address) {
+    uint256 period) public returns(address) {
 
-    address clone = createClone(libraryAddress);
-    Bank(clone).init(interestRate, originationFee, collateralizationRatio, liquidationPenalty, period,
-                     collateralToken, collateralTokenPriceGranularity, collateralTokenPrice,
-                     debtToken, debtTokenPriceGranularity, debtTokenPrice);
+    address clone = createClone(bankAddress);
+    Bank(clone).init(msg.sender, interestRate, originationFee, collateralizationRatio, liquidationPenalty, period);
     banks.push(clone);
-    BankCreated(clone);
-    return clone;
+    emit BankCreated(clone);
   }
 
-  function getBankAddresses() public view returns(address  [] memory){
+  function getBankAddresses() public view returns(address [] memory){
     return banks;
   }
 

@@ -2,7 +2,7 @@ pragma solidity ^0.5.0;
 
 import "./BankStorage.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "@openzeppelin/contracts/ownership/Ownable.sol";
+import "@openzeppelin/contracts/access/Roles.sol";
 
 /**
 * @title Bank
@@ -10,7 +10,10 @@ import "@openzeppelin/contracts/ownership/Ownable.sol";
 * origination fees from users that borrow against their collateral.
 * The oracle for Bank is Tellor.
 */
-contract Bank is BankStorage, Ownable, UsingTellor {
+contract Bank is BankStorage, UsingTellor {
+
+  address private _owner;
+
   /*Events*/
   event ReserveDeposit(uint256 amount);
   event ReserveWithdraw(address token, uint256 amount);
@@ -26,39 +29,71 @@ contract Bank is BankStorage, Ownable, UsingTellor {
     reserve.oracleContract = oracleContract;
   }
 
+  /*Modifiers*/
+  modifier onlyOwner() {
+    require(_owner == msg.sender, "IS NOT OWNER");
+    _;
+  }
+  /*Functions*/
+  /**
+  * @dev Returns the owner of the bank
+  */
+  function owner() public view returns (address) {
+    return _owner;
+  }
+
+  /**
+  * @dev This function sets the fundamental parameters for the bank
+  *      and assigns the first admin
+  */
   function init(
+    address creator,
     uint256 interestRate,
     uint256 originationFee,
     uint256 collateralizationRatio,
     uint256 liquidationPenalty,
-    uint256 period,
-    address collateralToken,
-    uint256 collateralTokenTellorRequestId,
-    uint256 collateralTokenPriceGranularity,
-    uint256 collateralTokenPrice,
-    address debtToken,
-    uint256 debtTokenTellorRequestId,
-    uint256 debtTokenPriceGranularity,
-    uint256 debtTokenPrice) public  {
+    uint256 period) public  {
     require(reserve.interestRate == 0); // Ensure not init'd already
     reserve.interestRate = interestRate;
     reserve.originationFee = originationFee;
     reserve.collateralizationRatio = collateralizationRatio;
     reserve.liquidationPenalty = liquidationPenalty;
     reserve.period = period;
-    debt.tokenAddress = debtToken;
-    debt.price = debtTokenPrice;
-    debt.priceGranularity = debtTokenPriceGranularity;
-    debt.tellorRequestId = debtTokenTellorRequestId;
+    _owner = creator; // Make the creator the first admin
+  }
+
+  /**
+  * @dev This function sets the collateral token properties, only callable one time
+  */
+  function setCollateral(
+    address collateralToken,
+    uint256 collateralTokenTellorRequestId,
+    uint256 collateralTokenPriceGranularity,
+    uint256 collateralTokenPrice) public onlyOwner {
+
+    require(collateral.tokenAddress == address(0)); // Ensure not init'd already
     collateral.tokenAddress = collateralToken;
     collateral.price = collateralTokenPrice;
     collateral.priceGranularity = collateralTokenPriceGranularity;
     collateral.tellorRequestId = collateralTokenTellorRequestId;
-    owner = msg.sender;
   }
 
+  /**
+  * @dev This function sets the debt token properties, only callable one time
+  */
+  function setDebt(
+    address debtToken,
+    uint256 debtTokenTellorRequestId,
+    uint256 debtTokenPriceGranularity,
+    uint256 debtTokenPrice) public onlyOwner {
 
-  /*Functions*/
+    require(debt.tokenAddress == address(0)); // Ensure not init'd already
+    debt.tokenAddress = debtToken;
+    debt.price = debtTokenPrice;
+    debt.priceGranularity = debtTokenPriceGranularity;
+    debt.tellorRequestId = debtTokenTellorRequestId;
+  }
+
   /**
   * @dev This function allows the Bank owner to deposit the reserve (debt tokens)
   * @param amount is the amount to deposit
@@ -115,8 +150,8 @@ contract Bank is BankStorage, Ownable, UsingTellor {
 
   /**
   * @dev Anyone can use this function to liquidate a vault's debt,
-  * the bank owner gets the collateral liquidated
-  * @param vaultOwner is the user the bank owner wants to liquidate
+  * the bank admins gets the collateral liquidated
+  * @param vaultOwner is the user the bank admins wants to liquidate
   */
   function liquidate(address vaultOwner) external {
     // Require undercollateralization
