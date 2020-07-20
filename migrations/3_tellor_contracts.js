@@ -69,10 +69,32 @@ module.exports = async function (deployer, network, accounts) {
   let bank = await Bank.deployed()
   await deployer.deploy(BankFactory, bank.address);
   let bankFactory = await BankFactory.deployed();
-  let clone = await bankFactory.createBank(interestRate, originationFee, collateralizationRatio, liquidationPenalty, period);
-  let bankClone = await Bank.at(clone.logs[0].args.newBankAddress);
-  await bankClone.setCollateral(trbAddress, trbusdRequestId, initialPrice, priceGranularity);
-  await bankClone.setDebt(daiAddress, daiusdRequestId, initialPrice, priceGranularity);
 
+  if(network == "development") {
+    // Local development setup two banks
+
+    // TRB/DAI
+    let clone1 = await bankFactory.createBank(interestRate, originationFee, collateralizationRatio, liquidationPenalty, period);
+    let bankClone1 = await Bank.at(clone1.logs[0].args.newBankAddress);
+    await bankClone1.setCollateral(trbAddress, trbusdRequestId, initialPrice, priceGranularity);
+    await bankClone1.setDebt(daiAddress, daiusdRequestId, initialPrice, priceGranularity);
+    // Funding
+    let dt = await DT.deployed()
+    await dt.approve(bankClone1.address, web3.utils.toWei("1000", "ether"))
+    await bankClone1.reserveDeposit(web3.utils.toWei("1000", "ether"))
+
+    // DAI/TRB
+    let clone2 = await bankFactory.createBank(interestRate, originationFee, collateralizationRatio, liquidationPenalty, period);
+    let bankClone2 = await Bank.at(clone2.logs[0].args.newBankAddress);
+    await bankClone2.setDebt(trbAddress, trbusdRequestId, initialPrice, priceGranularity);
+    await bankClone2.setCollateral(daiAddress, daiusdRequestId, initialPrice, priceGranularity);
+    dt = await CT.deployed()
+    await dt.approve(bankClone2.address, web3.utils.toWei("1000", "ether"))
+    await bankClone2.reserveDeposit(web3.utils.toWei("1000", "ether"))
+
+    console.log("TRB/DAI: " + bankClone1.address);
+    console.log("DAI/TRB: " + bankClone2.address);
+
+  }
 
 };

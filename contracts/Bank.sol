@@ -2,7 +2,6 @@ pragma solidity ^0.5.0;
 
 import "./BankStorage.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "@openzeppelin/contracts/access/Roles.sol";
 
 /**
 * @title Bank
@@ -234,32 +233,6 @@ contract Bank is BankStorage, UsingTellor {
     vaults[msg.sender].collateralAmount -= amount;
     reserve.collateralBalance -= amount;
     emit VaultWithdraw(msg.sender, amount);
-  }
-
-  /**
-  * @dev Allows the user to get the first value for the requestId after the specified timestamp
-  * @param _requestId is the requestId to look up the value for
-  * @param _timestamp after which to search for first verified value
-  * @return bool true if it is able to retreive a value, the value, and the value's timestamp
-  */
-  function getDataBefore(uint256 _requestId, uint256 _timestamp)
-      public
-      view
-      returns (bool _ifRetrieve, uint256 _value, uint256 _timestampRetrieved)
-  {
-      uint256 _count = _tellorm.getNewValueCountbyRequestId(_requestId);
-      if (_count > 0) {
-          for (uint256 i = 1; i <= _count; i++) {
-              uint256 _time = _tellorm.getTimestampbyRequestIDandIndex(_requestId, i - 1);
-              if (_time <= _timestamp && _tellorm.isInDispute(_requestId,_time) == false) {
-                  _timestampRetrieved = _time;
-              }
-          }
-          if (_timestampRetrieved > 0) {
-              return (true, _tellorm.retrieveData(_requestId, _timestampRetrieved), _timestampRetrieved);
-          }
-      }
-      return (false, 0, 0);
   }
 
 }
