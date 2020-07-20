@@ -17,6 +17,7 @@ contract BankFactory is Ownable, CloneFactory {
     bankAddress = _bankAddress;
   }
 
+  //is this necessary?  Should you just have to deploy a new one for max decentralization?
   function setBankAddress(address _bankAddress) public onlyOwner {
     bankAddress = _bankAddress;
   }
