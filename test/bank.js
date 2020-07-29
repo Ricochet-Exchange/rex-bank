@@ -34,7 +34,10 @@ contract("Bank", function(_accounts) {
     // Bank set up
     this.ct = await CT.new(ether(new BN(10000)));
     this.dt = await DT.new(ether(new BN(10000)));
-    this.bank = await Bank.new(INTEREST_RATE, ORIGINATION_FEE, COLLATERALIZATION_RATIO, LIQUIDATION_PENALTY, PERIOD, this.ct.address, 2, 1000, 1000, this.dt.address, 1, 1000, 1000, this.oracle.address);
+    this.bank = await Bank.new(this.oracle.address);
+    await this.bank.init(_accounts[0], INTEREST_RATE, ORIGINATION_FEE, COLLATERALIZATION_RATIO, LIQUIDATION_PENALTY, PERIOD, this.oracle.address);
+    await this.bank.setCollateral(this.ct.address, 2, 1000, 1000);
+    await this.bank.setDebt(this.dt.address, 1, 1000, 1000);
     this.depositAmount = ether(new BN(100));
     this.largeDepositAmount = ether(new BN(5000));
     this.withdrawAmount = ether(new BN(50));
@@ -114,11 +117,11 @@ contract("Bank", function(_accounts) {
   });
 
   it('should not allow non-owner to deposit reserves', async function () {
-    await expectRevert(this.bank.reserveDeposit(ether(new BN(100)), {from: _accounts[1]}), "Ownable: caller is not the owner.");
+    await expectRevert(this.bank.reserveDeposit(ether(new BN(100)), {from: _accounts[1]}), "IS NOT OWNER");
   });
 
   it('should not allow non-owner to withdraw reserves', async function () {
-    await expectRevert(this.bank.reserveWithdraw(ether(new BN(100)), {from: _accounts[1]}), "Ownable: caller is not the owner.");
+    await expectRevert(this.bank.reserveWithdraw(ether(new BN(100)), {from: _accounts[1]}), "IS NOT OWNER");
   });
 
   it('should allow user to deposit collateral into vault', async function () {

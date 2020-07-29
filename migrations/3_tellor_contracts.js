@@ -7,6 +7,7 @@ var Tellor = artifacts.require("../node_modules/usingtellor/contracts/Tellor.sol
 var TellorMaster = artifacts.require("../node_modules/usingtellor/contracts/TellorMaster.sol");
 /****Uncomment the body to run this with Truffle migrate for truffle testing*/
 var Bank = artifacts.require("Bank");
+var BankFactory = artifacts.require("BankFactory");
 var CT = artifacts.require("GLDToken");
 var DT = artifacts.require("USDToken");
 
@@ -14,7 +15,7 @@ var DT = artifacts.require("USDToken");
 *@dev Use this for setting up contracts for testing
 */
 
-module.exports = async function (deployer, network) {
+module.exports = async function (deployer, network, accounts) {
 
   let interestRate = 12;
   let originationFee = 1;
@@ -64,9 +65,36 @@ module.exports = async function (deployer, network) {
 
   }
 
-  await deployer.deploy(Bank, interestRate, originationFee, collateralizationRatio, liquidationPenalty, period,
-                        trbAddress, trbusdRequestId, initialPrice, priceGranularity,
-                        daiAddress, daiusdRequestId, initialPrice, priceGranularity,
-                        tellorOracleAddress);
+  await deployer.deploy(Bank, tellorOracleAddress);
+  let bank = await Bank.deployed()
+  await deployer.deploy(BankFactory, bank.address);
+  let bankFactory = await BankFactory.deployed();
+
+  if(network == "development") {
+    // Local development setup two banks
+
+    // TRB/DAI
+    let clone1 = await bankFactory.createBank(interestRate, originationFee, collateralizationRatio, liquidationPenalty, period, tellorOracleAddress);
+    let bankClone1 = await Bank.at(clone1.logs[0].args.newBankAddress);
+    await bankClone1.setCollateral(trbAddress, trbusdRequestId, initialPrice, priceGranularity);
+    await bankClone1.setDebt(daiAddress, daiusdRequestId, initialPrice, priceGranularity);
+    // Funding
+    let dt = await DT.deployed()
+    await dt.approve(bankClone1.address, web3.utils.toWei("1000", "ether"))
+    await bankClone1.reserveDeposit(web3.utils.toWei("1000", "ether"))
+
+    // DAI/TRB
+    let clone2 = await bankFactory.createBank(interestRate, originationFee, collateralizationRatio, liquidationPenalty, period, tellorOracleAddress);
+    let bankClone2 = await Bank.at(clone2.logs[0].args.newBankAddress);
+    await bankClone2.setDebt(trbAddress, trbusdRequestId, priceGranularity, initialPrice);
+    await bankClone2.setCollateral(daiAddress, daiusdRequestId, priceGranularity, initialPrice);
+    dt = await CT.deployed()
+    await dt.approve(bankClone2.address, web3.utils.toWei("1000", "ether"))
+    await bankClone2.reserveDeposit(web3.utils.toWei("1000", "ether"))
+
+    console.log("TRB/DAI: " + bankClone1.address);
+    console.log("DAI/TRB: " + bankClone2.address);
+
+  }
 
 };
