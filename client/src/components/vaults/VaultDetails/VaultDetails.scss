@@ -1,0 +1,12 @@
+.VaultDetails {
+  background-color: #ffffff;
+  margin: 50px;
+  padding: 50px;
+}
+
+.VaultDetails__header,
+.VaultDetails__content {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-evenly;
+}

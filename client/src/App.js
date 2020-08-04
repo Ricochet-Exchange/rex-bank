@@ -1,20 +1,34 @@
-import React, { useContext } from "react";
-import { Web3SignIn } from "./components/account/Web3SignIn";
-import { CurrentUserContext } from "./contexts/Store";
+import React from "react";
+import { BrowserRouter as Router } from "react-router-dom";
+import { Layout } from "antd";
 
-function App() {
-  const [currentUser, setCurrentUser] = useContext(CurrentUserContext);
-  console.log("currentUser", currentUser);
+import Routes from "./Routes";
+import SideNav from "./components/shared/SideNav/SideNav";
 
+import "./App.scss";
+
+const { Content, Sider } = Layout;
+
+const App = () => {
   return (
     <div className="App">
-      {currentUser && currentUser.username ? (
-        <p>{currentUser.username}</p>
-      ) : (
-        <Web3SignIn setCurrentUser={setCurrentUser} />
-      )}
+      <Router>
+        <Layout style={{ minHeight: "100vh" }}>
+          <Sider>
+            <h1>Commodo</h1>
+            <SideNav />
+          </Sider>
+          <Layout>
+            <Content style={{ margin: "0 16px" }}>
+              <div style={{ padding: 24, minHeight: 360 }}>
+                <Routes />
+              </div>
+            </Content>
+          </Layout>
+        </Layout>
+      </Router>
     </div>
   );
-}
+};
 
 export default App;
