@@ -1,4 +1,5 @@
 import React, { useContext } from "react";
+import { Button } from "antd";
 
 import { Web3ConnectContext, CurrentUserContext } from "../../contexts/Store";
 import { createWeb3User, w3connect } from "../../utils/auth";
@@ -8,8 +9,8 @@ export const Web3SignIn = () => {
   const [, setCurrentUser] = useContext(CurrentUserContext);
 
   return (
-    <button
-      variant="outline-primary"
+    <Button
+      type="primary"
       onClick={async () => {
         try {
           const w3c = await w3connect(web3Connect);
@@ -22,7 +23,8 @@ export const Web3SignIn = () => {
         }
       }}
     >
+      {" "}
       Sign In With Web3
-    </button>
+    </Button>
   );
 };
