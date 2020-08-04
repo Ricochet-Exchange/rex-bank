@@ -2,7 +2,7 @@ import React from "react";
 
 const EtherscanLink = ({ path, hash }) => {
   const uri = () => {
-    switch (process.env.REACT_APP_NETWORK_ID) {
+    switch (process.env.REACT_APP_CHAIN_ID) {
       case "1": {
         return `https://etherscan.io/${path}/`;
       }

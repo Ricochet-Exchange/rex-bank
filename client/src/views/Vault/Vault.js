@@ -9,7 +9,7 @@ import VaultDetails from "../../components/vaults/VaultDetails/VaultDetails";
 import "./Vault.scss";
 
 const Vault = () => {
-  const hasVault = true;
+  const hasVault = false;
 
   return (
     <div>
