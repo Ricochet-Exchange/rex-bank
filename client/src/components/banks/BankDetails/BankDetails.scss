@@ -1,0 +1,11 @@
+.BankDetails {
+  background-color: #ffffff;
+  margin: 50px;
+  padding: 50px;
+}
+
+.BankDetails__header {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-evenly;
+}
