@@ -1,5 +1,71 @@
 @import "~antd/dist/antd.css";
+@import 'branding';
 
 h1 {
-  color: white;
+  color: $purple;
+}
+
+
+
+/* ALL SIDER STUFF */
+.ant-layout-sider {
+  @include purplebg;
+  @include font;
+  @include box;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  padding-top: 50px;
+}
+.ant-menu, .ant-menu-dark {
+  background: transparent;
+  border: none;
+  margin-top: 80px;
+}
+
+.ant-layout-sider-children:first-child {
+  height: 20px;
+}
+
+.ant-menu-inline .ant-menu-item {
+  width: 140px;
+  height: 114px;
+  margin: 0;
+  padding: 0;
+  // background-color: red;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  opacity: 0.5;
+}
+
+
+.ant-menu-inline .ant-menu-item a {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-decoration: none;
+  color:white;
+  font-size: 1.05rem;
+}
+
+.ant-menu-inline .ant-menu-item a svg {
+  margin-bottom: -10px;
+}
+
+
+.ant-menu-inline .ant-menu-item-selected {
+  background: none !important;
+  // background-color: red !important;
+  opacity: 1;
+
+  border: none !important;
+}
+
+.ant-menu-inline .ant-menu-item::after {
+  border: none;
+
 }
