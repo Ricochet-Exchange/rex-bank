@@ -1,0 +1,5 @@
+@import '../../branding';
+
+.BankStatusBar, .BankDetails {
+    @include font;
+}

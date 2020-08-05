@@ -5,6 +5,9 @@ import { Layout } from "antd";
 import Routes from "./Routes";
 import SideNav from "./components/shared/SideNav/SideNav";
 
+import Icons from '../src/Icons';
+
+
 import "./App.scss";
 
 const { Content, Sider } = Layout;
@@ -14,15 +17,13 @@ const App = () => {
     <div className="App">
       <Router>
         <Layout style={{ minHeight: "100vh" }}>
-          <Sider>
-            <h1>Commodo</h1>
+          <Sider width="240px">
+            <Icons.Logo fill="#fff" width="144px" />
             <SideNav />
           </Sider>
           <Layout>
-            <Content style={{ margin: "0 16px" }}>
-              <div style={{ padding: 24, minHeight: 360 }}>
+            <Content>
                 <Routes />
-              </div>
             </Content>
           </Layout>
         </Layout>

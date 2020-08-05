@@ -11,7 +11,7 @@ $ yarn install
 2. Setup .env and fill out variables
 
 ```bash
-cp .env.sample .env
+cp .env.template .env
 ```
 
 3. Run a dev server
