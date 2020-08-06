@@ -16,8 +16,8 @@ const BankDetails = () => {
     <div className="BankDetails">
       <div className="BankDetails__header">
         <h2>Commodo Main</h2>
-        <p>0x123...dude</p>
-        <EtherscanLink path="address" hash="0x" />
+        <p>{state.activeBank.address}</p>
+        <EtherscanLink path="address" hash={state.activeBank.address} />
         <Button
           type="primary"
           shape="round"
@@ -30,15 +30,17 @@ const BankDetails = () => {
 
       <div className="BankDetails__content">
         <p>Available for borrow</p>
-        <p>670,000 dai</p>
+        <p>{(+data.reserveBalance / 1e18).toFixed()} DAI</p>
         <div>
           <p>Interest Rate</p>
           <p>{data.interestRate} %</p>
           <p>Collateralization Ratio</p>
+          <p>{data.collateralizationRatio} %</p>
+
           <p>Origination Fee</p>
-          <p>1%</p>
+          <p>{data.originationFee} %</p>
           <p>Liquidation Penalty</p>
-          <p>20%</p>
+          <p>{data.liquidationPenalty} %</p>
         </div>
       </div>
     </div>
