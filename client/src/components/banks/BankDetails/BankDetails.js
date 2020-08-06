@@ -1,13 +1,17 @@
-import React from "react";
+import React, { useContext } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 
+import { BankContext } from "../../../contexts/BankContext";
 import EtherscanLink from "../../shared/EtherscanLink/EthercanLink";
 
 import "./BankDetails.scss";
 
 const BankDetails = () => {
+  const { state } = useContext(BankContext);
+  const data = state.activeBank.data;
+
   return (
     <div className="BankDetails">
       <div className="BankDetails__header">
@@ -29,7 +33,7 @@ const BankDetails = () => {
         <p>670,000 dai</p>
         <div>
           <p>Interest Rate</p>
-          <p>12%</p>
+          <p>{data.interestRate} %</p>
           <p>Collateralization Ratio</p>
           <p>Origination Fee</p>
           <p>1%</p>

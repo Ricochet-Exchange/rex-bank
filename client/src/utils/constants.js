@@ -1,0 +1,12 @@
+export const CONTRACT_ADDRESSES = {
+  "4": {
+    bank: "0x4Aba792D41928D4bC65A4b77d840Fc6418940438",
+    dai: "0x5592EC0cfb4dbc12D3aB100b257153436a1f0FEa",
+    trb: "0xfe41cb708cd98c5b20423433309e55b53f79134a",
+  },
+  "1": {
+    bank: "0x4Aba792D41928D4bC65A4b77d840Fc6418940438",
+    dai: "0x5592EC0cfb4dbc12D3aB100b257153436a1f0FEa",
+    trb: "0xfe41cb708cd98c5b20423433309e55b53f79134a",
+  },
+};
