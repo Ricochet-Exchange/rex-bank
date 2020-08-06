@@ -6,11 +6,9 @@ import Web3Service from "../utils/web3-service";
 import { w3connect, providerOptions, USER_TYPE } from "../utils/auth";
 import { getChainData } from "../utils/chains";
 
-export const LoaderContext = createContext(false);
 export const Web3Context = createContext();
 
-const Store = ({ children }) => {
-  const [loading, setLoading] = useState(false);
+const RootContexts = ({ children }) => {
   const [w3Context, setW3Context] = useState();
 
   useEffect(() => {
@@ -34,16 +32,16 @@ const Store = ({ children }) => {
             if (web3Modal.cachedProvider) {
               const w3m = await w3connect(web3Modal);
               const [account] = await w3m.web3.eth.getAccounts();
-              const web3Service = new Web3Service(w3m.web3);
-              setW3Context({ web3Service, account });
+              const service = new Web3Service(w3m.web3);
+              setW3Context({ service, account });
             } else {
               const web3 = new Web3(
                 new Web3.providers.HttpProvider(
                   process.env.REACT_APP_INFURA_URI.split("/").pop()
                 )
               );
-              const web3Service = new Web3Service(web3);
-              setW3Context({ web3Service, account: "" });
+              const service = new Web3Service(web3);
+              setW3Context({ service, account: "" });
             }
             break;
           }
@@ -54,8 +52,8 @@ const Store = ({ children }) => {
                 process.env.REACT_APP_INFURA_URI.split("/").pop()
               )
             );
-            const web3Service = new Web3Service(web3);
-            setW3Context({ web3Service, account: "" });
+            const service = new Web3Service(web3);
+            setW3Context({ service, account: "" });
             break;
         }
         localStorage.setItem("loginType", loginType);
@@ -69,8 +67,8 @@ const Store = ({ children }) => {
             process.env.REACT_APP_INFURA_URI.split("/").pop()
           )
         );
-        const web3Service = new Web3Service(web3);
-        setW3Context({ web3Service, account: "" });
+        const service = new Web3Service(web3);
+        setW3Context({ service, account: "" });
       } finally {
         // set up contract
       }
@@ -80,12 +78,10 @@ const Store = ({ children }) => {
   }, []);
 
   return (
-    <LoaderContext.Provider value={[loading, setLoading]}>
-      <Web3Context.Provider value={[w3Context, setW3Context]}>
-        {children}
-      </Web3Context.Provider>
-    </LoaderContext.Provider>
+    <Web3Context.Provider value={[w3Context, setW3Context]}>
+      {children}
+    </Web3Context.Provider>
   );
 };
 
-export default Store;
+export default RootContexts;

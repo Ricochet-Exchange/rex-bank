@@ -5,7 +5,7 @@ import { Button } from "antd";
 import { getChainData } from "../../utils/chains";
 import { w3connect, providerOptions, USER_TYPE } from "../../utils/auth";
 import Web3Service from "../../utils/web3-service";
-import { Web3Context } from "../../contexts/Store";
+import { Web3Context } from "../../contexts/RootContexts";
 
 const Web3SignIn = () => {
   const [, setWeb3Service] = useContext(Web3Context);
