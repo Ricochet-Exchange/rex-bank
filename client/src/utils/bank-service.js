@@ -20,30 +20,44 @@ export default class BankService {
     return this.contract;
   }
 
-  async getAllEvents() {
+  async getBankState() {
     if (!this.contract) {
       await this.initContract();
     }
-    let events = await this.contract.getPastEvents("allEvents", {
-      fromBlock: 0,
-      toBlock: "latest",
-    });
-    return events;
+
+    return {
+      debtTokenPrice: await this.contract.methods.getDebtTokenPrice().call(),
+      collateralTokenPrice: await this.contract.methods
+        .getCollateralTokenPriceGranularity()
+        .call(),
+      interestRate: await this.contract.methods.getInterestRate().call(),
+      originationFee: await this.contract.methods.getOriginationFee().call(),
+      collateralizationRatio: await this.contract.methods
+        .getCollateralizationRatio()
+        .call(),
+      liquidationPenalty: await this.contract.methods
+        .getLiquidationPenalty()
+        .call(),
+      reserveBalance: await this.contract.methods.getReserveBalance().call(),
+
+      vaultCollateralAmount: await this.contract.methods
+        .getVaultCollateralAmount()
+        .call(),
+      vaultRepayAmount: await this.contract.methods
+        .getVaultRepayAmount()
+        .call(),
+
+      //   $('.input-repay').val(debt/1e18);
+      //   $('.input-dt-approve').val(debt/1e18);
+      //   vaultPanel.find('.debtAmount').text(debt/1e18);
+      // });
+    };
   }
 
-  async getInterestRate() {
-    if (!this.contract) {
-      await this.initContract();
-    }
-    let interestRate = await this.contract.methods.getInterestRate().call();
-
-    return interestRate;
-
-    // bankInstance.getInterestRate.call().then(function(interestRate){
-    //   console.log("Reserve interestRate: " + interestRate.toString());
-    //   reservePanel.find('.interestRate').text(interestRate);
-    // });
-  }
+  // bankInstance.getVaultCollateralizationRatio.call(account).then(function(ratio){
+  //   console.log(ratio);
+  //   vaultPanel.find('.collateralizationRatio').text((ratio/100).toString() + '%');
+  // });
 
   async rageQuit(from, amount, encodedPayload) {
     if (!this.contract) {
@@ -68,50 +82,3 @@ export default class BankService {
     return rage;
   }
 }
-
-// bankInstance.getDebtTokenPrice.call().then(function(debtTokenPrice){
-//   bankInstance.getDebtTokenPriceGranularity.call().then(function(debtTokenPriceGranularity){
-//     console.log("Reserve debtTokenPrice: " + debtTokenPrice.toString());
-//     reservePanel.find('.debtTokenPrice').text(debtTokenPrice/debtTokenPriceGranularity);
-//   });
-// });
-// bankInstance.getCollateralTokenPrice.call().then(function(collateralTokenPrice){
-//   bankInstance.getCollateralTokenPriceGranularity.call().then(function(collateralTokenPriceGranularity){
-//     console.log("Reserve collateralTokenPrice: " + collateralTokenPrice.toString());
-//     reservePanel.find('.collateralTokenPrice').text(collateralTokenPrice/collateralTokenPriceGranularity);
-//   });
-// });
-// bankInstance.getInterestRate.call().then(function(interestRate){
-//   console.log("Reserve interestRate: " + interestRate.toString());
-//   reservePanel.find('.interestRate').text(interestRate);
-// });
-// bankInstance.getOriginationFee.call().then(function(originationFee){
-//   console.log("Reserve originationFee: " + originationFee.toString());
-//   reservePanel.find('.originationFee').text(originationFee);
-// });
-// bankInstance.getCollateralizationRatio.call().then(function(collateralizationRatio){
-//   console.log("Reserve collateralizationRatio: " + collateralizationRatio.toString());
-//   reservePanel.find('.collateralizationRatio').text(collateralizationRatio);
-// });
-// bankInstance.getLiquidationPenalty.call().then(function(liquidationPenalty){
-//   console.log("Reserve liquidationPenalty: " + liquidationPenalty.toString());
-//   reservePanel.find('.liquidationPenalty').text(liquidationPenalty);
-// });
-// bankInstance.getReserveBalance.call().then(function(reserveBalance){
-//   console.log("Reserve: " + reserveBalance.toString());
-//   reservePanel.find('.debtReserveBalance').text(reserveBalance/1e18);
-// });
-// bankInstance.getVaultCollateralAmount.call().then(function(collateral){
-//   console.log(collateral.toString());
-//   vaultPanel.find('.collateralAmount').text(collateral/1e18);
-// });
-// bankInstance.getVaultRepayAmount.call().then(function(debt){
-//   console.log(debt.toString());
-//   $('.input-repay').val(debt/1e18);
-//   $('.input-dt-approve').val(debt/1e18);
-//   vaultPanel.find('.debtAmount').text(debt/1e18);
-// });
-// bankInstance.getVaultCollateralizationRatio.call(account).then(function(ratio){
-//   console.log(ratio);
-//   vaultPanel.find('.collateralizationRatio').text((ratio/100).toString() + '%');
-// });

@@ -6,9 +6,9 @@ import { BankContext } from "../../contexts/BankContext";
 import BankService from "../../utils/bank-service";
 import BankStatusBar from "../../components/banks/BankStatusBar/BankStatusBar";
 import BankDetails from "../../components/banks/BankDetails/BankDetails";
+import Loading from "../../components/shared/Loader/Loader";
 
 import "./Banks.scss";
-import Loading from "../../components/shared/Loader/Loader";
 
 const Banks = () => {
   const [web3] = useContext(Web3Context);
@@ -19,11 +19,9 @@ const Banks = () => {
   useEffect(() => {
     const getBankData = async () => {
       const bankService = new BankService(params.contractAddress, web3.service);
-      const interestRate = await bankService.getInterestRate();
+      const bankState = await bankService.getBankState();
 
-      const bankState = {
-        interestRate,
-      };
+      console.log("bankState", bankState);
 
       dispatch({
         type: "setActiveBank",
