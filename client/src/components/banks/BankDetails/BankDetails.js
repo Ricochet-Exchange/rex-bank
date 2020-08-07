@@ -23,13 +23,12 @@ const BankDetails = () => {
 
           {!state.activeBank.data.vault.hasVault ? (
             <Button
-              type="primary"
               shape="round"
-              icon={<PlusOutlined />}
               size="large"
+              className="purpleoutlined createvaultbtn"
               onClick={() => setCreatingVault(true)}
             >
-              Create Vault
+              + create vault
             </Button>
           ) : null}
         </div>

@@ -18,11 +18,11 @@ const BankStatusBar = () => {
     <div className="BankStatusBar">
       <div>
         {state.activeBank.data.collateralToken.symbol} Price (USD) $
-        {+data.collateralToken.price / granularity}
+        <strong>{+data.collateralToken.price / granularity}</strong>
       </div>
       <div>
         {state.activeBank.data.debtToken.symbol} Price (USD) $
-        {+data.debtToken.price / granularity}
+        <strong>{+data.debtToken.price / granularity}</strong>
       </div>
       <BankSelector currentBank={currentBank} />
     </div>
