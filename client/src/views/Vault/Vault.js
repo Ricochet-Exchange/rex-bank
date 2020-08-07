@@ -4,19 +4,18 @@ import { Button } from "antd";
 import { BankOutlined } from "@ant-design/icons";
 
 import { BankContext } from "../../contexts/BankContext";
+import { Web3Context } from "../../contexts/RootContexts";
 import BankService from "../../utils/bank-service";
 import BankStatusBar from "../../components/banks/BankStatusBar/BankStatusBar";
 import VaultDetails from "../../components/vaults/VaultDetails/VaultDetails";
+import Loading from "../../components/shared/Loader/Loader";
 
 import "./Vault.scss";
-import { Web3Context } from "../../contexts/RootContexts";
 
 const Vault = () => {
   const [web3] = useContext(Web3Context);
   const { state, dispatch } = useContext(BankContext);
   const params = useParams();
-
-  const hasVault = false;
 
   useEffect(() => {
     const getBankData = async () => {
@@ -49,22 +48,28 @@ const Vault = () => {
     <div>
       {state.activeBank && state.activeBank.data ? (
         <>
-          <BankStatusBar />
-          <VaultDetails />
+          {state.activeBank.data.vault.hasVault ? (
+            <>
+              <BankStatusBar />
+              <VaultDetails />
+            </>
+          ) : (
+            <>
+              <p>You didn't create a vault yet.</p>
+              <p>Choose a bank to create a vault with.</p>
+              <Button
+                type="primary"
+                shape="round"
+                icon={<BankOutlined />}
+                size="large"
+              >
+                <Link to="/">View Banks</Link>
+              </Button>
+            </>
+          )}
         </>
       ) : (
-        <>
-          <p>You didn't create a vault yet.</p>
-          <p>Choose a bank to create a vault with.</p>
-          <Button
-            type="primary"
-            shape="round"
-            icon={<BankOutlined />}
-            size="large"
-          >
-            <Link to="/">View Banks</Link>
-          </Button>
-        </>
+        <Loading />
       )}
     </div>
   );

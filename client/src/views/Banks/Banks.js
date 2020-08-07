@@ -1,4 +1,4 @@
-import React, { useEffect, useContext, useState } from "react";
+import React, { useEffect, useContext } from "react";
 import { useParams } from "react-router-dom";
 
 import { Web3Context } from "../../contexts/RootContexts";

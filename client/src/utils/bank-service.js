@@ -26,6 +26,8 @@ export default class BankService {
       await this.initContract();
     }
 
+    const vault = await this.getVaultData();
+
     const debtTokenAddress = await this.contract.methods
       .getDebtTokenAddress()
       .call();
@@ -37,6 +39,7 @@ export default class BankService {
     const collateralToken = await this.getTokenData(collateralTokenAddress);
 
     return {
+      vault,
       debtToken: {
         ...debtToken,
         price: await this.contract.methods.getDebtTokenPrice().call(),
@@ -72,6 +75,23 @@ export default class BankService {
     return {
       address: tokenAddress,
       symbol: await tokenService.getSymbol(),
+    };
+  }
+
+  async getVaultData() {
+    const collateralAmount = await this.contract.methods
+      .getVaultCollateralAmount()
+      .call();
+    const repayAmount = await this.contract.methods
+      .getVaultRepayAmount()
+      .call();
+    const debtAmount = await this.contract.methods.getVaultDebtAmount().call();
+
+    return {
+      collateralAmount,
+      repayAmount,
+      debtAmount,
+      hasVault: +debtAmount > 0 && +collateralAmount > 0,
     };
   }
 
