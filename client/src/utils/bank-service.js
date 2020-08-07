@@ -1,4 +1,5 @@
 import BankAbi from "../contracts/Bank.json";
+import TokenService from "./token-service";
 
 export default class BankService {
   contractAddr;
@@ -25,11 +26,30 @@ export default class BankService {
       await this.initContract();
     }
 
+    const vault = await this.getVaultData();
+
+    const debtTokenAddress = await this.contract.methods
+      .getDebtTokenAddress()
+      .call();
+    const collateralTokenAddress = await this.contract.methods
+      .getCollateralTokenAddress()
+      .call();
+
+    const debtToken = await this.getTokenData(debtTokenAddress);
+    const collateralToken = await this.getTokenData(collateralTokenAddress);
+
     return {
-      debtTokenPrice: await this.contract.methods.getDebtTokenPrice().call(),
-      collateralTokenPrice: await this.contract.methods
-        .getCollateralTokenPriceGranularity()
-        .call(),
+      vault,
+      debtToken: {
+        ...debtToken,
+        price: await this.contract.methods.getDebtTokenPrice().call(),
+      },
+      collateralToken: {
+        ...collateralToken,
+        price: await this.contract.methods
+          .getCollateralTokenPriceGranularity()
+          .call(),
+      },
       interestRate: await this.contract.methods.getInterestRate().call(),
       originationFee: await this.contract.methods.getOriginationFee().call(),
       collateralizationRatio: await this.contract.methods
@@ -39,25 +59,41 @@ export default class BankService {
         .getLiquidationPenalty()
         .call(),
       reserveBalance: await this.contract.methods.getReserveBalance().call(),
-
       vaultCollateralAmount: await this.contract.methods
         .getVaultCollateralAmount()
         .call(),
       vaultRepayAmount: await this.contract.methods
         .getVaultRepayAmount()
         .call(),
-
-      //   $('.input-repay').val(debt/1e18);
-      //   $('.input-dt-approve').val(debt/1e18);
-      //   vaultPanel.find('.debtAmount').text(debt/1e18);
-      // });
+      vaultDebtAmount: await this.contract.methods.getVaultDebtAmount().call(),
     };
   }
 
-  // bankInstance.getVaultCollateralizationRatio.call(account).then(function(ratio){
-  //   console.log(ratio);
-  //   vaultPanel.find('.collateralizationRatio').text((ratio/100).toString() + '%');
-  // });
+  async getTokenData(tokenAddress) {
+    const tokenService = new TokenService(tokenAddress, this.web3Service);
+
+    return {
+      address: tokenAddress,
+      symbol: await tokenService.getSymbol(),
+    };
+  }
+
+  async getVaultData() {
+    const collateralAmount = await this.contract.methods
+      .getVaultCollateralAmount()
+      .call();
+    const repayAmount = await this.contract.methods
+      .getVaultRepayAmount()
+      .call();
+    const debtAmount = await this.contract.methods.getVaultDebtAmount().call();
+
+    return {
+      collateralAmount,
+      repayAmount,
+      debtAmount,
+      hasVault: +debtAmount > 0 && +collateralAmount > 0,
+    };
+  }
 
   async rageQuit(from, amount, encodedPayload) {
     if (!this.contract) {

@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React from "react";
 import { Switch, Route, Redirect } from "react-router-dom";
 
 import Banks from "./views/Banks/Banks";
@@ -12,7 +12,7 @@ const Routes = () => (
       <BaseRoute />
     </Route>
     <Route path="/bank/:contractAddress" exact component={Banks} />
-    <Route path="/vault" exact component={Vault} />
+    <Route path="/vault/:contractAddress" exact component={Vault} />
 
     <Route path="*" component={FourOhFour} />
   </Switch>
