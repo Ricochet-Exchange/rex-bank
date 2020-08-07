@@ -26,7 +26,7 @@ const SideNav = () => {
         <Menu.Item key="2">
           <Link to="/vault">
             <Icons.Vault />
-            Vault
+            Vaults
           </Link>
         </Menu.Item>
       ) : (

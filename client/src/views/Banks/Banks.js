@@ -43,10 +43,10 @@ const Banks = () => {
   return (
     <div>
       {state.activeBank && state.activeBank.data ? (
-        <>
+        <div className="BankTotal">
           <BankStatusBar />
           <BankDetails />
-        </>
+        </div>
       ) : (
         <Loading />
       )}

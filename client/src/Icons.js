@@ -151,4 +151,33 @@ const Vault = ({
   </svg>
 );
 
-export default { Logo, Bank, Vault };
+
+
+
+const Arrowdown = ({
+  style = {},
+  fill = "white",
+  width = "15.603",
+  height="9.052",
+  className = "",
+  viewBox = "0 0 15.603 9.052",
+}) => (
+  <svg
+    width={width}
+    style={style}
+    height={height}
+    viewBox={viewBox}
+    xmlns="http://www.w3.org/2000/svg"
+    className={`svg-icon ${className || ""}`}
+    xmlnsXlink="http://www.w3.org/1999/xlink"
+  >
+    <path id="Path_104" data-name="Path 104" d="M0,0,6.24,6.722,0,12.775" transform="translate(14.189 1.414) rotate(90)" fill="none" stroke={fill} stroke-linecap="round" stroke-miterlimit="10" stroke-width="2"/>
+  </svg>
+);
+
+
+
+
+
+
+export default { Logo, Bank, Vault, Arrowdown };

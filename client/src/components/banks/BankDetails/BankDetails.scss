@@ -1,11 +1,39 @@
+@import '../../../branding.scss';
+
 .BankDetails {
   background-color: #ffffff;
-  margin: 50px;
-  padding: 50px;
+  border-radius: 10px;
+  
 }
 
 .BankDetails__header {
+  @include box;
+  width: 100%;
+  padding: 25px 45px 20px 50px;
   display: flex;
   flex-direction: row;
-  justify-content: space-evenly;
+  justify-content: flex-start;
+  align-items: center;
+  border-bottom: 1px dashed $notwhitetxt;
 }
+
+.BankDetails__header h2 {
+  margin: 0;
+  font-weight: bold;
+  font-size: 1.25rem;
+  margin: 0 20px 0 0;
+}
+
+.BankDetails__header .EtherscanLink {
+  flex: 1;
+}
+
+.BankDetails__address {
+  // width: 100px;
+  flex: 1;
+}
+
+.BankDetails__address p {
+
+}
+

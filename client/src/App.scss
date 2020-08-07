@@ -1,5 +1,6 @@
 @import "~antd/dist/antd.css";
 @import 'branding';
+$primary: $purple;
 
 h1 {
   color: $purple;
@@ -59,13 +60,55 @@ h1 {
 
 .ant-menu-inline .ant-menu-item-selected {
   background: none !important;
-  // background-color: red !important;
   opacity: 1;
-
   border: none !important;
 }
 
 .ant-menu-inline .ant-menu-item::after {
   border: none;
 
+}
+
+.ant-menu-inline .ant-menu-item-active {
+  background: none;
+}
+
+
+
+.ant-btn-round {
+  font-weight: bold;
+  padding: 10px 30px;
+  border-radius: 44px;
+  height: auto;
+  font-size: 1rem;
+}
+
+.purplebutton {
+  background-color: $purple;
+  color: white;
+}
+.purplebutton:hover {
+  background-color: $purple !important;
+  color:white !important;
+  outline:0 !important;
+}
+
+.purpleoutlined {
+  color: $purple;
+  border: 2px solid $purple !important;
+}
+
+.purpledropdown {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+}
+.purpledropdown svg {
+  margin: 0 0 0 8px;
+}
+
+.EtherscanLink a {
+  color: $textgrey;
+  font-weight: normal;
 }

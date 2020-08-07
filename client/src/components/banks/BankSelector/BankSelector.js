@@ -3,6 +3,7 @@ import { Dropdown, Button, Menu } from "antd";
 import { DownOutlined } from "@ant-design/icons";
 
 import "./BankSelector.scss";
+import Icons from "../../../Icons";
 
 const BankSelector = ({ currentBank }) => {
   const handleMenuClick = () => {
@@ -18,8 +19,8 @@ const BankSelector = ({ currentBank }) => {
   return (
     <div>
       <Dropdown overlay={menu}>
-        <Button>
-          {currentBank.label} <DownOutlined />
+        <Button shape="round" className="purplebutton purpledropdown">
+          {currentBank.label} <Icons.Arrowdown />
         </Button>
       </Dropdown>
     </div>

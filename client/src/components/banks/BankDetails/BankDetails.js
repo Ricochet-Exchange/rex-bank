@@ -16,15 +16,14 @@ const BankDetails = () => {
     <div className="BankDetails">
       <div className="BankDetails__header">
         <h2>Commodo Main</h2>
-        <p>{state.activeBank.address}</p>
+        {/* <div className="BankDetails__address"><p>{state.activeBank.address}</p></div> */}
         <EtherscanLink path="address" hash={state.activeBank.address} />
         <Button
-          type="primary"
           shape="round"
-          icon={<PlusOutlined />}
           size="large"
+          className="purpleoutlined createvaultbtn"
         >
-          <Link to="/">Create Vault</Link>
+          <Link to="/">+ create vault</Link>
         </Button>
       </div>
 

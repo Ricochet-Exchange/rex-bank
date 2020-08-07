@@ -14,8 +14,8 @@ const BankStatusBar = () => {
   };
   return (
     <div className="BankStatusBar">
-      <div>TRB Price (USD) ${+data.collateralTokenPrice / granularity}</div>
-      <div>DAI Price (USD) ${+data.debtTokenPrice / granularity}</div>
+      <div>TRB Price (USD) <strong>${+data.collateralTokenPrice / granularity}</strong></div>
+      <div>DAI Price (USD) <strong>${+data.debtTokenPrice / granularity}</strong></div>
       <BankSelector currentBank={currentBank} />
     </div>
   );
