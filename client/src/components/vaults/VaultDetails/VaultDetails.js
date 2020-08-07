@@ -1,16 +1,21 @@
-import React from "react";
+import React, { useContext } from "react";
 import { BankOutlined } from "@ant-design/icons";
 
-import "./VaultDetails.scss";
+import { BankContext } from "../../../contexts/BankContext";
 import VaultActions from "./VaultActions/VaultActions";
 
+import "./VaultDetails.scss";
+
 const VaultDetails = () => {
+  const { state } = useContext(BankContext);
+  const data = state.activeBank.data;
+
   return (
     <div className="VaultDetails">
       <div className="VaultDetails__header">
         <div>
           <p>Collateralization Ratio</p>
-          <p>151.08%</p>
+          <p>{data.collateralizationRatio} %</p>
         </div>
         <div>
           <p>Liquidation Price</p>
@@ -19,7 +24,7 @@ const VaultDetails = () => {
         <div>
           <p>This vault is part of</p>
           <p>Commodo Main</p>
-          <p>0x123...dude</p>
+          <p>{state.activeBank.address}</p>
           <BankOutlined />
         </div>
       </div>
@@ -27,11 +32,11 @@ const VaultDetails = () => {
       <div className="VaultDetails__content">
         <div>
           <p>Total Collateral Locked</p>
-          <p>50 trb</p>
+          <p>{(+data.vaultCollateralAmount / 1e18).toFixed()} TRB</p>
         </div>
         <div>
           <p>Available to withdraw</p>
-          <p>4 trb</p>
+          <p>{(+data.vaultRepayAmount / 1e18).toFixed()} TRB</p>
         </div>
         <VaultActions section="locked" />
       </div>
@@ -39,11 +44,11 @@ const VaultDetails = () => {
       <div className="VaultDetails__content">
         <div>
           <p>Total Debt Owed</p>
-          <p>232.3 dai</p>
+          <p>{(+data.vaultDebtAmount / 1e18).toFixed()} DAI</p>
         </div>
         <div>
           <p>Available to borrow</p>
-          <p>4 trb</p>
+          <p>{(+data.reserveBalance / 1e18).toFixed()} DAI</p>
         </div>
         <VaultActions section="borrow" />
       </div>
