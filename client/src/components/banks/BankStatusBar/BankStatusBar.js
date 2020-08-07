@@ -10,12 +10,13 @@ const BankStatusBar = () => {
   const granularity = 1000000;
 
   const currentBank = {
-    label: "TRB-DAI",
+    label: `${state.activeBank.data.collateralToken.symbol}-${state.activeBank.data.debtToken.symbol}`,
   };
+
   return (
     <div className="BankStatusBar">
-      <div>TRB Price (USD) ${+data.collateralTokenPrice / granularity}</div>
-      <div>DAI Price (USD) ${+data.debtTokenPrice / granularity}</div>
+      <div>TRB Price (USD) ${+data.collateralToken.price / granularity}</div>
+      <div>DAI Price (USD) ${+data.debtToken.price / granularity}</div>
       <BankSelector currentBank={currentBank} />
     </div>
   );

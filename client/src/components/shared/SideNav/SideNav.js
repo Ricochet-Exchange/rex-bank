@@ -5,6 +5,7 @@ import { Menu } from "antd";
 
 import { Web3Context } from "../../../contexts/RootContexts";
 import Web3SignIn from "../../account/Web3SignIn";
+import { BankContext } from "../../../contexts/BankContext";
 
 import Icons from "../../../Icons";
 
@@ -12,6 +13,7 @@ import "./SideNav.scss";
 
 const SideNav = () => {
   const [web3] = useContext(Web3Context);
+  const { state } = useContext(BankContext);
 
   return (
     <Menu defaultSelectedKeys={["1"]} mode="inline" inlineIndent={0}>
@@ -24,10 +26,12 @@ const SideNav = () => {
 
       {web3 && web3.account ? (
         <Menu.Item key="2">
-          <Link to="/vault">
-            <Icons.Vault />
-            Vault
-          </Link>
+          {state.activeBank && state.activeBank.address ? (
+            <Link to={`/vault/${state.activeBank.address}`}>
+              <Icons.Vault />
+              Vault
+            </Link>
+          ) : null}
         </Menu.Item>
       ) : (
         <Web3SignIn />
