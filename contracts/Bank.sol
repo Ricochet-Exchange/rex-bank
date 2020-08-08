@@ -47,6 +47,7 @@ contract Bank is BankStorage, UsingTellor {
   */
   function init(
     address creator,
+    string memory bankName,
     uint256 interestRate,
     uint256 originationFee,
     uint256 collateralizationRatio,
@@ -63,6 +64,7 @@ contract Bank is BankStorage, UsingTellor {
     tellorStorageAddress = oracleContract;
     _tellorm = TellorMaster(tellorStorageAddress);
     _owner = creator; // Make the creator the first admin
+    name = bankName;
   }
 
   /**
@@ -135,8 +137,7 @@ contract Bank is BankStorage, UsingTellor {
   */
   function updateCollateralPrice() external {
     bool ifRetrieve;
-    uint256 _timestampRetrieved;
-    (ifRetrieve, collateral.price, _timestampRetrieved) = getCurrentValue(collateral.tellorRequestId); //,now - 1 hours);
+    (ifRetrieve, collateral.price, collateral.lastUpdatedAt) = getCurrentValue(collateral.tellorRequestId); //,now - 1 hours);
     emit PriceUpdate(collateral.tokenAddress, collateral.price);
   }
 
@@ -146,8 +147,7 @@ contract Bank is BankStorage, UsingTellor {
   */
   function updateDebtPrice() external {
     bool ifRetrieve;
-    uint256 _timestampRetrieved;
-    (ifRetrieve, debt.price, _timestampRetrieved) = getCurrentValue(debt.tellorRequestId); //,now - 1 hours);
+    (ifRetrieve, debt.price, debt.lastUpdatedAt) = getCurrentValue(debt.tellorRequestId); //,now - 1 hours);
     emit PriceUpdate(debt.tokenAddress, debt.price);
   }
 
@@ -199,7 +199,7 @@ contract Bank is BankStorage, UsingTellor {
     maxBorrow -= vaults[msg.sender].debtAmount;
     require(amount < maxBorrow, "NOT ENOUGH COLLATERAL");
     require(amount <= reserve.debtBalance, "NOT ENOUGH RESERVES");
-    vaults[msg.sender].debtAmount += amount + ((amount * reserve.originationFee) / 100);
+    vaults[msg.sender].debtAmount += amount + ((amount * reserve.originationFee) / 10000);
     if (block.timestamp - vaults[msg.sender].createdAt > reserve.period) {
       // Only adjust if more than 1 interest rate period has past
       vaults[msg.sender].createdAt = block.timestamp;

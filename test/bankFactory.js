@@ -23,6 +23,7 @@ contract("BankFactory", function(_accounts) {
   const COLLATERALIZATION_RATIO = 150;
   const LIQUIDATION_PENALTY = 25;
   const PERIOD = 86400;
+  const BANK_NAME = "Test Bank";
 
   beforeEach(async function () {
     // Tellor
@@ -56,7 +57,7 @@ contract("BankFactory", function(_accounts) {
 
   it("should create a bank clone with correct parameters", async function(){
     var clone = await this.bankFactory.createBank(
-      INTEREST_RATE, ORIGINATION_FEE, COLLATERALIZATION_RATIO, LIQUIDATION_PENALTY, PERIOD, this.oracle.address,
+      BANK_NAME, INTEREST_RATE, ORIGINATION_FEE, COLLATERALIZATION_RATIO, LIQUIDATION_PENALTY, PERIOD, this.oracle.address,
       {"from": _accounts[1]}
     );
     let bankClone = await Bank.at(clone.logs[0].args.newBankAddress);

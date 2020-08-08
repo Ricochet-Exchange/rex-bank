@@ -17,12 +17,8 @@ contract BankFactory is Ownable, CloneFactory {
     bankAddress = _bankAddress;
   }
 
-  //is this necessary?  Should you just have to deploy a new one for max decentralization?
-  function setBankAddress(address _bankAddress) public onlyOwner {
-    bankAddress = _bankAddress;
-  }
-
   function createBank(
+    string memory name,
     uint256 interestRate,
     uint256 originationFee,
     uint256 collateralizationRatio,
@@ -31,7 +27,7 @@ contract BankFactory is Ownable, CloneFactory {
     address payable oracleAddress) public returns(address) {
 
     address clone = createClone(bankAddress);
-    Bank(clone).init(msg.sender, interestRate, originationFee, collateralizationRatio, liquidationPenalty, period, oracleAddress);
+    Bank(clone).init(msg.sender, name, interestRate, originationFee, collateralizationRatio, liquidationPenalty, period, oracleAddress);
     banks.push(clone);
     emit BankCreated(clone);
   }

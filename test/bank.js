@@ -17,11 +17,12 @@ var CT = artifacts.require("GLDToken");
 var DT = artifacts.require("USDToken");
 
 contract("Bank", function(_accounts) {
-  const INTEREST_RATE = 12;
-  const ORIGINATION_FEE = 1;
+  const INTEREST_RATE = 1200; // 12%
+  const ORIGINATION_FEE = 100; // 1%
   const COLLATERALIZATION_RATIO = 150;
   const LIQUIDATION_PENALTY = 25;
   const PERIOD = 86400;
+  const BANK_NAME = "Test Bank";
 
   beforeEach(async function () {
     // Tellor
@@ -35,7 +36,7 @@ contract("Bank", function(_accounts) {
     this.ct = await CT.new(ether(new BN(10000)));
     this.dt = await DT.new(ether(new BN(10000)));
     this.bank = await Bank.new(this.oracle.address);
-    await this.bank.init(_accounts[0], INTEREST_RATE, ORIGINATION_FEE, COLLATERALIZATION_RATIO, LIQUIDATION_PENALTY, PERIOD, this.oracle.address);
+    await this.bank.init(_accounts[0], BANK_NAME, INTEREST_RATE, ORIGINATION_FEE, COLLATERALIZATION_RATIO, LIQUIDATION_PENALTY, PERIOD, this.oracle.address);
     await this.bank.setCollateral(this.ct.address, 2, 1000, 1000);
     await this.bank.setDebt(this.dt.address, 1, 1000, 1000);
     this.depositAmount = ether(new BN(100));
@@ -83,8 +84,10 @@ contract("Bank", function(_accounts) {
     const owner = await this.bank.owner();
     const dtAddress = await this.bank.getDebtTokenAddress()
     const ctAddress = await this.bank.getCollateralTokenAddress()
+    const name = await this.bank.getName()
 
     assert.equal(owner, _accounts[0]);
+    assert.equal(name, BANK_NAME);
     assert.equal(interestRate, INTEREST_RATE);
     assert.equal(originationFee, ORIGINATION_FEE);
     assert.equal(collateralizationRatio, COLLATERALIZATION_RATIO);
@@ -168,7 +171,7 @@ contract("Bank", function(_accounts) {
     expect(collateralAmount).to.be.bignumber.equal(this.depositAmount);
     // Calculate borrowed amount
     var b_amount = parseInt(this.borrowAmount);
-    b_amount += (b_amount * ORIGINATION_FEE)/100;
+    b_amount += (b_amount * ORIGINATION_FEE)/10000;
     expect(debtAmount).to.be.bignumber.equal(b_amount.toString());
 
     const collateralBalance = await this.ct.balanceOf(this.bank.address);
@@ -191,10 +194,10 @@ contract("Bank", function(_accounts) {
     expect(collateralAmount).to.be.bignumber.equal(this.depositAmount);
     // Calculate borrowed amount, use pays origination fee on 2 borrows
     var s_amount = new BN(this.smallBorrowAmount);
-    var b_amount = s_amount.add(s_amount.mul(new BN(ORIGINATION_FEE)).div(new BN(100)));
-    var f_b_amount = b_amount.add(b_amount.mul(new BN(INTEREST_RATE)).div(new BN(100)).div(new BN(365)));
-    f_b_amount = f_b_amount.add(b_amount.mul(new BN(INTEREST_RATE)).div(new BN(100)).div(new BN(365)));
-    f_b_amount = f_b_amount.add(s_amount.mul(new BN(ORIGINATION_FEE)).div(new BN(100)));
+    var b_amount = s_amount.add(s_amount.mul(new BN(ORIGINATION_FEE)).div(new BN(10000)));
+    var f_b_amount = b_amount.add(b_amount.mul(new BN(INTEREST_RATE)).div(new BN(10000)).div(new BN(365)));
+    f_b_amount = f_b_amount.add(b_amount.mul(new BN(INTEREST_RATE)).div(new BN(10000)).div(new BN(365)));
+    f_b_amount = f_b_amount.add(s_amount.mul(new BN(ORIGINATION_FEE)).div(new BN(10000)));
     f_b_amount = f_b_amount.add(s_amount);
     expect(debtAmount).to.be.bignumber.equal(f_b_amount.toString());
 
@@ -213,9 +216,9 @@ contract("Bank", function(_accounts) {
     await time.increase(60*60*24*2+10) // Let two days pass
     const repayAmount = await this.bank.getVaultRepayAmount({from: _accounts[1]});
     var b_amount = new BN(this.borrowAmount);
-    b_amount = b_amount.add(b_amount.mul(new BN(ORIGINATION_FEE)).div(new BN(100)));
-    var f_b_amount = b_amount.add(b_amount.mul(new BN(INTEREST_RATE)).div(new BN(100)).div(new BN(365))); // Day 1 interest rate
-    f_b_amount = f_b_amount.add(b_amount.mul(new BN(INTEREST_RATE)).div(new BN(100)).div(new BN(365))); // Day 2 interest rate
+    b_amount = b_amount.add(b_amount.mul(new BN(ORIGINATION_FEE)).div(new BN(10000)));
+    var f_b_amount = b_amount.add(b_amount.mul(new BN(INTEREST_RATE)).div(new BN(10000)).div(new BN(365))); // Day 1 interest rate
+    f_b_amount = f_b_amount.add(b_amount.mul(new BN(INTEREST_RATE)).div(new BN(10000)).div(new BN(365))); // Day 2 interest rate
     expect(repayAmount).to.be.bignumber.equal(f_b_amount.toString());
     const collateralBalance = await this.ct.balanceOf(this.bank.address);
     const debtBalance = await this.dt.balanceOf(this.bank.address);
@@ -233,15 +236,15 @@ contract("Bank", function(_accounts) {
     await time.increase(60*60*24+10) // Let one days pass
     var repayAmount = await this.bank.getVaultRepayAmount({from: _accounts[1]});
     var b_amount = new BN(this.borrowAmount);
-    b_amount = b_amount.add(b_amount.mul(new BN(ORIGINATION_FEE)).div(new BN(100)));
-    b_amount = b_amount.add(b_amount.mul(new BN(INTEREST_RATE)).div(new BN(100)).div(new BN(365))); // Day 1 interest rate
+    b_amount = b_amount.add(b_amount.mul(new BN(ORIGINATION_FEE)).div(new BN(10000)));
+    b_amount = b_amount.add(b_amount.mul(new BN(INTEREST_RATE)).div(new BN(10000)).div(new BN(365))); // Day 1 interest rate
     expect(repayAmount).to.be.bignumber.equal(b_amount.toString());
 
     await this.dt.approve(this.bank.address, this.smallBorrowAmount, {from: _accounts[1]});
     await this.bank.vaultRepay(this.smallBorrowAmount, {from: _accounts[1]});
     await time.increase(60*60*24+10) // Let one days pass
     b_amount = b_amount.sub(this.smallBorrowAmount);
-    b_amount = b_amount.add(b_amount.mul(new BN(INTEREST_RATE)).div(new BN(100)).div(new BN(365))); // Day 1 interest rate
+    b_amount = b_amount.add(b_amount.mul(new BN(INTEREST_RATE)).div(new BN(10000)).div(new BN(365))); // Day 1 interest rate
     var repayAmount = await this.bank.getVaultRepayAmount({from: _accounts[1]});
     expect(repayAmount).to.be.bignumber.equal(b_amount.toString());
 
@@ -265,9 +268,9 @@ contract("Bank", function(_accounts) {
     const debtAmount = await this.bank.getVaultDebtAmount({from: _accounts[1]});
     expect(debtAmount).to.be.bignumber.equal(this.zero);
     var b_amount = new BN(this.borrowAmount);
-    b_amount = b_amount.add(b_amount.mul(new BN(ORIGINATION_FEE)).div(new BN(100)));
-    var f_b_amount = b_amount.add(b_amount.mul(new BN(INTEREST_RATE)).div(new BN(100)).div(new BN(365))); // Day 1 interest rate
-    f_b_amount = f_b_amount.add(b_amount.mul(new BN(INTEREST_RATE)).div(new BN(100)).div(new BN(365))); // Day 2 interest rate
+    b_amount = b_amount.add(b_amount.mul(new BN(ORIGINATION_FEE)).div(new BN(10000)));
+    var f_b_amount = b_amount.add(b_amount.mul(new BN(INTEREST_RATE)).div(new BN(10000)).div(new BN(365))); // Day 1 interest rate
+    f_b_amount = f_b_amount.add(b_amount.mul(new BN(INTEREST_RATE)).div(new BN(10000)).div(new BN(365))); // Day 2 interest rate
     // The debt balance should be the original + fees and interest
     const collateralBalance = await this.ct.balanceOf(this.bank.address);
     const debtBalance = await this.dt.balanceOf(this.bank.address);
@@ -299,12 +302,11 @@ contract("Bank", function(_accounts) {
     await this.bank.reserveDeposit(this.depositAmount);
 
     // The first price for the collateral and debt
-    for(var j = 0; j < 50; j++ ){
-      await web3.eth.sendTransaction({to:this.oa,from:_accounts[0],gas:4000000,data:this.oracle2.methods.requestData("USDT","USDT/USD",1000,0).encodeABI()})
-      for(var i = 0;i <=4 ;i++){
-        await web3.eth.sendTransaction({to: this.oracle.address,from:_accounts[i],gas:4000000,data:this.oracle2.methods.submitMiningSolution("nonce", 1, 1000).encodeABI()})
-      }
+    await web3.eth.sendTransaction({to:this.oa,from:_accounts[0],gas:4000000,data:this.oracle2.methods.requestData("USDT","USDT/USD",1000,0).encodeABI()})
+    for(var i = 0;i <=4 ;i++){
+      await web3.eth.sendTransaction({to: this.oracle.address,from:_accounts[i],gas:4000000,data:this.oracle2.methods.submitMiningSolution("nonce", 1, 1000).encodeABI()})
     }
+
     await web3.eth.sendTransaction({to:this.oa,from:_accounts[0],gas:4000000,data:this.oracle2.methods.requestData("GLD","GLD/USD",1000,0).encodeABI()})
     for(var i = 0;i <=4 ;i++){
       await web3.eth.sendTransaction({to: this.oracle.address,from:_accounts[i],gas:4000000,data:this.oracle2.methods.submitMiningSolution("nonce", 2, 1700000).encodeABI()})
