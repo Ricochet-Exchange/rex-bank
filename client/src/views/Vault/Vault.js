@@ -11,6 +11,8 @@ import VaultDetails from "../../components/vaults/VaultDetails/VaultDetails";
 import Loading from "../../components/shared/Loader/Loader";
 
 import "./Vault.scss";
+import Icons from "../../Icons";
+
 
 const Vault = () => {
   const [web3] = useContext(Web3Context);
@@ -54,18 +56,18 @@ const Vault = () => {
               <VaultDetails />
             </>
           ) : (
-            <>
-              <p>You didn't create a vault yet.</p>
-              <p>Choose a bank to create a vault with.</p>
+            <div className="Vault__Empty">
+              <p>You didn't create a vault yet.<br /><strong>Choose a bank to create a vault with.</strong></p>
+              <Link to="/">
               <Button
-                type="primary"
-                shape="round"
-                icon={<BankOutlined />}
+                className="heavyshadow"
                 size="large"
               >
-                <Link to="/">View Banks</Link>
+                <Icons.Bank fill="#4F56B5"/>
+                view banks
               </Button>
-            </>
+              </Link>
+            </div>
           )}
         </>
       ) : (

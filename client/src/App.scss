@@ -1,11 +1,13 @@
 @import "~antd/dist/antd.css";
 @import 'branding';
-$primary: $purple;
 
 h1 {
   color: $purple;
 }
 
+.App, .ant-layout-content {
+  background-color: $lightgrey;
+}
 
 
 /* ALL SIDER STUFF */
@@ -31,7 +33,7 @@ h1 {
 
 .ant-menu-inline .ant-menu-item {
   width: 140px;
-  height: 114px;
+  height: 110px;
   margin: 0;
   padding: 0;
   // background-color: red;
@@ -40,6 +42,11 @@ h1 {
   justify-content: center;
   align-items: center;
   opacity: 0.5;
+  transition: 0.25s ease all;
+}
+
+.ant-menu-inline .ant-menu-item:hover {
+  opacity: 0.65;
 }
 
 
@@ -60,8 +67,9 @@ h1 {
 
 .ant-menu-inline .ant-menu-item-selected {
   background: none !important;
-  opacity: 1;
+  opacity: 1 !important;
   border: none !important;
+  margin: 0 !important;
 }
 
 .ant-menu-inline .ant-menu-item::after {
@@ -87,7 +95,7 @@ h1 {
   background-color: $purple;
   color: white;
 }
-.purplebutton:hover {
+.purplebutton:hover, .purplebutton .ant-btn:focus {
   background-color: $purple !important;
   color:white !important;
   outline:0 !important;
@@ -112,3 +120,4 @@ h1 {
   color: $textgrey;
   font-weight: normal;
 }
+
