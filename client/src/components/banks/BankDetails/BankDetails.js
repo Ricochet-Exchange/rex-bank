@@ -7,6 +7,7 @@ import EtherscanLink from "../../shared/EtherscanLink/EthercanLink";
 
 import "./BankDetails.scss";
 import CreateVault from "../../vaults/CreateVault/CreateVault";
+import { truncateAddr } from "../../../utils/helpers";
 
 const BankDetails = () => {
   const { state } = useContext(BankContext);
@@ -18,7 +19,7 @@ const BankDetails = () => {
       <div className="BankDetails">
         <div className="BankDetails__header">
           <h2>Commodo Main</h2>
-          <p>{state.activeBank.address}</p>
+          <p>{truncateAddr(state.activeBank.address)}</p>
           <EtherscanLink path="address" hash={state.activeBank.address} />
 
           {!state.activeBank.data.vault.hasVault ? (
@@ -34,10 +35,12 @@ const BankDetails = () => {
         </div>
 
         <div className="BankDetails__content">
-
           <div className="BankDetail flexer">
             <p>Available for borrow</p>
-            <div className="BigDetail"><h1>{(+data.reserveBalance / 1e18).toFixed()}</h1><h3> DAI</h3></div>
+            <div className="BigDetail">
+              <h1>{(+data.reserveBalance / 1e18).toFixed()}</h1>
+              <h3> DAI</h3>
+            </div>
           </div>
 
           <div className="BankDetails__Column">
@@ -49,7 +52,6 @@ const BankDetails = () => {
               <p>Origination Fee</p>
               <h3>{data.originationFee} %</h3>
             </div>
-
           </div>
 
           <div>
