@@ -23,7 +23,7 @@ const Banks = () => {
         const bankService = new BankService(
           bankAddress,
           web3.service,
-          web3.account !== ""
+          web3.account
         );
         const bankState = await bankService.getBankState();
         banks[bankAddress] = { service: bankService, data: bankState };

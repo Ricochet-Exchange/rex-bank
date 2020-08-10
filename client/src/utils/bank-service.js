@@ -7,11 +7,11 @@ export default class BankService {
   bankAbi;
   contract;
 
-  constructor(contractAddr, web3Service, hasConnectedAccount) {
+  constructor(contractAddr, web3Service, connectedAccount) {
     this.contractAddr = contractAddr;
     this.web3Service = web3Service;
     this.bankAbi = BankAbi.abi;
-    this.hasConnectedAccount = hasConnectedAccount;
+    this.connectedAccount = connectedAccount;
   }
 
   async initContract() {
@@ -65,9 +65,18 @@ export default class BankService {
   async getTokenData(tokenAddress) {
     const tokenService = new TokenService(tokenAddress, this.web3Service);
 
+    let unlocked = 0;
+    if (this.connectedAccount !== "") {
+      unlocked = await tokenService.allowance(
+        this.connectedAccount,
+        this.contractAddr
+      );
+    }
+
     return {
       address: tokenAddress,
       symbol: await tokenService.getSymbol(),
+      unlockedAmount: unlocked,
     };
   }
 
