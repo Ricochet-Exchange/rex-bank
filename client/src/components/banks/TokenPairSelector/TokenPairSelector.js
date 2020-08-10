@@ -1,14 +1,20 @@
-import React from "react";
+import React, { useContext } from "react";
 import { Dropdown, Button, Menu } from "antd";
-import { DownOutlined } from "@ant-design/icons";
 
-import "./BankSelector.scss";
+import { BankContext } from "../../../contexts/BankContext";
 import Icons from "../../../Icons";
 
-const BankSelector = ({ currentBank }) => {
+import "./TokenPairSelector.scss";
+
+const TokenPairSelector = () => {
+  const { state } = useContext(BankContext);
+
   const handleMenuClick = () => {
+    //TODO: Will dispatch to set active pair in bank context
     console.log("bank selected");
   };
+
+  //TODO: This will need a way to look up all token pairs and associate to a bank so get the correct data
   const menu = (
     <Menu onClick={handleMenuClick}>
       <Menu.Item key="1">1st menu item</Menu.Item>
@@ -18,13 +24,13 @@ const BankSelector = ({ currentBank }) => {
   );
   return (
     <div>
-      <Dropdown overlay={menu}>
+      <Dropdown overlay={menu} disabled={true}>
         <Button shape="round" className="purplebutton purpledropdown">
-          {currentBank.label} <Icons.Arrowdown />
+          {state.activePair} <Icons.Arrowdown />
         </Button>
       </Dropdown>
     </div>
   );
 };
 
-export default BankSelector;
+export default TokenPairSelector;

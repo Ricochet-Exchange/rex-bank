@@ -37,7 +37,7 @@ const RootContexts = ({ children }) => {
             } else {
               const web3 = new Web3(
                 new Web3.providers.HttpProvider(
-                  process.env.REACT_APP_INFURA_URI.split("/").pop()
+                  process.env.REACT_APP_INFURA_URI
                 )
               );
               const service = new Web3Service(web3);
@@ -48,9 +48,7 @@ const RootContexts = ({ children }) => {
           case USER_TYPE.READ_ONLY:
           default:
             const web3 = new Web3(
-              new Web3.providers.HttpProvider(
-                process.env.REACT_APP_INFURA_URI.split("/").pop()
-              )
+              new Web3.providers.HttpProvider(process.env.REACT_APP_INFURA_URI)
             );
             const service = new Web3Service(web3);
             setW3Context({ service, account: "" });
@@ -70,7 +68,6 @@ const RootContexts = ({ children }) => {
         const service = new Web3Service(web3);
         setW3Context({ service, account: "" });
       } finally {
-        // set up contract
       }
     };
 

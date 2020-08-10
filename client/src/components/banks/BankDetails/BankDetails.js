@@ -1,37 +1,47 @@
-import React, { useContext, useState } from "react";
-import { Modal, Button } from "antd";
-import { PlusOutlined } from "@ant-design/icons";
+import React, { useState, useContext } from "react";
+import { Button } from "antd";
 
-import { BankContext } from "../../../contexts/BankContext";
+import { Web3Context } from "../../../contexts/RootContexts";
+import { truncateAddr } from "../../../utils/helpers";
 import EtherscanLink from "../../shared/EtherscanLink/EthercanLink";
+import CreateVault from "../../vaults/CreateVault/CreateVault";
+import Web3SignIn from "../../account/Web3SignIn";
 
 import "./BankDetails.scss";
-import CreateVault from "../../vaults/CreateVault/CreateVault";
-import { truncateAddr } from "../../../utils/helpers";
-
-const BankDetails = () => {
-  const { state } = useContext(BankContext);
+const BankDetails = ({ address, bank }) => {
+  console.log("bank", bank);
+  const [web3] = useContext(Web3Context);
   const [creatingVault, setCreatingVault] = useState(false);
-  const data = state.activeBank.data;
+
+  const data = bank.data;
 
   return (
     <>
       <div className="BankDetails">
         <div className="BankDetails__header">
           <h2>Commodo Main</h2>
-          <p>{truncateAddr(state.activeBank.address)}</p>
-          <EtherscanLink path="address" hash={state.activeBank.address} />
+          <p>{truncateAddr(address)}</p>
+          <EtherscanLink path="address" hash={address} />
 
-          {!state.activeBank.data.vault.hasVault ? (
-            <Button
-              shape="round"
-              size="large"
-              className="purpleoutlined createvaultbtn"
-              onClick={() => setCreatingVault(true)}
-            >
-              + create vault
-            </Button>
-          ) : null}
+          {web3 && web3.account ? (
+            <>
+              {!bank.data.vault.hasVault ? (
+                <Button
+                  shape="round"
+                  size="large"
+                  className="purpleoutlined createvaultbtn"
+                  onClick={() => setCreatingVault(true)}
+                >
+                  + create vault
+                </Button>
+              ) : null}
+            </>
+          ) : (
+            <>
+              <p>Sign in to see your vaults</p>
+              <Web3SignIn />
+            </>
+          )}
         </div>
 
         <div className="BankDetails__content">
