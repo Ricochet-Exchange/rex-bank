@@ -29,6 +29,7 @@
 $notwhitetxt: #B1B7DD;
 $lightgrey: #F5F7FA;
 $purple: #4F56B5;
+$textgrey: #848484;
 
 a {
     color: $purple;
@@ -52,6 +53,13 @@ a {
     height: auto;
     border-radius: 10px;
 }
+button {
+    transition-property: all;
+    transition-duration: 0.05s !important;
+    transition-timing-function: ease-in-out;
+    transition-delay: 0;
+}
 
-
-
+button:hover {
+    transform: scale(0.98,0.98);
+}

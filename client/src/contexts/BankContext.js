@@ -1,19 +1,20 @@
-import React, { useEffect, useReducer } from "react";
+import React, { useReducer } from "react";
 
-import { CONTRACT_ADDRESSES } from "../utils/constants";
-import { getUsd } from "../utils/prices";
+import { TOKEN_PAIRS, CONTRACT_ADDRESSES } from "../utils/constants";
 
 const BankContext = React.createContext();
 
 // TODO: Will be dynamic and pulled from a factory contract or a larger list in the future
 const initialState = {
-  banks: [CONTRACT_ADDRESSES[process.env.REACT_APP_CHAIN_ID].bank],
+  tokenPairs: TOKEN_PAIRS,
+  activePair: TOKEN_PAIRS[0],
+  bankAddresses: CONTRACT_ADDRESSES[process.env.REACT_APP_CHAIN_ID],
+  banks: null,
   activeBank: {
     address: null,
     service: null,
     data: null,
   },
-  prices: null,
 };
 
 const reducer = (state, action) => {
@@ -21,11 +22,8 @@ const reducer = (state, action) => {
     case "setBanks": {
       return { ...state, banks: action.payload };
     }
-    case "setActiveBank": {
-      return { ...state, activeBank: action.payload };
-    }
-    case "setPrices": {
-      return { ...state, prices: action.payload };
+    case "setActivePair": {
+      return { ...state, activePair: action.payload };
     }
 
     default: {
@@ -37,29 +35,6 @@ const reducer = (state, action) => {
 const BankContextProvider = (props) => {
   const [state, dispatch] = useReducer(reducer, initialState);
   const value = { state, dispatch };
-
-  useEffect(() => {
-    const getAllPrices = async () => {
-      // TODO: maybe get from the banks
-      const tokensAddresses = [
-        CONTRACT_ADDRESSES[process.env.REACT_APP_CHAIN_ID].dai,
-        CONTRACT_ADDRESSES[process.env.REACT_APP_CHAIN_ID].trb,
-      ];
-      let prices = {};
-      try {
-        const res = await getUsd(tokensAddresses.join(","));
-        prices = res.data;
-      } catch (err) {
-        console.log("price api error", err);
-      }
-
-      dispatch({ type: "setPrices", payload: prices });
-    };
-
-    getAllPrices();
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   return (
     <BankContext.Provider value={value}>{props.children}</BankContext.Provider>

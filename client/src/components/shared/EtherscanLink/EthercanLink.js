@@ -1,4 +1,5 @@
 import React from "react";
+import '../../../App.scss';
 
 const EtherscanLink = ({ path, hash }) => {
   const uri = () => {
@@ -18,7 +19,7 @@ const EtherscanLink = ({ path, hash }) => {
   return (
     <div className="EtherscanLink">
       <a href={`${uri()}${hash}`} target="_blank" rel="noopener noreferrer">
-        View on Etherscan
+        view on Etherscan
       </a>
     </div>
   );

@@ -1,49 +1,84 @@
-import React, { useContext } from "react";
-import { Link } from "react-router-dom";
+import React, { useState, useContext } from "react";
 import { Button } from "antd";
-import { PlusOutlined } from "@ant-design/icons";
 
-import { BankContext } from "../../../contexts/BankContext";
+import { Web3Context } from "../../../contexts/RootContexts";
+import { truncateAddr } from "../../../utils/helpers";
 import EtherscanLink from "../../shared/EtherscanLink/EthercanLink";
+import CreateVault from "../../vaults/CreateVault/CreateVault";
+import Web3SignIn from "../../account/Web3SignIn";
 
 import "./BankDetails.scss";
+const BankDetails = ({ address, bank }) => {
+  console.log("bank", bank);
+  const [web3] = useContext(Web3Context);
+  const [creatingVault, setCreatingVault] = useState(false);
 
-const BankDetails = () => {
-  const { state } = useContext(BankContext);
-  const data = state.activeBank.data;
+  const data = bank.data;
 
   return (
-    <div className="BankDetails">
-      <div className="BankDetails__header">
-        <h2>Commodo Main</h2>
-        <p>{state.activeBank.address}</p>
-        <EtherscanLink path="address" hash={state.activeBank.address} />
-        <Button
-          type="primary"
-          shape="round"
-          icon={<PlusOutlined />}
-          size="large"
-        >
-          <Link to="/">Create Vault</Link>
-        </Button>
-      </div>
+    <>
+      <div className="BankDetails">
+        <div className="BankDetails__header">
+          <h2>Commodo Main</h2>
+          <p>{truncateAddr(address)}</p>
+          <EtherscanLink path="address" hash={address} />
 
-      <div className="BankDetails__content">
-        <p>Available for borrow</p>
-        <p>{(+data.reserveBalance / 1e18).toFixed()} DAI</p>
-        <div>
-          <p>Interest Rate</p>
-          <p>{data.interestRate} %</p>
-          <p>Collateralization Ratio</p>
-          <p>{data.collateralizationRatio} %</p>
+          {web3 && web3.account ? (
+            <>
+              {!bank.data.vault.hasVault ? (
+                <Button
+                  shape="round"
+                  size="large"
+                  className="purpleoutlined createvaultbtn"
+                  onClick={() => setCreatingVault(true)}
+                >
+                  + create vault
+                </Button>
+              ) : null}
+            </>
+          ) : (
+            <>
+              <p>Sign in to see your vaults</p>
+              <Web3SignIn />
+            </>
+          )}
+        </div>
 
-          <p>Origination Fee</p>
-          <p>{data.originationFee} %</p>
-          <p>Liquidation Penalty</p>
-          <p>{data.liquidationPenalty} %</p>
+        <div className="BankDetails__content">
+          <div className="BankDetail flexer">
+            <p>Available for borrow</p>
+            <div className="BigDetail">
+              <h1>{(+data.reserveBalance / 1e18).toFixed()}</h1>
+              <h3> DAI</h3>
+            </div>
+          </div>
+
+          <div className="BankDetails__Column">
+            <div className="BankDetail">
+              <p>Interest Rate</p>
+              <h3>{data.interestRate} %</h3>
+            </div>
+            <div className="BankDetail">
+              <p>Origination Fee</p>
+              <h3>{data.originationFee} %</h3>
+            </div>
+          </div>
+
+          <div>
+            <div className="BankDetail">
+              <p>Collateralization Ratio</p>
+              <h3>{data.collateralizationRatio} %</h3>
+            </div>
+            <div className="BankDetail">
+              <p>Liquidation Penalty</p>
+              <h3>{data.liquidationPenalty} %</h3>
+            </div>
+          </div>
         </div>
       </div>
-    </div>
+
+      <CreateVault setVisible={setCreatingVault} visible={creatingVault} />
+    </>
   );
 };
 

@@ -1,14 +1,12 @@
-import React, { useContext } from "react";
+import React from "react";
 import { BankOutlined } from "@ant-design/icons";
 
-import { BankContext } from "../../../contexts/BankContext";
 import VaultActions from "./VaultActions/VaultActions";
 
 import "./VaultDetails.scss";
 
-const VaultDetails = () => {
-  const { state } = useContext(BankContext);
-  const data = state.activeBank.data;
+const VaultDetails = ({ address, bank }) => {
+  const data = bank.data;
 
   return (
     <div className="VaultDetails">
@@ -24,7 +22,7 @@ const VaultDetails = () => {
         <div>
           <p>This vault is part of</p>
           <p>Commodo Main</p>
-          <p>{state.activeBank.address}</p>
+          <p>{address}</p>
           <BankOutlined />
         </div>
       </div>
@@ -32,11 +30,11 @@ const VaultDetails = () => {
       <div className="VaultDetails__content">
         <div>
           <p>Total Collateral Locked</p>
-          <p>{(+data.vaultCollateralAmount / 1e18).toFixed()} TRB</p>
+          <p>{(+data.vault.collateralAmount / 1e18).toFixed()} TRB</p>
         </div>
         <div>
           <p>Available to withdraw</p>
-          <p>{(+data.vaultRepayAmount / 1e18).toFixed()} TRB</p>
+          <p>{(+data.vault.repayAmount / 1e18).toFixed()} TRB</p>
         </div>
         <VaultActions section="locked" />
       </div>
@@ -44,7 +42,7 @@ const VaultDetails = () => {
       <div className="VaultDetails__content">
         <div>
           <p>Total Debt Owed</p>
-          <p>{(+data.vaultDebtAmount / 1e18).toFixed()} DAI</p>
+          <p>{(+data.vault.debtAmount / 1e18).toFixed()} DAI</p>
         </div>
         <div>
           <p>Available to borrow</p>
