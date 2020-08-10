@@ -7,10 +7,11 @@ export default class BankService {
   bankAbi;
   contract;
 
-  constructor(contractAddr, web3Service) {
+  constructor(contractAddr, web3Service, hasConnectedAccount) {
     this.contractAddr = contractAddr;
     this.web3Service = web3Service;
     this.bankAbi = BankAbi.abi;
+    this.hasConnectedAccount = hasConnectedAccount;
   }
 
   async initContract() {
@@ -34,7 +35,6 @@ export default class BankService {
     const collateralTokenAddress = await this.contract.methods
       .getCollateralTokenAddress()
       .call();
-
     const debtToken = await this.getTokenData(debtTokenAddress);
     const collateralToken = await this.getTokenData(collateralTokenAddress);
 
@@ -59,13 +59,6 @@ export default class BankService {
         .getLiquidationPenalty()
         .call(),
       reserveBalance: await this.contract.methods.getReserveBalance().call(),
-      vaultCollateralAmount: await this.contract.methods
-        .getVaultCollateralAmount()
-        .call(),
-      vaultRepayAmount: await this.contract.methods
-        .getVaultRepayAmount()
-        .call(),
-      vaultDebtAmount: await this.contract.methods.getVaultDebtAmount().call(),
     };
   }
 

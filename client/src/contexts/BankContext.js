@@ -7,6 +7,7 @@ const BankContext = React.createContext();
 // TODO: Will be dynamic and pulled from a factory contract or a larger list in the future
 const initialState = {
   tokenPairs: TOKEN_PAIRS,
+  activePair: TOKEN_PAIRS[0],
   bankAddresses: CONTRACT_ADDRESSES[process.env.REACT_APP_CHAIN_ID],
   banks: null,
   activeBank: {
@@ -20,6 +21,9 @@ const reducer = (state, action) => {
   switch (action.type) {
     case "setBanks": {
       return { ...state, banks: action.payload };
+    }
+    case "setActivePair": {
+      return { ...state, activePair: action.payload };
     }
 
     default: {

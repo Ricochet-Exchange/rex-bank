@@ -11,23 +11,23 @@ import "./Banks.scss";
 
 const Banks = () => {
   const [web3] = useContext(Web3Context);
-
   const { state, dispatch } = useContext(BankContext);
 
-  useEffect(() => {
-    const getBankData = async () => {
-      console.log("state", state);
+  console.log("web3", web3);
 
+  useEffect(() => {
+    console.log("web3", web3);
+    const getBankData = async () => {
       let banks = {};
       for (const bankAddress of state.bankAddresses) {
-        const bankService = new BankService(bankAddress, web3.service);
-        console.log("bankService", bankService);
+        const bankService = new BankService(
+          bankAddress,
+          web3.service,
+          web3.account !== ""
+        );
         const bankState = await bankService.getBankState();
-
         banks[bankAddress] = { service: bankService, data: bankState };
       }
-
-      console.log("after", banks);
 
       dispatch({ type: "setBanks", payload: banks });
     };
@@ -39,12 +39,24 @@ const Banks = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [web3]);
 
+  const renderBanks = () => {
+    return Object.keys(state.banks).map((address) => {
+      return (
+        <BankDetails
+          key={address}
+          address={address}
+          bank={state.banks[address]}
+        />
+      );
+    });
+  };
+
   return (
     <div>
       {state.banks ? (
         <div className="BankTotal">
           <BankStatusBar />
-          {/* <BankDetails /> */}
+          {renderBanks()}
         </div>
       ) : (
         <Loading />

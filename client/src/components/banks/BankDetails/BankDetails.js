@@ -1,28 +1,27 @@
-import React, { useContext, useState } from "react";
-import { Modal, Button } from "antd";
-import { PlusOutlined } from "@ant-design/icons";
+import React, { useState } from "react";
+import { Button } from "antd";
 
-import { BankContext } from "../../../contexts/BankContext";
+import { truncateAddr } from "../../../utils/helpers";
 import EtherscanLink from "../../shared/EtherscanLink/EthercanLink";
+import CreateVault from "../../vaults/CreateVault/CreateVault";
 
 import "./BankDetails.scss";
-import CreateVault from "../../vaults/CreateVault/CreateVault";
-import { truncateAddr } from "../../../utils/helpers";
 
-const BankDetails = () => {
-  const { state } = useContext(BankContext);
+const BankDetails = ({ address, bank }) => {
+  console.log("bank", bank);
   const [creatingVault, setCreatingVault] = useState(false);
-  const data = state.activeBank.data;
+
+  const data = bank.data;
 
   return (
     <>
       <div className="BankDetails">
         <div className="BankDetails__header">
           <h2>Commodo Main</h2>
-          <p>{truncateAddr(state.activeBank.address)}</p>
-          <EtherscanLink path="address" hash={state.activeBank.address} />
+          <p>{truncateAddr(address)}</p>
+          <EtherscanLink path="address" hash={address} />
 
-          {!state.activeBank.data.vault.hasVault ? (
+          {!bank.data.vault.hasVault ? (
             <Button
               shape="round"
               size="large"

@@ -1,7 +1,6 @@
 import React, { useContext, useEffect } from "react";
 import { Link, useParams } from "react-router-dom";
 import { Button } from "antd";
-import { BankOutlined } from "@ant-design/icons";
 
 import { BankContext } from "../../contexts/BankContext";
 import { Web3Context } from "../../contexts/RootContexts";
@@ -9,10 +8,9 @@ import BankService from "../../utils/bank-service";
 import BankStatusBar from "../../components/banks/BankStatusBar/BankStatusBar";
 import VaultDetails from "../../components/vaults/VaultDetails/VaultDetails";
 import Loading from "../../components/shared/Loader/Loader";
-
-import "./Vault.scss";
 import Icons from "../../Icons";
 
+import "./Vault.scss";
 
 const Vault = () => {
   const [web3] = useContext(Web3Context);
@@ -57,15 +55,16 @@ const Vault = () => {
             </>
           ) : (
             <div className="Vault__Empty">
-              <p>You didn't create a vault yet.<br /><strong>Choose a bank to create a vault with.</strong></p>
+              <p>
+                You didn't create a vault yet.
+                <br />
+                <strong>Choose a bank to create a vault with.</strong>
+              </p>
               <Link to="/">
-              <Button
-                className="heavyshadow"
-                size="large"
-              >
-                <Icons.Bank fill="#4F56B5"/>
-                view banks
-              </Button>
+                <Button className="heavyshadow" size="large">
+                  <Icons.Bank fill="#4F56B5" />
+                  view banks
+                </Button>
               </Link>
             </div>
           )}
