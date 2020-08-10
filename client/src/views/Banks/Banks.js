@@ -32,7 +32,7 @@ const Banks = () => {
       dispatch({ type: "setBanks", payload: banks });
     };
 
-    if (web3 && web3.service) {
+    if (web3 && web3.service && !state.banks) {
       getBankData();
     }
 
@@ -54,10 +54,12 @@ const Banks = () => {
   return (
     <div>
       {state.banks ? (
-        <div className="BankTotal">
-          <BankStatusBar />
+        <>
+          <div className="BankTotal">
+            <BankStatusBar />
+          </div>
           {renderBanks()}
-        </div>
+        </>
       ) : (
         <Loading />
       )}

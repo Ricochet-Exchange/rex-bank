@@ -1,14 +1,12 @@
-import React, { useContext } from "react";
+import React from "react";
 import { BankOutlined } from "@ant-design/icons";
 
-import { BankContext } from "../../../contexts/BankContext";
 import VaultActions from "./VaultActions/VaultActions";
 
 import "./VaultDetails.scss";
 
-const VaultDetails = () => {
-  const { state } = useContext(BankContext);
-  const data = state.activeBank.data;
+const VaultDetails = ({ address, bank }) => {
+  const data = bank.data;
 
   return (
     <div className="VaultDetails">
@@ -24,7 +22,7 @@ const VaultDetails = () => {
         <div>
           <p>This vault is part of</p>
           <p>Commodo Main</p>
-          <p>{state.activeBank.address}</p>
+          <p>{address}</p>
           <BankOutlined />
         </div>
       </div>

@@ -1,14 +1,16 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import { Button } from "antd";
 
+import { Web3Context } from "../../../contexts/RootContexts";
 import { truncateAddr } from "../../../utils/helpers";
 import EtherscanLink from "../../shared/EtherscanLink/EthercanLink";
 import CreateVault from "../../vaults/CreateVault/CreateVault";
+import Web3SignIn from "../../account/Web3SignIn";
 
 import "./BankDetails.scss";
-
 const BankDetails = ({ address, bank }) => {
   console.log("bank", bank);
+  const [web3] = useContext(Web3Context);
   const [creatingVault, setCreatingVault] = useState(false);
 
   const data = bank.data;
@@ -21,16 +23,25 @@ const BankDetails = ({ address, bank }) => {
           <p>{truncateAddr(address)}</p>
           <EtherscanLink path="address" hash={address} />
 
-          {!bank.data.vault.hasVault ? (
-            <Button
-              shape="round"
-              size="large"
-              className="purpleoutlined createvaultbtn"
-              onClick={() => setCreatingVault(true)}
-            >
-              + create vault
-            </Button>
-          ) : null}
+          {web3 && web3.account ? (
+            <>
+              {!bank.data.vault.hasVault ? (
+                <Button
+                  shape="round"
+                  size="large"
+                  className="purpleoutlined createvaultbtn"
+                  onClick={() => setCreatingVault(true)}
+                >
+                  + create vault
+                </Button>
+              ) : null}
+            </>
+          ) : (
+            <>
+              <p>Sign in to see your vaults</p>
+              <Web3SignIn />
+            </>
+          )}
         </div>
 
         <div className="BankDetails__content">
