@@ -7,6 +7,7 @@ import "./BankStatusBar.scss";
 
 const BankStatusBar = () => {
   const { state } = useContext(BankContext);
+  const [activePair, setActivePair] = useState(state.tokenPairs[0]);
   const data = state.activeBank.data;
   const granularity = 1000000;
 

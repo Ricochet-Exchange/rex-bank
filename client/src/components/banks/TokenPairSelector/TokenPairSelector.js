@@ -2,10 +2,10 @@ import React from "react";
 import { Dropdown, Button, Menu } from "antd";
 import { DownOutlined } from "@ant-design/icons";
 
-import "./BankSelector.scss";
+import "./TokenPairSelector.scss";
 import Icons from "../../../Icons";
 
-const BankSelector = ({ currentBank }) => {
+const TokenPairSelector = ({ currentBank }) => {
   const handleMenuClick = () => {
     console.log("bank selected");
   };
@@ -27,4 +27,4 @@ const BankSelector = ({ currentBank }) => {
   );
 };
 
-export default BankSelector;
+export default TokenPairSelector;

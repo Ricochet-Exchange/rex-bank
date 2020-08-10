@@ -1,5 +1,4 @@
 import React, { useEffect, useContext } from "react";
-import { useParams } from "react-router-dom";
 
 import { Web3Context } from "../../contexts/RootContexts";
 import { BankContext } from "../../contexts/BankContext";
@@ -14,23 +13,23 @@ const Banks = () => {
   const [web3] = useContext(Web3Context);
 
   const { state, dispatch } = useContext(BankContext);
-  const params = useParams();
 
   useEffect(() => {
     const getBankData = async () => {
-      const bankService = new BankService(params.contractAddress, web3.service);
-      const bankState = await bankService.getBankState();
+      console.log("state", state);
 
-      console.log("bankState", bankState);
+      let banks = {};
+      for (const bankAddress of state.bankAddresses) {
+        const bankService = new BankService(bankAddress, web3.service);
+        console.log("bankService", bankService);
+        const bankState = await bankService.getBankState();
 
-      dispatch({
-        type: "setActiveBank",
-        payload: {
-          service: bankService,
-          address: params.contractAddress,
-          data: bankState,
-        },
-      });
+        banks[bankAddress] = { service: bankService, data: bankState };
+      }
+
+      console.log("after", banks);
+
+      dispatch({ type: "setBanks", payload: banks });
     };
 
     if (web3 && web3.service) {
@@ -42,10 +41,10 @@ const Banks = () => {
 
   return (
     <div>
-      {state.activeBank && state.activeBank.data ? (
+      {state.banks ? (
         <div className="BankTotal">
           <BankStatusBar />
-          <BankDetails />
+          {/* <BankDetails /> */}
         </div>
       ) : (
         <Loading />
