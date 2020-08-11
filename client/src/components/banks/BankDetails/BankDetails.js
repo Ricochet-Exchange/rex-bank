@@ -8,11 +8,10 @@ import CreateVault from "../../vaults/CreateVault/CreateVault";
 import Web3SignIn from "../../account/Web3SignIn";
 
 import "./BankDetails.scss";
+
 const BankDetails = ({ address, bank }) => {
-  console.log("bank", bank);
   const [web3] = useContext(Web3Context);
   const [creatingVault, setCreatingVault] = useState(false);
-
   const data = bank.data;
 
   return (
@@ -77,7 +76,11 @@ const BankDetails = ({ address, bank }) => {
         </div>
       </div>
 
-      <CreateVault setVisible={setCreatingVault} visible={creatingVault} />
+      <CreateVault
+        bank={bank}
+        setVisible={setCreatingVault}
+        visible={creatingVault}
+      />
     </>
   );
 };

@@ -13,17 +13,14 @@ const Banks = () => {
   const [web3] = useContext(Web3Context);
   const { state, dispatch } = useContext(BankContext);
 
-  console.log("web3", web3);
-
   useEffect(() => {
-    console.log("web3", web3);
     const getBankData = async () => {
       let banks = {};
       for (const bankAddress of state.bankAddresses) {
         const bankService = new BankService(
           bankAddress,
           web3.service,
-          web3.account !== ""
+          web3.account
         );
         const bankState = await bankService.getBankState();
         banks[bankAddress] = { service: bankService, data: bankState };

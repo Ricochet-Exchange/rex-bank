@@ -22,6 +22,9 @@ const reducer = (state, action) => {
     case "setBanks": {
       return { ...state, banks: action.payload };
     }
+    case "clearBanks": {
+      return { ...state, banks: initialState.banks };
+    }
     case "setActivePair": {
       return { ...state, activePair: action.payload };
     }

@@ -30,11 +30,11 @@ const VaultDetails = ({ address, bank }) => {
       <div className="VaultDetails__content">
         <div>
           <p>Total Collateral Locked</p>
-          <p>{(+data.vault.collateralAmount / 1e18).toFixed()} TRB</p>
+          <p>{(+data.vault.collateralAmount / 1e18).toFixed(2)} TRB</p>
         </div>
         <div>
           <p>Available to withdraw</p>
-          <p>{(+data.vault.repayAmount / 1e18).toFixed()} TRB</p>
+          <p>{(+data.vault.repayAmount / 1e18).toFixed(2)} TRB</p>
         </div>
         <VaultActions section="locked" />
       </div>
@@ -42,11 +42,11 @@ const VaultDetails = ({ address, bank }) => {
       <div className="VaultDetails__content">
         <div>
           <p>Total Debt Owed</p>
-          <p>{(+data.vault.debtAmount / 1e18).toFixed()} DAI</p>
+          <p>{(+data.vault.debtAmount / 1e18).toFixed(2)} DAI</p>
         </div>
         <div>
           <p>Available to borrow</p>
-          <p>{(+data.reserveBalance / 1e18).toFixed()} DAI</p>
+          <p>{(+data.reserveBalance / 1e18).toFixed(2)} DAI</p>
         </div>
         <VaultActions section="borrow" />
       </div>
