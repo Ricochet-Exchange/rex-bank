@@ -85,7 +85,9 @@ export default class TokenService {
 
     if (!wad) {
       //set max
-      wad = this.web3Service.web3.utils.toBN(2).pow(this.web3.utils.toBN(255));
+      wad = this.web3Service.web3.utils
+        .toBN(2)
+        .pow(this.web3Service.web3.utils.toBN(255));
     }
 
     const approve = await this.contract.methods

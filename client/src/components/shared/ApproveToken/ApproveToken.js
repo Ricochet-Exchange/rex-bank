@@ -4,22 +4,23 @@ import TokenService from "../../../utils/token-service";
 import { Web3Context } from "../../../contexts/RootContexts";
 import Loading from "../Loader/Loader";
 
-const ApproveToken = ({ tokenAddress, bankAddress }) => {
+const ApproveToken = ({ tokenAddress, bankAddress, setError }) => {
   const [web3] = useContext(Web3Context);
   const [loading, setLoading] = useState();
-
-  console.log("approve", tokenAddress, bankAddress);
 
   const handleClick = async () => {
     setLoading(true);
 
     const tokenService = new TokenService(tokenAddress, web3.service);
-    console.log("web3", web3);
-    console.log("tokenService", tokenService);
-    // const approval = await tokenService.approve(web3.account, bankAddress);
+    const approval = await tokenService.approve(web3.account, bankAddress);
 
-    // console.log("approval", approval);
-    alert("wip - coming soon");
+    console.log("approval", approval);
+    if (approval.error) {
+      setError("Error approving token allowance");
+    }
+    //approval.error or its' good
+    // alert("wip - coming soon");
+
     setLoading(false);
   };
   return (

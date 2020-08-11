@@ -1,7 +1,7 @@
 import React, { useState } from "react";
+import { Link } from "react-router-dom";
 import { Modal, Button } from "antd";
 
-import ChooseToken from "./ChooseToken";
 import DepositBorrow from "./DepositBorrow";
 
 import "./CreateVault.scss";
@@ -21,22 +21,15 @@ const CreateVault = ({ bank, visible, setVisible }) => {
       case 1: {
         return (
           <>
-            <p>Configure your vault for east management.</p>
-            <p>This only has to be done once.</p>
+            <p>
+              You're creating a vault for Commodo Main (
+              {bank.data.collateralToken.symbol}-{bank.data.debtToken.symbol}).
+            </p>
             <Button onClick={() => setStep(2)}>start</Button>
           </>
         );
       }
       case 2: {
-        return (
-          <ChooseToken
-            vaultData={vaultData}
-            setVaultData={setVaultData}
-            setStep={setStep}
-          />
-        );
-      }
-      case 3: {
         return (
           <DepositBorrow
             vaultData={vaultData}
@@ -46,11 +39,13 @@ const CreateVault = ({ bank, visible, setVisible }) => {
           />
         );
       }
-      case 4: {
+      case 3: {
         return (
           <>
-            <p>Setting up your vault...</p>
-            <p>Awaiting confirmations</p>
+            <p>Setup succesful!</p>
+            <Button>
+              <Link to="/vaults?new=true">view vault</Link>
+            </Button>
           </>
         );
       }

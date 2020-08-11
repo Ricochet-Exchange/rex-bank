@@ -13,10 +13,7 @@ const Banks = () => {
   const [web3] = useContext(Web3Context);
   const { state, dispatch } = useContext(BankContext);
 
-  console.log("web3", web3);
-
   useEffect(() => {
-    console.log("web3", web3);
     const getBankData = async () => {
       let banks = {};
       for (const bankAddress of state.bankAddresses) {

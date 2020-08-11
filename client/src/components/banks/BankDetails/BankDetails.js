@@ -10,10 +10,8 @@ import Web3SignIn from "../../account/Web3SignIn";
 import "./BankDetails.scss";
 
 const BankDetails = ({ address, bank }) => {
-  console.log("bank", bank);
   const [web3] = useContext(Web3Context);
   const [creatingVault, setCreatingVault] = useState(false);
-
   const data = bank.data;
 
   return (

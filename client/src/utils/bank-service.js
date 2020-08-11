@@ -83,11 +83,13 @@ export default class BankService {
   async getVaultData() {
     const collateralAmount = await this.contract.methods
       .getVaultCollateralAmount()
-      .call();
+      .call({ from: this.connectedAccount });
     const repayAmount = await this.contract.methods
       .getVaultRepayAmount()
-      .call();
-    const debtAmount = await this.contract.methods.getVaultDebtAmount().call();
+      .call({ from: this.connectedAccount });
+    const debtAmount = await this.contract.methods
+      .getVaultDebtAmount()
+      .call({ from: this.connectedAccount });
 
     return {
       collateralAmount,
@@ -97,19 +99,20 @@ export default class BankService {
     };
   }
 
-  async rageQuit(from, amount, encodedPayload) {
+  async deposit(depositAmount, setTx) {
     if (!this.contract) {
       await this.initContract();
     }
-    if (encodedPayload) {
-      const data = this.contract.methods.ragequit(amount).encodeABI();
-      return data;
-    }
 
-    let rage = this.contract.methods
-      .ragequit(amount)
-      .send({ from })
-      .once("transactionHash", (txHash) => {})
+    console.log("depositing:" + depositAmount * 1e18);
+    const amount = (+depositAmount * 1e18).toString();
+
+    let deposit = this.contract.methods
+      .vaultDeposit(amount)
+      .send({ from: this.connectedAccount })
+      .once("transactionHash", (txHash) => {
+        setTx(txHash);
+      })
       .then((resp) => {
         return resp;
       })
@@ -117,6 +120,30 @@ export default class BankService {
         console.log(err);
         return { error: "rejected transaction" };
       });
-    return rage;
+    return deposit;
+  }
+
+  async borrow(borrowAmount, setTx) {
+    if (!this.contract) {
+      await this.initContract();
+    }
+
+    console.log("Borrowing:" + borrowAmount * 1e18);
+    const amount = (+borrowAmount * 1e18).toString();
+
+    let deposit = this.contract.methods
+      .vaultBorrow(amount)
+      .send({ from: this.connectedAccount })
+      .once("transactionHash", (txHash) => {
+        setTx(txHash);
+      })
+      .then((resp) => {
+        return resp;
+      })
+      .catch((err) => {
+        console.log(err);
+        return { error: "rejected transaction" };
+      });
+    return deposit;
   }
 }
