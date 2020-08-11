@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { Link } from "react-router-dom";
 import { Menu } from "antd";
 
@@ -8,13 +8,28 @@ import Web3SignIn from "../../account/Web3SignIn";
 import Icons from "../../../Icons";
 
 import "./SideNav.scss";
+import { useLocation } from 'react-router-dom';
 
 const SideNav = () => {
   const [web3] = useContext(Web3Context);
+  // let location = useLocation();
+  // console.log(location.pathname);
+  let location = useLocation();
+  const [currButton, setCurrButton] = useState(null);
 
+  useEffect(() => {
+    if(location.pathname === '/banks'){
+        setCurrButton(["1"]);
+    } else {
+      setCurrButton(["2"]);
+    }
+  },[location.pathname]);
+
+  console.log(currButton);
   return (
     <>
-      <Menu defaultSelectedKeys={["1"]} mode="inline" inlineIndent={0}>
+    {currButton && 
+      <Menu defaultSelectedKeys={currButton} mode="inline" inlineIndent={0}>
         {web3 && web3.account ? null : <Web3SignIn />}
         <Menu.Item key="1">
           <Link to="/banks">
@@ -30,6 +45,7 @@ const SideNav = () => {
           </Link>
         </Menu.Item>
       </Menu>
+    }
     </>
   );
 };

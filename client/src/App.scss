@@ -34,7 +34,7 @@ h1 {
 .ant-menu-inline .ant-menu-item {
   width: 140px;
   height: 110px;
-  margin: 0;
+  margin: 0 !important;
   padding: 0;
   // background-color: red;
   display: flex;
@@ -100,6 +100,11 @@ h1 {
   color:white !important;
   outline:0 !important;
 }
+.ant-btn[disabled] {
+color: rgba(0, 0, 0, 0.25) !important;
+background: #f5f5f5 !important;
+border-color: #d9d9d9 !important;
+}
 
 .purpleoutlined {
   color: $purple;
@@ -121,3 +126,22 @@ h1 {
   font-weight: normal;
 }
 
+.ContentTotal {
+  width: 100%;
+  @include box;
+  padding: 0 4vw 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  background-color: $lightgrey;
+}
+
+.Loading {
+  @include font;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
