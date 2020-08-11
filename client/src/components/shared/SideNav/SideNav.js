@@ -16,7 +16,7 @@ const SideNav = () => {
   return (
     <>
       <Menu
-        defaultSelectedKeys={[location.pathname]}
+        defaultSelectedKeys={location.pathname}
         mode="inline"
         inlineIndent={0}
       >
@@ -35,6 +35,7 @@ const SideNav = () => {
           </Link>
         </Menu.Item>
       </Menu>
+      }
     </>
   );
 };

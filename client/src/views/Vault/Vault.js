@@ -78,7 +78,7 @@ const Vault = () => {
       {web3 && web3.account ? (
         <>
           {state.banks ? (
-            <>
+            <div className="ContentTotal">
               <BankStatusBar />
               {hasVault ? (
                 <>{renderVaults()}</>
@@ -97,7 +97,7 @@ const Vault = () => {
                   </Link>
                 </div>
               )}
-            </>
+            </div>
           ) : (
             <Loading />
           )}

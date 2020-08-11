@@ -1,17 +1,7 @@
 @import '../../branding';
 
-.BankTotal {
-    width: 100%;
-    @include box;
-    padding: 0 4vw 0;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    justify-content: flex-start;
-    background-color: $lightgrey;
-}
 
-.BankStatusBar, .BankDetails {
+.BankStatusBar, .BankDetails, .VaultDetails {
     @include font;
     width: 100%;
 }
@@ -20,7 +10,7 @@
     margin: 50px 0;
 }
 
-.BankDetails {
+.BankDetails, .VaultDetails {
     max-width: 1400px;
 }
 
