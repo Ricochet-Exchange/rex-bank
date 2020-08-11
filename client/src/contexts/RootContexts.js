@@ -31,9 +31,9 @@ const RootContexts = ({ children }) => {
           case USER_TYPE.WEB3: {
             if (web3Modal.cachedProvider) {
               const w3m = await w3connect(web3Modal);
-              const [account] = await w3m.web3.eth.getAccounts();
+              let [account] = await w3m.web3.eth.getAccounts();
               const service = new Web3Service(w3m.web3);
-              setW3Context({ service, account });
+              setW3Context({ service, account: account || "" });
             } else {
               const web3 = new Web3(
                 new Web3.providers.HttpProvider(

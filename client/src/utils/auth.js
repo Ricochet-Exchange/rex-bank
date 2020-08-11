@@ -20,7 +20,7 @@ export const providerOptions = {
 export const w3connect = async (web3Modal) => {
   const provider = await web3Modal.connect();
 
-  const web3 = new Web3(provider);
+  let web3 = new Web3(provider);
 
   const injectedChainId = await web3.eth.getChainId();
 
@@ -32,8 +32,12 @@ export const w3connect = async (web3Modal) => {
         getChainData(+process.env.REACT_APP_CHAIN_ID).network
       }`
     );
-    throw new Error(
-      `Injected web3 chainId: ${injectedChainId}, process.env: ${process.env.REACT_APP_CHAIN_ID}`
+    // throw new Error(
+    //   `Injected web3 chainId: ${injectedChainId}, process.env: ${process.env.REACT_APP_CHAIN_ID}`
+    // );
+
+    web3 = new Web3(
+      new Web3.providers.HttpProvider(process.env.REACT_APP_INFURA_URI)
     );
   }
 
