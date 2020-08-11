@@ -51,12 +51,10 @@ const Banks = () => {
   return (
     <div>
       {state.banks ? (
-        <>
-          <div className="BankTotal">
+          <div className="ContentTotal">
             <BankStatusBar />
-          </div>
           {renderBanks()}
-        </>
+          </div>
       ) : (
         <Loading />
       )}

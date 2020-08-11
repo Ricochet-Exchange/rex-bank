@@ -1,13 +1,13 @@
 import React from "react";
-import Loader from "../../../images/loader.gif";
+import Loader from "react-loader-spinner";
 
 const Loading = (props) => {
   const msg = props.msg || "Loading";
 
   return (
     <div className="Loading">
-      <img src={Loader} alt="Loading" />
-      <h5>{msg}</h5>
+      <Loader type="Puff" color="#B1B7DD" height={50} width={50} />
+      <p>{msg}</p>
     </div>
   );
 };
