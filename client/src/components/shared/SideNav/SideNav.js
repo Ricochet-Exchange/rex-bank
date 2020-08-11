@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useContext } from "react";
-import { Link } from "react-router-dom";
+import React, { useContext } from "react";
+import { Link, useLocation } from "react-router-dom";
 import { Menu } from "antd";
 
 import { Web3Context } from "../../../contexts/RootContexts";
@@ -8,44 +8,34 @@ import Web3SignIn from "../../account/Web3SignIn";
 import Icons from "../../../Icons";
 
 import "./SideNav.scss";
-import { useLocation } from 'react-router-dom';
 
 const SideNav = () => {
   const [web3] = useContext(Web3Context);
-  // let location = useLocation();
-  // console.log(location.pathname);
-  let location = useLocation();
-  const [currButton, setCurrButton] = useState(null);
+  const location = useLocation();
 
-  useEffect(() => {
-    if(location.pathname === '/banks'){
-        setCurrButton(["1"]);
-    } else {
-      setCurrButton(["2"]);
-    }
-  },[location.pathname]);
-
-  console.log(currButton);
   return (
     <>
-    {currButton && 
-      <Menu defaultSelectedKeys={currButton} mode="inline" inlineIndent={0}>
+      <Menu
+        defaultSelectedKeys={location.pathname}
+        mode="inline"
+        inlineIndent={0}
+      >
         {web3 && web3.account ? null : <Web3SignIn />}
-        <Menu.Item key="1">
+        <Menu.Item key="/banks">
           <Link to="/banks">
             <Icons.Bank />
             Banks
           </Link>
         </Menu.Item>
 
-        <Menu.Item key="2">
+        <Menu.Item key="/vaults">
           <Link to={`/vaults`}>
             <Icons.Vault />
             Vaults
           </Link>
         </Menu.Item>
       </Menu>
-    }
+      }
     </>
   );
 };

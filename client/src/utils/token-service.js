@@ -78,14 +78,16 @@ export default class TokenService {
     return allowance;
   }
 
-  async approve(from, guy, wad, encodedPayload) {
+  async approve(from, guy, wad) {
     if (!this.contract) {
       await this.initContract();
     }
 
-    if (encodedPayload) {
-      const data = this.contract.methods.approve(guy, wad).encodeABI();
-      return data;
+    if (!wad) {
+      //set max
+      wad = this.web3Service.web3.utils
+        .toBN(2)
+        .pow(this.web3Service.web3.utils.toBN(255));
     }
 
     const approve = await this.contract.methods

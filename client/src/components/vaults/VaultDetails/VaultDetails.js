@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, { useState } from "react";
 import { BankOutlined } from "@ant-design/icons";
 
 import VaultActions from "./VaultActions/VaultActions";
@@ -8,17 +8,17 @@ import "./VaultDetails.scss";
 const VaultDetails = ({ address, bank }) => {
   const data = bank.data;
 
-  const [collColor, setCollColor] = useState('tellorgreen');
+  const [collColor] = useState("tellorgreen");
 
   return (
     <div className="VaultDetails">
       <div className="VaultDetails__header">
         <div className="VaultDetails__Column collrat">
           <p>Collateralization Ratio</p>
-            <div className="BigDetail">
-              <h1 className={collColor}>{data.collateralizationRatio}</h1>
-              <h3 className={collColor}>%</h3>
-            </div>
+          <div className="BigDetail">
+            <h1 className={collColor}>{data.collateralizationRatio}</h1>
+            <h3 className={collColor}>%</h3>
+          </div>
         </div>
         <div className="VaultDetails__Column">
           <div className="VaultDetail">
@@ -39,16 +39,16 @@ const VaultDetails = ({ address, bank }) => {
 
       <div className="VaultDetails__content firstrow">
         <div className="VaultDetails__Column">
-            <div className="VaultDetail">
-              <p>Total Collateral Locked</p>
-              <h3>{(+data.vault.collateralAmount / 1e18).toFixed()} TRB</h3>
-            </div>
+          <div className="VaultDetail">
+            <p>Total Collateral Locked</p>
+            <h3>{(+data.vault.collateralAmount / 1e18).toFixed()} TRB</h3>
+          </div>
         </div>
         <div className="VaultDetails__Column">
-            <div className="VaultDetail">
-              <p>Available to withdraw</p>
-              <h3>{(+data.vault.repayAmount / 1e18).toFixed()} TRB</h3>
-            </div>
+          <div className="VaultDetail">
+            <p>Available to withdraw</p>
+            <h3>{(+data.vault.repayAmount / 1e18).toFixed()} TRB</h3>
+          </div>
         </div>
         <VaultActions section="locked" />
       </div>
