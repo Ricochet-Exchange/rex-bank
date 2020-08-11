@@ -67,6 +67,8 @@ const Vault = () => {
             bank={state.banks[address]}
           />
         );
+      } else {
+        return null;
       }
     });
   };
