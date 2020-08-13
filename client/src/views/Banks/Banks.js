@@ -56,7 +56,9 @@ const Banks = () => {
           {renderBanks()}
           </div>
       ) : (
+      <div className="fullframe">
         <Loading />
+      </div>
       )}
     </div>
   );

@@ -65,56 +65,67 @@ const DepositBorrow = ({ vaultData, setVaultData, setStep, bank }) => {
     <>
       {loading ? (
         <>
-          <Loading />
+          <Loading size="small" />
           {tx ? <EtherscanLink path="tx" hash={tx} /> : null}
         </>
       ) : (
-        <>
-          <p>
-            How much {vaultData.collateralToken} do you want to lock up as
-            collateral?
-          </p>
-          <Input
-            type="number"
-            name="depositAmount"
-            value={vaultData.depositAmount}
-            onChange={handleChange}
-            addonAfter={vaultData.collateralToken}
-          />
+        <div className="CreateVault__Steps"> 
 
-          {needsUnlock ? (
-            <>
-              <p>Please give allowance for your collateral to continue.</p>
-              <ApproveToken
-                tokenAddress={bank.data.collateralToken.address}
-                bankAddress={bank.service.contractAddr}
-              />
-            </>
-          ) : null}
+          <div className="CreateVault__Step">
 
-          <p>How much {vaultData.debtToken} do you want to borrow?</p>
-          <Input
-            type="number"
-            name="borrowAmount"
-            value={vaultData.borrowAmount}
-            onChange={handleChange}
-            addonAfter={vaultData.debtToken}
-          />
+            <p>
+              How much {vaultData.collateralToken} do you want to lock up as
+              collateral?
+            </p>
+            <Input
+              type="number"
+              name="depositAmount"
+              size="large"
+              value={vaultData.depositAmount}
+              onChange={handleChange}
+              addonAfter={vaultData.collateralToken}
+            />
 
-          {error ? (
-            <div>
-              <p>{error}</p>
-            </div>
-          ) : null}
+            {needsUnlock ? (
+              <>
+                <p className="smalltxt">Please give allowance for your collateral to continue.</p>
+                <ApproveToken
+                  tokenAddress={bank.data.collateralToken.address}
+                  bankAddress={bank.service.contractAddr}
+                />
+              </>
+            ) : null}
+          </div>
+          <div className="CreateVault__Step">
 
-          {/* <Button disabled={needsUnlock} onClick={() => handleNextClick()}> */}
-          <Button disabled={needsUnlock} onClick={() => handleNextClick()}>
-            submit transaction(s)
-          </Button>
-          <p>
-            If you are depositing and borrowing there will be 2 transactions.
-          </p>
-        </>
+            <p className={needsUnlock && "disabled"}>How much {vaultData.debtToken} do you want to borrow?</p>
+            <Input
+              type="number"
+              name="borrowAmount"
+              size="large"
+              disabled={needsUnlock}
+              value={vaultData.borrowAmount}
+              onChange={handleChange}
+              addonAfter={vaultData.debtToken}
+            />
+
+            {error ? (
+              <div>
+                <p>{error}</p>
+              </div>
+            ) : null}
+          </div>
+          <div className="CreateVault__Submitter">
+            {/* <Button disabled={needsUnlock} onClick={() => handleNextClick()}> */}
+            <Button shape="round" size="large" className="purplebutton" disabled={needsUnlock} onClick={() => handleNextClick()}>
+              submit
+            </Button>
+            <p className={"smalltxt " + (needsUnlock && "disabled")}>
+              Upon submitting, 2 transactions will be initiated.
+            </p>
+          </div>
+
+        </div>
       )}
     </>
   );

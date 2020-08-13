@@ -90,7 +90,7 @@ const Vault = () => {
                     <strong>Choose a bank to create a vault with.</strong>
                   </p>
                   <Link to="/">
-                    <Button className="heavyshadow" size="large">
+                    <Button className="biggestbutton heavyshadow" size="large">
                       <Icons.Bank fill="#4F56B5" />
                       view banks
                     </Button>
@@ -103,7 +103,7 @@ const Vault = () => {
           )}
         </>
       ) : (
-        <div className="Vault__Empty">
+        <div className="fullframe">
           <p>Sign in to see your vaults</p>
           <Web3SignIn />
         </div>

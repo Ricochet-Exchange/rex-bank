@@ -182,4 +182,48 @@ const Arrowdown = ({
   </svg>
 );
 
-export default { Logo, Bank, Vault, Arrowdown };
+const Vmark = ({
+  style = {},
+  fill = "#69eaae",
+  width = "29.289",
+  height = "20",
+  className = "",
+  viewBox = "0 0 29.289 20",
+}) => (
+  <svg
+    width={width}
+    style={style}
+    height={height}
+    viewBox={viewBox}
+    xmlns="http://www.w3.org/2000/svg"
+    className={`svg-icon ${className || ""}`}
+    xmlnsXlink="http://www.w3.org/1999/xlink"
+  >
+    <g id="Group_159" transform="translate(-627.931 -568.38)">
+      <path id="Path_101" d="M637.744,588.38l-9.448-10a1.338,1.338,0,0,1,1.945-1.837l7.627,8.075,17.1-15.878a1.338,1.338,0,1,1,1.82,1.961Z" fill={fill}/>
+    </g>
+  </svg>
+);
+
+const Xmark = ({
+  style = {},
+  fill = "#4f56b5",
+  width = "30.253",
+  height = "30.252",
+  className = "",
+  viewBox = "0 0 30.253 30.252",
+}) => (
+  <svg
+    width={width}
+    style={style}
+    height={height}
+    viewBox={viewBox}
+    xmlns="http://www.w3.org/2000/svg"
+    className={`svg-icon ${className || ""}`}
+    xmlnsXlink="http://www.w3.org/1999/xlink"
+  >
+  <path id="Path_99"  d="M570.593,575.977l13.419-13.418a1,1,0,1,0-1.414-1.415l-13.419,13.419-13.42-13.419a1,1,0,0,0-1.414,1.415l13.42,13.418L554.345,589.4a1,1,0,0,0,1.414,1.415l13.42-13.419L582.6,590.811a1,1,0,1,0,1.414-1.415Z" transform="translate(-554.052 -560.852)" fill={fill}/>
+  </svg>
+);
+
+export default { Logo, Bank, Vault, Arrowdown, Vmark, Xmark };
