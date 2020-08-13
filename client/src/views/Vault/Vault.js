@@ -99,7 +99,9 @@ const Vault = () => {
               )}
             </div>
           ) : (
+          <div className="fullframe">
             <Loading />
+          </div>
           )}
         </>
       ) : (
