@@ -1,12 +1,15 @@
 import React, { useState } from "react";
 import { BankOutlined } from "@ant-design/icons";
 
-import VaultActions from "./VaultActions/VaultActions";
+import VaultActions from "../VaultActions/VaultActions";
+import VaultTransaction from "../VaultTransaction/VaultTransaction";
 
 import "./VaultDetails.scss";
 
 const VaultDetails = ({ address, bank }) => {
   const [collColor] = useState("tellorgreen");
+  const [activeTransaction, setActiveTransaction] = useState();
+  const [txPending, setTxPending] = useState();
   const data = bank.data;
 
   console.log("data", data);
@@ -68,7 +71,12 @@ const VaultDetails = ({ address, bank }) => {
             </h3>
           </div>
         </div>
-        <VaultActions section="locked" />
+        <VaultActions
+          section="locked"
+          activeTransaction={activeTransaction}
+          setActiveTransaction={setActiveTransaction}
+          txPending={txPending}
+        />
       </div>
 
       <div className="VaultDetails__content">
@@ -89,8 +97,21 @@ const VaultDetails = ({ address, bank }) => {
             </h3>
           </div>
         </div>
-        <VaultActions section="borrow" />
+        <VaultActions
+          section="borrow"
+          activeTransaction={activeTransaction}
+          setActiveTransaction={setActiveTransaction}
+          txPending={txPending}
+        />
       </div>
+      {activeTransaction ? (
+        <VaultTransaction
+          activeTransaction={activeTransaction}
+          setActiveTransaction={setActiveTransaction}
+          txPending={txPending}
+          setTxPending={setTxPending}
+        />
+      ) : null}
     </div>
   );
 };
