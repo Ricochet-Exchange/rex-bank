@@ -6,9 +6,19 @@ import VaultActions from "./VaultActions/VaultActions";
 import "./VaultDetails.scss";
 
 const VaultDetails = ({ address, bank }) => {
+  const [collColor] = useState("tellorgreen");
   const data = bank.data;
 
-  const [collColor] = useState("tellorgreen");
+  console.log("data", data);
+
+  const granularity = 1000000;
+  const cR = +data.collateralizationRatio / 10;
+  const aD = +data.vault.debtAmount / 1e18;
+  const pD = +data.debtToken.price / granularity;
+  const aC = +data.vault.collateralAmount / 1e18;
+  const liquidationPrice = (cR * aD * pD) / aC;
+
+  console.log("liquidationPrice", liquidationPrice);
 
   return (
     <div className="VaultDetails">
@@ -24,8 +34,10 @@ const VaultDetails = ({ address, bank }) => {
           <div className="VaultDetail">
             <p>Liquidation Price</p>
             <div className="BigDetail liqprice">
-              <h1>129.54 </h1>
-              <h3>TRB/USD</h3>
+              <h1>{liquidationPrice.toFixed(2)}</h1>
+              <h3>
+                {data.collateralToken.symbol}/{data.debtToken.symbol}
+              </h3>
             </div>
           </div>
         </div>
@@ -41,13 +53,19 @@ const VaultDetails = ({ address, bank }) => {
         <div className="VaultDetails__Column">
           <div className="VaultDetail">
             <p>Total Collateral Locked</p>
-            <h3>{(+data.vault.collateralAmount / 1e18).toFixed()} TRB</h3>
+            <h3>
+              {(+data.vault.collateralAmount / 1e18).toFixed()}{" "}
+              {data.collateralToken.symbol}
+            </h3>
           </div>
         </div>
         <div className="VaultDetails__Column">
           <div className="VaultDetail">
             <p>Available to withdraw</p>
-            <h3>{(+data.vault.repayAmount / 1e18).toFixed()} TRB</h3>
+            <h3>
+              {(+data.vault.repayAmount / 1e18).toFixed()}{" "}
+              {data.collateralToken.symbol}
+            </h3>
           </div>
         </div>
         <VaultActions section="locked" />
@@ -57,13 +75,18 @@ const VaultDetails = ({ address, bank }) => {
         <div className="VaultDetails__Column">
           <div className="VaultDetail">
             <p>Total Debt Owed</p>
-            <h3>{(+data.vault.debtAmount / 1e18).toFixed()} DAI</h3>
+            <h3>
+              {(+data.vault.debtAmount / 1e18).toFixed()}{" "}
+              {data.debtToken.symbol}
+            </h3>
           </div>
         </div>
         <div className="VaultDetails__Column">
           <div className="VaultDetail">
             <p>Available to borrow</p>
-            <h3>{(+data.reserveBalance / 1e18).toFixed()} DAI</h3>
+            <h3>
+              {(+data.reserveBalance / 1e18).toFixed()} {data.debtToken.symbol}
+            </h3>
           </div>
         </div>
         <VaultActions section="borrow" />
