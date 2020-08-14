@@ -18,19 +18,19 @@ const VaultActions = ({
             type="default"
             shape="round"
             size="large"
-            disabled={txPending}
+            disabled={txPending || activeTransaction}
             onClick={() => setActiveTransaction("withdraw")}
           >
-            Withdraw
+            withdraw
           </Button>
           <Button
             type="primary"
             shape="round"
             size="large"
-            disabled={txPending}
+            disabled={txPending || activeTransaction}
             onClick={() => setActiveTransaction("deposit")}
           >
-            Deposit
+            deposit
           </Button>
         </>
       ) : (
@@ -39,19 +39,19 @@ const VaultActions = ({
             type="default"
             shape="round"
             size="large"
-            disabled={txPending}
+            disabled={txPending || activeTransaction}
             onClick={() => setActiveTransaction("borrow")}
           >
-            Borrow
+            borrow
           </Button>
           <Button
             type="primary"
             shape="round"
             size="large"
-            disabled={txPending}
+            disabled={txPending || activeTransaction}
             onClick={() => setActiveTransaction("repay")}
           >
-            Repay
+            repay
           </Button>
         </>
       )}

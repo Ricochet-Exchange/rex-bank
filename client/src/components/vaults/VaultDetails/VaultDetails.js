@@ -6,13 +6,13 @@ import VaultTransaction from "../VaultTransaction/VaultTransaction";
 
 import "./VaultDetails.scss";
 
-const VaultDetails = ({ address, bank }) => {
+const VaultDetails = ({ bank }) => {
   const [collColor] = useState("tellorgreen");
   const [activeTransaction, setActiveTransaction] = useState();
   const [txPending, setTxPending] = useState();
   const data = bank.data;
 
-  console.log("data", data);
+  console.log("bank", bank);
 
   const granularity = 1000000;
   const cR = +data.collateralizationRatio / 10;
@@ -47,7 +47,7 @@ const VaultDetails = ({ address, bank }) => {
         <div className="VaultDetails__Bank">
           <p>This vault is part of</p>
           <p>Commodo Main</p>
-          <p>{address}</p>
+          <p>{bank.service.contractAddr}</p>
           <BankOutlined />
         </div>
       </div>
@@ -110,6 +110,7 @@ const VaultDetails = ({ address, bank }) => {
           setActiveTransaction={setActiveTransaction}
           txPending={txPending}
           setTxPending={setTxPending}
+          bank={bank}
         />
       ) : null}
     </div>

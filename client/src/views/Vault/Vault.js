@@ -60,13 +60,7 @@ const Vault = () => {
   const renderVaults = () => {
     return Object.keys(state.banks).map((address) => {
       if (state.banks[address].data.vault.hasVault) {
-        return (
-          <VaultDetails
-            key={address}
-            address={address}
-            bank={state.banks[address]}
-          />
-        );
+        return <VaultDetails key={address} bank={state.banks[address]} />;
       } else {
         return null;
       }
@@ -99,9 +93,9 @@ const Vault = () => {
               )}
             </div>
           ) : (
-          <div className="fullframe">
-            <Loading />
-          </div>
+            <div className="fullframe">
+              <Loading />
+            </div>
           )}
         </>
       ) : (
