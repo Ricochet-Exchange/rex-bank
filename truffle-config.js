@@ -22,7 +22,7 @@ module.exports = {
         process.env.RINKEBY_MNEMONIC,
         process.env.RINKEBY_URL),
       network_id: 4,
-      gasPrice: 20000000000
+      gasPrice: 9500000000
     },
     mainnet: {
       provider: function() {

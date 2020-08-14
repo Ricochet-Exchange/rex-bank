@@ -2,21 +2,39 @@ pragma solidity ^0.5.0;
 
 import "./Bank.sol";
 import "@optionality.io/clone-factory/contracts/CloneFactory.sol";
-import "@openzeppelin/contracts/ownership/Ownable.sol";
 
 
-contract BankFactory is Ownable, CloneFactory {
+contract BankFactory is CommodoGovernance, CloneFactory {
+
+  struct Distribution {
+    int teamShare
+    int lenderShare
+    int marketMakerShare
+  }
+
+  struct Proposal {
+    int yes
+    int no
+    bool isActive
+    address proposer
+  }
 
   /*Variables*/
   address [] banks;
   address public bankAddress;
+  address public governanceToken;
+  int feeRate;
+  Distribution dist;
+  mapping(int => Proposal) Proposals
 
   event BankCreated(address newBankAddress);
 
-  constructor(address _bankAddress) public {
+  constructor(address _bankAddress, address _governanceToken) public {
     bankAddress = _bankAddress;
+    governanceToken = _governanceToken;
   }
 
+  /* Bank Admin Functions */
   function createBank(
     string memory name,
     uint256 interestRate,
@@ -34,6 +52,35 @@ contract BankFactory is Ownable, CloneFactory {
 
   function getBankAddresses() public view returns(address [] memory){
     return banks;
+  }
+
+  /* Liquidity Incentive Functions */
+
+  /* Governance Functions */
+  modifier startsVote(int proposalType) {
+    // require vote is inactive
+    // set the vote proposer
+    // make the vote active
+    // transfer tokens for the vote fee to the bank owner
+    _;
+  }
+
+  function proposeNewOwner(address newOwner) public {
+
+  }
+
+  function proposeNewBankAddress(address newBankAddress) public {
+
+  }
+
+  function proposeNewDistrbution(int teamShare, int lenderShare, int marketMakerShare) public {
+    require(teamShare + lenderShare + marketMakerShare == 100);
+
+  }
+
+  function proposeNewFeeRate(int feeRate) public {
+    require(feeRate >= 0);
+
   }
 
 }

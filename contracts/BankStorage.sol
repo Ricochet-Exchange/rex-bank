@@ -1,14 +1,10 @@
 pragma solidity ^0.5.0;
 
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "@openzeppelin/contracts/ownership/Ownable.sol";
-import '../node_modules/usingtellor/contracts/UsingTellor.sol';
-
 /**
 * @title BankStorage
 * This contract provides the data structures, variables, and getters for Bank
 */
-contract BankStorage{
+contract BankStorage {
   /*Variables*/
   string name;
 
