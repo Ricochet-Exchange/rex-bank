@@ -118,6 +118,7 @@ App = {
           console.log(collateral.toString());
           vaultPanel.find('.collateralAmount').text(collateral/1e18);
         });
+        
         bankInstance.getVaultRepayAmount.call().then(function(debt){
           console.log(debt.toString());
           $('.input-repay').val((debt/1e18).toFixed(18));
