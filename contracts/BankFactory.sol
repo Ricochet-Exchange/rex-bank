@@ -17,6 +17,7 @@ contract BankFactory is CommodoGovernance, CloneFactory {
     int no
     bool isActive
     address proposer
+    uint256 endAt
   }
 
   /*Variables*/
