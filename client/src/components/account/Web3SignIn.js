@@ -29,11 +29,24 @@ const Web3SignIn = (props) => {
   const size = props.size || "big";
   return (
     <>
-    {size === "big" ? 
-      <Button className="lightshadow biggestbutton" size="large" onClick={() => activate()}>Sign in with Web3</Button>
-    : 
-      <Button className={props.color ? props.color+"button" : ""} size="large" shape="round" onClick={() => activate()}>Sign in with Web3</Button>
-    }
+      {size === "big" ? (
+        <Button
+          className="lightshadow biggestbutton"
+          size="large"
+          onClick={() => activate()}
+        >
+          Sign in with Web3
+        </Button>
+      ) : (
+        <Button
+          className={props.color ? props.color + "button" : ""}
+          size="large"
+          shape="round"
+          onClick={() => activate()}
+        >
+          Sign in with Web3
+        </Button>
+      )}
     </>
   );
 };
