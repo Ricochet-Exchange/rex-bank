@@ -1,7 +1,7 @@
 pragma solidity ^0.5.0;
 
 import "./Bank.sol";
-import "@optionality.io/clone-factory/contracts/CloneFactory.sol";
+import "./CloneFactory.sol";
 
 
 contract BankFactory is CommodoGovernance, CloneFactory {
