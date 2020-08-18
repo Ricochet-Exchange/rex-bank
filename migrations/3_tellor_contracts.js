@@ -1,10 +1,10 @@
 /****Uncomment the body below to run this with Truffle migrate for truffle testing*/
-var TellorTransfer = artifacts.require("../node_modules/usingtellor/contracts/libraries/TellorTransfer.sol");
+var TellorTransfer = artifacts.require("usingtellor/contracts/libraries/TellorTransfer.sol");
 var TellorDispute = artifacts.require("./usingtellor/contracts/libraries/TellorDispute.sol");
-var TellorLibrary = artifacts.require("../node_modules/usingtellor/contracts/libraries/TellorLibrary.sol");
-var TellorGettersLibrary = artifacts.require("../node_modules/usingtellor/contracts/libraries/TellorGettersLibrary.sol");
-var Tellor = artifacts.require("../node_modules/usingtellor/contracts/Tellor.sol");
-var TellorMaster = artifacts.require("../node_modules/usingtellor/contracts/TellorMaster.sol");
+var TellorLibrary = artifacts.require("usingtellor/contracts/libraries/TellorLibrary.sol");
+var TellorGettersLibrary = artifacts.require("usingtellor/contracts/libraries/TellorGettersLibrary.sol");
+var Tellor = artifacts.require("usingtellor/contracts/Tellor.sol");
+var TellorMaster = artifacts.require("usingtellor/contracts/TellorMaster.sol");
 /****Uncomment the body to run this with Truffle migrate for truffle testing*/
 var Bank = artifacts.require("Bank");
 var BankFactory = artifacts.require("BankFactory");
