@@ -108,8 +108,8 @@ const VaultDetails = ({ bank }) => {
         <VaultTransaction
           activeTransaction={activeTransaction}
           setActiveTransaction={setActiveTransaction}
-          txPending={txPending}
-          setTxPending={setTxPending}
+          tx={txPending}
+          setTx={setTxPending}
           bank={bank}
         />
       ) : null}

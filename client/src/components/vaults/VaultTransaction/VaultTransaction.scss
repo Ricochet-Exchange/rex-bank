@@ -1,3 +1,5 @@
+@import "../../../branding.scss";
+
 .VaultTransaction,
 .VaultTransaction__preview,
 .VaultTransaction__buttons {
@@ -5,4 +7,22 @@
   flex-direction: row;
   justify-content: space-around;
   align-items: center;
+}
+
+.VaultTransaction {
+  padding-top: 10px;
+  border-top: 1px dashed $notwhitetxt;
+}
+
+.VaultTransaction__preview {
+  padding: 25px 35px 14px 50px;
+  border: 1px dashed $notwhitetxt;
+  div {
+    margin-right: 20px;
+  }
+}
+
+.VaultTransaction__form,
+.VaultTransaction__buttons {
+  padding: 25px 35px 14px 50px;
 }

@@ -28,7 +28,14 @@ const ApproveToken = ({ tokenAddress, bankAddress, setError }) => {
       {loading ? (
         <Loading size="small" />
       ) : (
-        <Button shape="round" size="large" className="purpleoutlined"  onClick={() => handleClick()}>give allowance</Button>
+        <Button
+          shape="round"
+          size="large"
+          className="purpleoutlined"
+          onClick={() => handleClick()}
+        >
+          give allowance
+        </Button>
       )}
     </div>
   );
