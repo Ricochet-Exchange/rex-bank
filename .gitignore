@@ -4,3 +4,4 @@ build/contracts
 secret*
 .env
 .idea
+cache
