@@ -7,7 +7,7 @@ import { w3connect, providerOptions, USER_TYPE } from "../../utils/auth";
 import Web3Service from "../../utils/web3-service";
 import { Web3Context } from "../../contexts/RootContexts";
 
-const Web3SignIn = () => {
+const Web3SignIn = (props) => {
   const [, setWeb3Service] = useContext(Web3Context);
 
   const activate = async () => {
@@ -26,9 +26,14 @@ const Web3SignIn = () => {
       console.log("error activating", err);
     }
   };
+  const size = props.size || "big";
   return (
     <>
-      <Button onClick={() => activate()}>Sign in with Web3</Button>
+    {size === "big" ? 
+      <Button className="lightshadow biggestbutton" size="large" onClick={() => activate()}>Sign in with Web3</Button>
+    : 
+      <Button className={props.color ? props.color+"button" : ""} size="large" shape="round" onClick={() => activate()}>Sign in with Web3</Button>
+    }
     </>
   );
 };

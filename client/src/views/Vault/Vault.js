@@ -37,13 +37,13 @@ const Vault = () => {
 
     const hasWeb3 = web3 && web3.service;
     const needsData = location.search.split("=")[1] || !state.banks;
-    if (hasWeb3 && needsData) {
+    if ((hasWeb3 && needsData) || state.refreshBanks) {
       dispatch({ type: "clearBanks" });
       getBankData();
     }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [web3, location]);
+  }, [web3, location, state.refreshBanks]);
 
   useEffect(() => {
     if (state.banks) {
@@ -60,13 +60,7 @@ const Vault = () => {
   const renderVaults = () => {
     return Object.keys(state.banks).map((address) => {
       if (state.banks[address].data.vault.hasVault) {
-        return (
-          <VaultDetails
-            key={address}
-            address={address}
-            bank={state.banks[address]}
-          />
-        );
+        return <VaultDetails key={address} bank={state.banks[address]} />;
       } else {
         return null;
       }
@@ -90,7 +84,7 @@ const Vault = () => {
                     <strong>Choose a bank to create a vault with.</strong>
                   </p>
                   <Link to="/">
-                    <Button className="heavyshadow" size="large">
+                    <Button className="biggestbutton heavyshadow" size="large">
                       <Icons.Bank fill="#4F56B5" />
                       view banks
                     </Button>
@@ -99,11 +93,13 @@ const Vault = () => {
               )}
             </div>
           ) : (
-            <Loading />
+            <div className="fullframe">
+              <Loading />
+            </div>
           )}
         </>
       ) : (
-        <div className="Vault__Empty">
+        <div className="fullframe">
           <p>Sign in to see your vaults</p>
           <Web3SignIn />
         </div>

@@ -36,10 +36,7 @@ const BankDetails = ({ address, bank }) => {
               ) : null}
             </>
           ) : (
-            <>
-              <p>Sign in to see your vaults</p>
-              <Web3SignIn />
-            </>
+              <Web3SignIn size="small" color="purple" />
           )}
         </div>
 

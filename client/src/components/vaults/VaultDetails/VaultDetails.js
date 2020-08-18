@@ -1,14 +1,23 @@
 import React, { useState } from "react";
 import { BankOutlined } from "@ant-design/icons";
 
-import VaultActions from "./VaultActions/VaultActions";
+import VaultActions from "../VaultActions/VaultActions";
+import VaultTransaction from "../VaultTransaction/VaultTransaction";
 
 import "./VaultDetails.scss";
 
-const VaultDetails = ({ address, bank }) => {
+const VaultDetails = ({ bank }) => {
+  const [collColor] = useState("tellorgreen");
+  const [activeTransaction, setActiveTransaction] = useState();
+  const [txPending, setTxPending] = useState();
   const data = bank.data;
 
-  const [collColor] = useState("tellorgreen");
+  const granularity = 1000000;
+  const cR = +data.collateralizationRatio / 10;
+  const aD = +data.vault.debtAmount / 1e18;
+  const pD = +data.debtToken.price / granularity;
+  const aC = +data.vault.collateralAmount / 1e18;
+  const liquidationPrice = (cR * aD * pD) / aC;
 
   return (
     <div className="VaultDetails">
@@ -24,15 +33,17 @@ const VaultDetails = ({ address, bank }) => {
           <div className="VaultDetail">
             <p>Liquidation Price</p>
             <div className="BigDetail liqprice">
-              <h1>129.54 </h1>
-              <h3>TRB/USD</h3>
+              <h1>{liquidationPrice.toFixed(2)}</h1>
+              <h3>
+                {data.collateralToken.symbol}/{data.debtToken.symbol}
+              </h3>
             </div>
           </div>
         </div>
         <div className="VaultDetails__Bank">
           <p>This vault is part of</p>
           <p>Commodo Main</p>
-          <p>{address}</p>
+          <p>{bank.service.contractAddr}</p>
           <BankOutlined />
         </div>
       </div>
@@ -41,33 +52,63 @@ const VaultDetails = ({ address, bank }) => {
         <div className="VaultDetails__Column">
           <div className="VaultDetail">
             <p>Total Collateral Locked</p>
-            <h3>{(+data.vault.collateralAmount / 1e18).toFixed()} TRB</h3>
+            <h3>
+              {(+data.vault.collateralAmount / 1e18).toFixed()}{" "}
+              {data.collateralToken.symbol}
+            </h3>
           </div>
         </div>
         <div className="VaultDetails__Column">
           <div className="VaultDetail">
             <p>Available to withdraw</p>
-            <h3>{(+data.vault.repayAmount / 1e18).toFixed()} TRB</h3>
+            <h3>
+              {(+data.vault.repayAmount / 1e18).toFixed()}{" "}
+              {data.collateralToken.symbol}
+            </h3>
           </div>
         </div>
-        <VaultActions section="locked" />
+        <VaultActions
+          section="locked"
+          activeTransaction={activeTransaction}
+          setActiveTransaction={setActiveTransaction}
+          txPending={txPending}
+        />
       </div>
 
       <div className="VaultDetails__content">
         <div className="VaultDetails__Column">
           <div className="VaultDetail">
             <p>Total Debt Owed</p>
-            <h3>{(+data.vault.debtAmount / 1e18).toFixed()} DAI</h3>
+            <h3>
+              {(+data.vault.debtAmount / 1e18).toFixed()}{" "}
+              {data.debtToken.symbol}
+            </h3>
           </div>
         </div>
         <div className="VaultDetails__Column">
           <div className="VaultDetail">
             <p>Available to borrow</p>
-            <h3>{(+data.reserveBalance / 1e18).toFixed()} DAI</h3>
+            <h3>
+              {(+data.reserveBalance / 1e18).toFixed()} {data.debtToken.symbol}
+            </h3>
           </div>
         </div>
-        <VaultActions section="borrow" />
+        <VaultActions
+          section="borrow"
+          activeTransaction={activeTransaction}
+          setActiveTransaction={setActiveTransaction}
+          txPending={txPending}
+        />
       </div>
+      {activeTransaction ? (
+        <VaultTransaction
+          activeTransaction={activeTransaction}
+          setActiveTransaction={setActiveTransaction}
+          tx={txPending}
+          setTx={setTxPending}
+          bank={bank}
+        />
+      ) : null}
     </div>
   );
 };

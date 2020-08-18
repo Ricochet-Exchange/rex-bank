@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { Modal, Button } from "antd";
 
 import DepositBorrow from "./DepositBorrow";
+import Icons from "../../../Icons";
 
 import "./CreateVault.scss";
 
@@ -22,10 +23,11 @@ const CreateVault = ({ bank, visible, setVisible }) => {
         return (
           <>
             <p>
-              You're creating a vault for Commodo Main (
-              {bank.data.collateralToken.symbol}-{bank.data.debtToken.symbol}).
+              You're creating a vault for
+              <br /><strong>Commodo Main (
+              {bank.data.collateralToken.symbol}-{bank.data.debtToken.symbol})</strong>
             </p>
-            <Button onClick={() => setStep(2)}>start</Button>
+            <Button shape="round" size="large" className="purplebutton" onClick={() => setStep(2)}>start</Button>
           </>
         );
       }
@@ -43,9 +45,13 @@ const CreateVault = ({ bank, visible, setVisible }) => {
         return (
           <>
             <p>Setup succesful!</p>
-            <Button>
-              <Link to="/vaults?new=true">view vault</Link>
-            </Button>
+            <Icons.Vmark className="vmark" />
+            <Link to="/vaults?new=true">
+              <Button className="biggestbutton heavyshadow" size="large">
+                <Icons.Vault fill="#4F56B5" />
+                view vault
+              </Button>
+            </Link>
           </>
         );
       }
@@ -63,6 +69,7 @@ const CreateVault = ({ bank, visible, setVisible }) => {
         onCancel={() => setVisible(false)}
         maskClosable={false}
         footer={null}
+        closeIcon={<Icons.Xmark width="22px"/>}
       >
         <h2>Creating a Vault</h2>
         {renderStep()}

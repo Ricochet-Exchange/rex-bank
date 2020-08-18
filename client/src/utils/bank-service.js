@@ -146,4 +146,52 @@ export default class BankService {
       });
     return deposit;
   }
+
+  async withdraw(withdrawAmount, setTx) {
+    if (!this.contract) {
+      await this.initContract();
+    }
+
+    console.log("withdrawing:" + withdrawAmount * 1e18);
+    const amount = (+withdrawAmount * 1e18).toString();
+
+    let deposit = this.contract.methods
+      .vaultWithdraw(amount)
+      .send({ from: this.connectedAccount })
+      .once("transactionHash", (txHash) => {
+        setTx(txHash);
+      })
+      .then((resp) => {
+        return resp;
+      })
+      .catch((err) => {
+        console.log(err);
+        return { error: "rejected transaction" };
+      });
+    return deposit;
+  }
+
+  async repay(repayAmount, setTx) {
+    if (!this.contract) {
+      await this.initContract();
+    }
+
+    console.log("Repaying:" + repayAmount * 1e18);
+    const amount = (+repayAmount * 1e18).toString();
+
+    let deposit = this.contract.methods
+      .vaultRepay(amount)
+      .send({ from: this.connectedAccount })
+      .once("transactionHash", (txHash) => {
+        setTx(txHash);
+      })
+      .then((resp) => {
+        return resp;
+      })
+      .catch((err) => {
+        console.log(err);
+        return { error: "rejected transaction" };
+      });
+    return deposit;
+  }
 }

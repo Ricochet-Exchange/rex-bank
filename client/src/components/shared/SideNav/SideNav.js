@@ -20,7 +20,9 @@ const SideNav = () => {
         mode="inline"
         inlineIndent={0}
       >
-        {web3 && web3.account ? null : <Web3SignIn />}
+        <div className="web3feedback">
+          {web3 && web3.account ? null : <Web3SignIn size="small" />}
+        </div>
         <Menu.Item key="/banks">
           <Link to="/banks">
             <Icons.Bank />
@@ -35,7 +37,7 @@ const SideNav = () => {
           </Link>
         </Menu.Item>
       </Menu>
-      }
+      
     </>
   );
 };
