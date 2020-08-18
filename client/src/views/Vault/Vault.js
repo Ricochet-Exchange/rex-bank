@@ -37,13 +37,13 @@ const Vault = () => {
 
     const hasWeb3 = web3 && web3.service;
     const needsData = location.search.split("=")[1] || !state.banks;
-    if (hasWeb3 && needsData) {
+    if ((hasWeb3 && needsData) || state.refreshBanks) {
       dispatch({ type: "clearBanks" });
       getBankData();
     }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [web3, location]);
+  }, [web3, location, state.refreshBanks]);
 
   useEffect(() => {
     if (state.banks) {

@@ -15,14 +15,13 @@ const VaultTransaction = ({
   tx,
   setTx,
 }) => {
-  const { state, dispatch } = useContext(BankContext);
+  const { dispatch } = useContext(BankContext);
   const [newValue, setNewValue] = useState();
   const [error, setError] = useState();
   const [loading, setLoading] = useState();
+  const [localApproved, setLocalApproved] = useState();
 
   const handleAction = async () => {
-    console.log("doing ", activeTransaction, newValue);
-
     if (+newValue > 0) {
       setLoading(true);
 
@@ -45,11 +44,12 @@ const VaultTransaction = ({
 
       if (res.error) {
         setError("Transaction Error");
+        setLoading(false);
+        setTx(null);
       } else {
-        //need to refresh state now
+        dispatch({ type: "refreshBanks" });
+        setActiveTransaction(null);
       }
-      setLoading(false);
-      setTx(null);
     }
   };
 
@@ -70,7 +70,7 @@ const VaultTransaction = ({
     const needsApproval =
       +bank.data.debtToken.unlockedAmount === 0 ||
       +newValue > +bank.data.debtToken.unlockedAmount;
-    return isRepay && needsApproval;
+    return isRepay && needsApproval && !localApproved;
   };
 
   return (
@@ -100,6 +100,7 @@ const VaultTransaction = ({
                   tokenAddress={bank.data.debtToken.address}
                   bankAddress={bank.service.contractAddr}
                   setError={setError}
+                  setLocalApproved={setLocalApproved}
                 />
               </>
             ) : (

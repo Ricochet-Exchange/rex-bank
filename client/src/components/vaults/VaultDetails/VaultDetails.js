@@ -12,16 +12,12 @@ const VaultDetails = ({ bank }) => {
   const [txPending, setTxPending] = useState();
   const data = bank.data;
 
-  console.log("bank", bank);
-
   const granularity = 1000000;
   const cR = +data.collateralizationRatio / 10;
   const aD = +data.vault.debtAmount / 1e18;
   const pD = +data.debtToken.price / granularity;
   const aC = +data.vault.collateralAmount / 1e18;
   const liquidationPrice = (cR * aD * pD) / aC;
-
-  console.log("liquidationPrice", liquidationPrice);
 
   return (
     <div className="VaultDetails">

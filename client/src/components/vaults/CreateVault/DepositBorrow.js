@@ -11,6 +11,7 @@ const DepositBorrow = ({ vaultData, setVaultData, setStep, bank }) => {
   const [error, setError] = useState();
   const [tx, setTx] = useState();
   const [loading, setLoading] = useState();
+  const [localApproved, setLocalApproved] = useState();
 
   const handleChange = (e) => {
     const update = { [e.target.name]: e.target.value };
@@ -54,7 +55,8 @@ const DepositBorrow = ({ vaultData, setVaultData, setStep, bank }) => {
   };
 
   const needsUnlock =
-    +vaultData.depositAmount > +bank.data.collateralToken.unlockedAmount;
+    +vaultData.depositAmount > +bank.data.collateralToken.unlockedAmount &&
+    !localApproved;
 
   return (
     <>
@@ -88,6 +90,7 @@ const DepositBorrow = ({ vaultData, setVaultData, setStep, bank }) => {
                   tokenAddress={bank.data.collateralToken.address}
                   bankAddress={bank.service.contractAddr}
                   setError={setError}
+                  setLocalApproved={setLocalApproved}
                 />
               </>
             ) : null}

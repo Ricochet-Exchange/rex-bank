@@ -1,10 +1,16 @@
 import React, { useContext, useState } from "react";
 import { Button } from "antd";
-import TokenService from "../../../utils/token-service";
+
 import { Web3Context } from "../../../contexts/RootContexts";
+import TokenService from "../../../utils/token-service";
 import Loading from "../Loader/Loader";
 
-const ApproveToken = ({ tokenAddress, bankAddress, setError }) => {
+const ApproveToken = ({
+  tokenAddress,
+  bankAddress,
+  setError,
+  setLocalApproved,
+}) => {
   const [web3] = useContext(Web3Context);
   const [loading, setLoading] = useState();
 
@@ -17,9 +23,9 @@ const ApproveToken = ({ tokenAddress, bankAddress, setError }) => {
     console.log("approval", approval);
     if (approval.error) {
       setError("Error approving token allowance");
+    } else {
+      setLocalApproved(true);
     }
-    //approval.error or its' good
-    // alert("wip - coming soon");
 
     setLoading(false);
   };

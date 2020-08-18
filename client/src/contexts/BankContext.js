@@ -15,15 +15,22 @@ const initialState = {
     service: null,
     data: null,
   },
+  refreshBanks: false,
 };
 
 const reducer = (state, action) => {
   switch (action.type) {
     case "setBanks": {
-      return { ...state, banks: action.payload };
+      return { ...state, banks: action.payload, refreshBanks: false };
+    }
+    case "refreshBanks": {
+      return { ...state, refreshBanks: true };
     }
     case "clearBanks": {
-      return { ...state, banks: initialState.banks };
+      return {
+        ...state,
+        banks: initialState.banks,
+      };
     }
     case "setActivePair": {
       return { ...state, activePair: action.payload };
