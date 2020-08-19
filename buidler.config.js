@@ -1,6 +1,6 @@
 usePlugin("@nomiclabs/buidler-truffle5");
 usePlugin("@nomiclabs/buidler-solhint");
-
+// usePlugin("buidler-gas-reporter");
 
 module.exports = {
   solc: {

@@ -6,6 +6,7 @@ import "@openzeppelin/contracts/token/ERC20/ERC20Detailed.sol";
 
 contract CMDToken is ERC20, ERC20Detailed {
     constructor(address tokenSafeAddress) ERC20Detailed("Commodo", "CMD", 18) public {
-        _mint(tokenSafeAddress, 500000);
+        _mint(tokenSafeAddress, 499000);
+        _mint(msg.sender, 1000);
     }
 }
