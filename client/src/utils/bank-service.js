@@ -43,10 +43,14 @@ export default class BankService {
       debtToken: {
         ...debtToken,
         price: await this.contract.methods.getDebtTokenPrice().call(),
+        granularityPrice: await this.contract.methods
+          .getDebtTokenPriceGranularity()
+          .call(),
       },
       collateralToken: {
         ...collateralToken,
-        price: await this.contract.methods
+        price: await this.contract.methods.getCollateralTokenPrice().call(),
+        granularityPrice: await this.contract.methods
           .getCollateralTokenPriceGranularity()
           .call(),
       },
@@ -76,6 +80,7 @@ export default class BankService {
     return {
       address: tokenAddress,
       symbol: await tokenService.getSymbol(),
+      decimals: await tokenService.getDecimals(),
       unlockedAmount: unlocked,
     };
   }
@@ -84,17 +89,25 @@ export default class BankService {
     const collateralAmount = await this.contract.methods
       .getVaultCollateralAmount()
       .call({ from: this.connectedAccount });
-    const repayAmount = await this.contract.methods
-      .getVaultRepayAmount()
-      .call({ from: this.connectedAccount });
+    // const repayAmount = await this.contract.methods
+    //   .getVaultRepayAmount()
+    //   .call({ from: this.connectedAccount });
     const debtAmount = await this.contract.methods
       .getVaultDebtAmount()
       .call({ from: this.connectedAccount });
 
+    let collateralizationRatio = 0;
+    if (this.connectedAccount !== "") {
+      collateralizationRatio = await this.contract.methods
+        .getVaultCollateralizationRatio(this.connectedAccount)
+        .call();
+    }
+
     return {
       collateralAmount,
-      repayAmount,
+      // repayAmount,
       debtAmount,
+      collateralizationRatio,
       hasVault: +debtAmount > 0 && +collateralAmount > 0,
     };
   }

@@ -36,7 +36,7 @@ const BankDetails = ({ address, bank }) => {
               ) : null}
             </>
           ) : (
-              <Web3SignIn size="small" color="purple" />
+            <Web3SignIn size="small" color="purple" />
           )}
         </div>
 
