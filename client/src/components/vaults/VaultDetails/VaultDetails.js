@@ -22,17 +22,14 @@ const VaultDetails = ({ bank }) => {
 
   console.log("cR, aD, pD, aC", cR, aD, pD, aC);
   const liquidationPrice = (cR * aD * pD) / aC;
-  // need to give to mike to check - just getting the price of trb
-  // 3.75 is right ?
 
-  // need calculation for available to withdraw
-  // Wd = Ac * (C * Ad * Pd) / (Ac * Pc)
-  // Wd = Available to withdraw
-  // C = Collateralization Ratio
-  // Ad = Amount of Debt
-  // Pd = Price of Debt in USD
-  // Ac = Amount of Collateral
-  // Pc = Price of collateral
+  const pC =
+    +data.collateralToken.price / +data.collateralToken.granularityPrice;
+  const withdrawAvailable = (aC * (cR * aD * pD)) / (aC * pC);
+
+  // need to give to mike to check - just getting the price of trb
+  // + decimal places to display
+  // 3.75 is right ?
 
   // move these to helpers.js
 
@@ -74,7 +71,7 @@ const VaultDetails = ({ bank }) => {
           <div className="VaultDetail">
             <p>Total Collateral Locked</p>
             <h3>
-              {(+data.vault.collateralAmount / 1e18).toFixed()}{" "}
+              {(+data.vault.collateralAmount / 1e18).toFixed(2)}{" "}
               {data.collateralToken.symbol}
             </h3>
           </div>
@@ -83,8 +80,7 @@ const VaultDetails = ({ bank }) => {
           <div className="VaultDetail">
             <p>Available to withdraw</p>
             <h3>
-              {/* {(+data.vault.repayAmount / 1e18).toFixed()}{" "} */}0
-              {data.collateralToken.symbol}
+              {withdrawAvailable.toFixed(2)} {data.collateralToken.symbol}
             </h3>
           </div>
         </div>
