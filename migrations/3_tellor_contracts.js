@@ -94,7 +94,5 @@ module.exports = async function (deployer, network, accounts) {
 
     console.log("TRB/DAI: " + bankClone1.address);
     console.log("DAI/TRB: " + bankClone2.address);
-
   }
-
 };
