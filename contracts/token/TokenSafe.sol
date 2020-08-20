@@ -5,5 +5,6 @@ import "@openzeppelin/contracts/drafts/TokenVesting.sol";
 
 contract TokenSafe is TokenVesting {
     constructor(address beneficiary, uint256 start) TokenVesting(beneficiary, start, 0, 43200000, false) public {
+        renounceOwnership();
     }
 }
