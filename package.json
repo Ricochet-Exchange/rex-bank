@@ -9,8 +9,8 @@
   "scripts": {
     "dev": "lite-server",
     "start": "http-server ./src -p $PORT",
-    "truffle-test": "truffle test",
-    "compile-contracts": "npx builder compile"
+    "ctest": "npx buidler test test/**/*.test.js",
+    "ccompile": "npx builder compile"
   },
   "author": "",
   "license": "ISC",
