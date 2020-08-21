@@ -18,7 +18,7 @@ const BankDetails = ({ address, bank }) => {
     <>
       <div className="BankDetails">
         <div className="BankDetails__header">
-          <h2>Commodo Main</h2>
+          <h2>{data.name}</h2>
           <p>{truncateAddr(address)}</p>
           <EtherscanLink path="address" hash={address} />
 
@@ -36,7 +36,7 @@ const BankDetails = ({ address, bank }) => {
               ) : null}
             </>
           ) : (
-              <Web3SignIn size="small" color="purple" />
+            <Web3SignIn size="small" color="purple" />
           )}
         </div>
 
@@ -52,7 +52,7 @@ const BankDetails = ({ address, bank }) => {
           <div className="BankDetails__Column">
             <div className="BankDetail">
               <p>Interest Rate</p>
-              <h3>{data.interestRate} %</h3>
+              <h3>{+data.interestRate} %</h3>
             </div>
             <div className="BankDetail">
               <p>Origination Fee</p>

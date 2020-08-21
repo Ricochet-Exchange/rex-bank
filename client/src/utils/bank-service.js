@@ -43,10 +43,14 @@ export default class BankService {
       debtToken: {
         ...debtToken,
         price: await this.contract.methods.getDebtTokenPrice().call(),
+        granularityPrice: await this.contract.methods
+          .getDebtTokenPriceGranularity()
+          .call(),
       },
       collateralToken: {
         ...collateralToken,
-        price: await this.contract.methods
+        price: await this.contract.methods.getCollateralTokenPrice().call(),
+        granularityPrice: await this.contract.methods
           .getCollateralTokenPriceGranularity()
           .call(),
       },
@@ -59,6 +63,11 @@ export default class BankService {
         .getLiquidationPenalty()
         .call(),
       reserveBalance: await this.contract.methods.getReserveBalance().call(),
+      reserveCollateralBalance: await this.contract.methods
+        .getReserveCollateralBalance()
+        .call(),
+      // name: await this.contract.methods.getName().call(),
+      name: "Commodo Main",
     };
   }
 
@@ -76,6 +85,7 @@ export default class BankService {
     return {
       address: tokenAddress,
       symbol: await tokenService.getSymbol(),
+      decimals: await tokenService.getDecimals(),
       unlockedAmount: unlocked,
     };
   }
@@ -91,11 +101,19 @@ export default class BankService {
       .getVaultDebtAmount()
       .call({ from: this.connectedAccount });
 
+    let collateralizationRatio = 0;
+    if (this.connectedAccount !== "") {
+      collateralizationRatio = await this.contract.methods
+        .getVaultCollateralizationRatio(this.connectedAccount)
+        .call();
+    }
+
     return {
       collateralAmount,
       repayAmount,
       debtAmount,
-      hasVault: +debtAmount > 0 && +collateralAmount > 0,
+      collateralizationRatio,
+      hasVault: +debtAmount > 0 || +collateralAmount > 0,
     };
   }
 
