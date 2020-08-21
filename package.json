@@ -10,7 +10,7 @@
     "dev": "lite-server",
     "start": "http-server ./src -p $PORT",
     "ctest": "npx buidler test test/**/*.test.js",
-    "ccompile": "npx builder compile"
+    "ccompile": "npx buidler compile"
   },
   "author": "",
   "license": "ISC",
