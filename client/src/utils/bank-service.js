@@ -63,6 +63,11 @@ export default class BankService {
         .getLiquidationPenalty()
         .call(),
       reserveBalance: await this.contract.methods.getReserveBalance().call(),
+      reserveCollateralBalance: await this.contract.methods
+        .getReserveCollateralBalance()
+        .call(),
+      // name: await this.contract.methods.getName().call(),
+      name: "Commodo Main",
     };
   }
 
@@ -89,9 +94,9 @@ export default class BankService {
     const collateralAmount = await this.contract.methods
       .getVaultCollateralAmount()
       .call({ from: this.connectedAccount });
-    // const repayAmount = await this.contract.methods
-    //   .getVaultRepayAmount()
-    //   .call({ from: this.connectedAccount });
+    const repayAmount = await this.contract.methods
+      .getVaultRepayAmount()
+      .call({ from: this.connectedAccount });
     const debtAmount = await this.contract.methods
       .getVaultDebtAmount()
       .call({ from: this.connectedAccount });
@@ -105,10 +110,10 @@ export default class BankService {
 
     return {
       collateralAmount,
-      // repayAmount,
+      repayAmount,
       debtAmount,
       collateralizationRatio,
-      hasVault: +debtAmount > 0 && +collateralAmount > 0,
+      hasVault: +debtAmount > 0 || +collateralAmount > 0,
     };
   }
 

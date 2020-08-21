@@ -2,11 +2,12 @@ import React, { useContext, useState } from "react";
 import { Button, Input } from "antd";
 
 import { BankContext } from "../../../contexts/BankContext";
+import { getVaultTxCalcValues } from "../../../utils/helpers";
 import Loading from "../../shared/Loader/Loader";
 import EtherscanLink from "../../shared/EtherscanLink/EthercanLink";
+import ApproveToken from "../../shared/ApproveToken/ApproveToken";
 
 import "./VaultTransaction.scss";
-import ApproveToken from "../../shared/ApproveToken/ApproveToken";
 
 const VaultTransaction = ({
   activeTransaction,
@@ -73,6 +74,13 @@ const VaultTransaction = ({
     return isRepay && needsApproval && !localApproved;
   };
 
+  const data = bank.data;
+  const vaultTxCalcValues = getVaultTxCalcValues(
+    data,
+    activeTransaction,
+    newValue
+  );
+
   return (
     <div className="VaultTransaction">
       {loading ? (
@@ -85,11 +93,15 @@ const VaultTransaction = ({
           <div className="VaultTransaction__preview">
             <div>
               <p>New collateralization ratio</p>
-              <p>%</p>
+              <p>{vaultTxCalcValues.newCollateralizationRatio} %</p>
             </div>
             <div>
               <p>New liquidation price</p>
-              <p>%</p>
+              <p>
+                {vaultTxCalcValues.newLiquidationPrice}{" "}
+                {data.collateralToken.symbol}
+                /USD
+              </p>
             </div>
           </div>
           <div className="VaultTransaction__form">

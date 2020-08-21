@@ -96,7 +96,7 @@ const DepositBorrow = ({ vaultData, setVaultData, setStep, bank }) => {
             ) : null}
           </div>
           <div className="CreateVault__Step">
-            <p className={needsUnlock && "disabled"}>
+            <p className={needsUnlock ? "disabled" : ""}>
               How much {vaultData.debtToken} do you want to borrow?
             </p>
             <Input
