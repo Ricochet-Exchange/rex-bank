@@ -10,6 +10,8 @@ import '../node_modules/usingtellor/contracts/UsingTellor.sol';
 */
 contract BankStorage{
   /*Variables*/
+  string name;
+
   struct Reserve {
     uint256 collateralBalance;
     uint256 debtBalance;
@@ -27,6 +29,7 @@ contract BankStorage{
     uint256 priceGranularity;
     uint256 tellorRequestId;
     uint256 reserveBalance;
+    uint256 lastUpdatedAt;
   }
 
   struct Vault {
@@ -40,6 +43,13 @@ contract BankStorage{
   Token collateral;
   Reserve reserve;
 
+  /**
+  * @dev Getter function for the bank name
+  * @return bank name
+  */
+  function getName() public view returns (string memory) {
+    return name;
+  }
 
   /**
   * @dev Getter function for the current interest rate
@@ -98,6 +108,14 @@ contract BankStorage{
   }
 
   /**
+  * @dev Getter function for the debt token last update time
+  * @return debt token last update time
+  */
+  function getDebtTokenLastUpdatedAt() public view returns (uint256) {
+    return debt.lastUpdatedAt;
+  }
+
+  /**
   * @dev Getter function for debt token address
   * @return debt token price
   */
@@ -119,6 +137,14 @@ contract BankStorage{
   */
   function getCollateralTokenPriceGranularity() public view returns (uint256) {
     return collateral.priceGranularity;
+  }
+
+  /**
+  * @dev Getter function for the collateral token last update time
+  * @return collateral token last update time
+  */
+  function getCollateralTokenLastUpdatedAt() public view returns (uint256) {
+    return collateral.lastUpdatedAt;
   }
 
   /**
@@ -162,7 +188,7 @@ contract BankStorage{
     principal = vaults[msg.sender].debtAmount;
     uint256 periodsPerYear = 365 days / reserve.period;
     uint256 periodsElapsed = (block.timestamp / reserve.period) - (vaults[msg.sender].createdAt / reserve.period);
-    principal += principal * reserve.interestRate / 100 / periodsPerYear * periodsElapsed;
+    principal += principal * reserve.interestRate / 10000 / periodsPerYear * periodsElapsed;
   }
 
   /**
