@@ -1,5 +1,8 @@
-pragma solidity ^0.5.0;
+/**
+ *Submitted for verification at Etherscan.io on 2020-07-01
+*/
 
+pragma solidity ^0.5.0;
 
 /**
 * @title Tellor Transfer
@@ -1612,9 +1615,14 @@ contract Ownable {
 }
 
 
-
+/**
+* @title BankStorage
+* This contract provides the data structures, variables, and getters for Bank
+*/
 contract BankStorage{
   /*Variables*/
+  string name;
+
   struct Reserve {
     uint256 collateralBalance;
     uint256 debtBalance;
@@ -1632,6 +1640,7 @@ contract BankStorage{
     uint256 priceGranularity;
     uint256 tellorRequestId;
     uint256 reserveBalance;
+    uint256 lastUpdatedAt;
   }
 
   struct Vault {
@@ -1645,6 +1654,13 @@ contract BankStorage{
   Token collateral;
   Reserve reserve;
 
+  /**
+  * @dev Getter function for the bank name
+  * @return bank name
+  */
+  function getName() public view returns (string memory) {
+    return name;
+  }
 
   /**
   * @dev Getter function for the current interest rate
@@ -1703,6 +1719,14 @@ contract BankStorage{
   }
 
   /**
+  * @dev Getter function for the debt token last update time
+  * @return debt token last update time
+  */
+  function getDebtTokenLastUpdatedAt() public view returns (uint256) {
+    return debt.lastUpdatedAt;
+  }
+
+  /**
   * @dev Getter function for debt token address
   * @return debt token price
   */
@@ -1724,6 +1748,14 @@ contract BankStorage{
   */
   function getCollateralTokenPriceGranularity() public view returns (uint256) {
     return collateral.priceGranularity;
+  }
+
+  /**
+  * @dev Getter function for the collateral token last update time
+  * @return collateral token last update time
+  */
+  function getCollateralTokenLastUpdatedAt() public view returns (uint256) {
+    return collateral.lastUpdatedAt;
   }
 
   /**
@@ -1767,7 +1799,7 @@ contract BankStorage{
     principal = vaults[msg.sender].debtAmount;
     uint256 periodsPerYear = 365 days / reserve.period;
     uint256 periodsElapsed = (block.timestamp / reserve.period) - (vaults[msg.sender].createdAt / reserve.period);
-    principal += principal * reserve.interestRate / 100 / periodsPerYear * periodsElapsed;
+    principal += principal * reserve.interestRate / 10000 / periodsPerYear * periodsElapsed;
   }
 
   /**
@@ -1803,7 +1835,10 @@ contract BankStorage{
 * origination fees from users that borrow against their collateral.
 * The oracle for Bank is Tellor.
 */
-contract Bank is BankStorage, Ownable, UsingTellor {
+contract Bank is BankStorage, UsingTellor {
+
+  address private _owner;
+
   /*Events*/
   event ReserveDeposit(uint256 amount);
   event ReserveWithdraw(address token, uint256 amount);
@@ -1815,38 +1850,81 @@ contract Bank is BankStorage, Ownable, UsingTellor {
   event Liquidation(address borrower, uint256 debtAmount);
 
   /*Constructor*/
-  constructor(
+  constructor(address payable oracleContract) public UsingTellor(oracleContract) {
+    reserve.oracleContract = oracleContract;
+  }
+
+  /*Modifiers*/
+  modifier onlyOwner() {
+    require(_owner == msg.sender, "IS NOT OWNER");
+    _;
+  }
+  /*Functions*/
+  /**
+  * @dev Returns the owner of the bank
+  */
+  function owner() public view returns (address) {
+    return _owner;
+  }
+
+  /**
+  * @dev This function sets the fundamental parameters for the bank
+  *      and assigns the first admin
+  */
+  function init(
+    address creator,
+    string memory bankName,
     uint256 interestRate,
     uint256 originationFee,
     uint256 collateralizationRatio,
     uint256 liquidationPenalty,
     uint256 period,
-    address collateralToken,
-    uint256 collateralTokenTellorRequestId,
-    uint256 collateralTokenPriceGranularity,
-    uint256 collateralTokenPrice,
-    address debtToken,
-    uint256 debtTokenTellorRequestId,
-    uint256 debtTokenPriceGranularity,
-    uint256 debtTokenPrice,
-    address payable oracleContract ) public UsingTellor(oracleContract) {
+    address payable oracleContract) public  {
+    require(reserve.interestRate == 0); // Ensure not init'd already
     reserve.interestRate = interestRate;
     reserve.originationFee = originationFee;
     reserve.collateralizationRatio = collateralizationRatio;
+    reserve.oracleContract = oracleContract;
     reserve.liquidationPenalty = liquidationPenalty;
     reserve.period = period;
-    debt.tokenAddress = debtToken;
-    debt.price = debtTokenPrice;
-    debt.priceGranularity = debtTokenPriceGranularity;
-    debt.tellorRequestId = debtTokenTellorRequestId;
+    tellorStorageAddress = oracleContract;
+    _tellorm = TellorMaster(tellorStorageAddress);
+    _owner = creator; // Make the creator the first admin
+    name = bankName;
+  }
+
+  /**
+  * @dev This function sets the collateral token properties, only callable one time
+  */
+  function setCollateral(
+    address collateralToken,
+    uint256 collateralTokenTellorRequestId,
+    uint256 collateralTokenPriceGranularity,
+    uint256 collateralTokenPrice) public onlyOwner {
+
+    require(collateral.tokenAddress == address(0)); // Ensure not init'd already
     collateral.tokenAddress = collateralToken;
     collateral.price = collateralTokenPrice;
     collateral.priceGranularity = collateralTokenPriceGranularity;
     collateral.tellorRequestId = collateralTokenTellorRequestId;
-    reserve.oracleContract = oracleContract;
   }
 
-  /*Functions*/
+  /**
+  * @dev This function sets the debt token properties, only callable one time
+  */
+  function setDebt(
+    address debtToken,
+    uint256 debtTokenTellorRequestId,
+    uint256 debtTokenPriceGranularity,
+    uint256 debtTokenPrice) public onlyOwner {
+
+    require(debt.tokenAddress == address(0)); // Ensure not init'd already
+    debt.tokenAddress = debtToken;
+    debt.price = debtTokenPrice;
+    debt.priceGranularity = debtTokenPriceGranularity;
+    debt.tellorRequestId = debtTokenTellorRequestId;
+  }
+
   /**
   * @dev This function allows the Bank owner to deposit the reserve (debt tokens)
   * @param amount is the amount to deposit
@@ -1885,8 +1963,7 @@ contract Bank is BankStorage, Ownable, UsingTellor {
   */
   function updateCollateralPrice() external {
     bool ifRetrieve;
-    uint256 _timestampRetrieved;
-    (ifRetrieve, collateral.price, _timestampRetrieved) = getCurrentValue(collateral.tellorRequestId); //,now - 1 hours);
+    (ifRetrieve, collateral.price, collateral.lastUpdatedAt) = getCurrentValue(collateral.tellorRequestId); //,now - 1 hours);
     emit PriceUpdate(collateral.tokenAddress, collateral.price);
   }
 
@@ -1896,15 +1973,14 @@ contract Bank is BankStorage, Ownable, UsingTellor {
   */
   function updateDebtPrice() external {
     bool ifRetrieve;
-    uint256 _timestampRetrieved;
-    (ifRetrieve, debt.price, _timestampRetrieved) = getCurrentValue(debt.tellorRequestId); //,now - 1 hours);
+    (ifRetrieve, debt.price, debt.lastUpdatedAt) = getCurrentValue(debt.tellorRequestId); //,now - 1 hours);
     emit PriceUpdate(debt.tokenAddress, debt.price);
   }
 
   /**
   * @dev Anyone can use this function to liquidate a vault's debt,
-  * the bank owner gets the collateral liquidated
-  * @param vaultOwner is the user the bank owner wants to liquidate
+  * the bank admins gets the collateral liquidated
+  * @param vaultOwner is the user the bank admins wants to liquidate
   */
   function liquidate(address vaultOwner) external {
     // Require undercollateralization
@@ -1949,7 +2025,7 @@ contract Bank is BankStorage, Ownable, UsingTellor {
     maxBorrow -= vaults[msg.sender].debtAmount;
     require(amount < maxBorrow, "NOT ENOUGH COLLATERAL");
     require(amount <= reserve.debtBalance, "NOT ENOUGH RESERVES");
-    vaults[msg.sender].debtAmount += amount + ((amount * reserve.originationFee) / 100);
+    vaults[msg.sender].debtAmount += amount + ((amount * reserve.originationFee) / 10000);
     if (block.timestamp - vaults[msg.sender].createdAt > reserve.period) {
       // Only adjust if more than 1 interest rate period has past
       vaults[msg.sender].createdAt = block.timestamp;
@@ -1987,32 +2063,6 @@ contract Bank is BankStorage, Ownable, UsingTellor {
     vaults[msg.sender].collateralAmount -= amount;
     reserve.collateralBalance -= amount;
     emit VaultWithdraw(msg.sender, amount);
-  }
-
-  /**
-  * @dev Allows the user to get the first value for the requestId after the specified timestamp
-  * @param _requestId is the requestId to look up the value for
-  * @param _timestamp after which to search for first verified value
-  * @return bool true if it is able to retreive a value, the value, and the value's timestamp
-  */
-  function getDataBefore(uint256 _requestId, uint256 _timestamp)
-      public
-      view
-      returns (bool _ifRetrieve, uint256 _value, uint256 _timestampRetrieved)
-  {
-      uint256 _count = _tellorm.getNewValueCountbyRequestId(_requestId);
-      if (_count > 0) {
-          for (uint256 i = 1; i <= _count; i++) {
-              uint256 _time = _tellorm.getTimestampbyRequestIDandIndex(_requestId, i - 1);
-              if (_time <= _timestamp && _tellorm.isInDispute(_requestId,_time) == false) {
-                  _timestampRetrieved = _time;
-              }
-          }
-          if (_timestampRetrieved > 0) {
-              return (true, _tellorm.retrieveData(_requestId, _timestampRetrieved), _timestampRetrieved);
-          }
-      }
-      return (false, 0, 0);
   }
 
 }
