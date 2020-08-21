@@ -1,6 +1,8 @@
 pragma solidity ^0.5.0;
 
 import "./BankStorage.sol";
+import "./IBank.sol";
+//import "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "usingtellor/contracts/UsingTellor.sol";
 
@@ -10,7 +12,9 @@ import "usingtellor/contracts/UsingTellor.sol";
 * origination fees from users that borrow against their collateral.
 * The oracle for Bank is Tellor.
 */
-contract Bank is BankStorage, UsingTellor {
+contract Bank is IBank, BankStorage, UsingTellor {
+
+//  using SafeERC20 for IERC20;
 
   address private _owner;
 
@@ -34,6 +38,7 @@ contract Bank is BankStorage, UsingTellor {
     require(_owner == msg.sender, "IS NOT OWNER");
     _;
   }
+
   /*Functions*/
   /**
   * @dev Returns the owner of the bank
