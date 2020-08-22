@@ -9,7 +9,7 @@
   "scripts": {
     "dev": "lite-server",
     "start": "http-server ./src -p $PORT",
-    "ctest": "npx buidler test test/**/*.test.js",
+    "ctest": "npx buidler test",
     "ttest": "truffle test",
     "ccompile": "npx buidler compile"
   },

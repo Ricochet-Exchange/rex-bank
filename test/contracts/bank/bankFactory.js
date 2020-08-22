@@ -1,6 +1,5 @@
-const UsingTellor = artifacts.require("usingtellor/contracts/UsingTellor.sol");
-const TellorMaster = artifacts.require("usingtellor/contracts/testContracts/TellorMaster.sol");
-const Tellor = artifacts.require("usingtellor/contracts/Tellor.sol"); // globally injected artifacts helper
+const TellorMaster = artifacts.require("TellorMaster.sol");
+const Tellor = artifacts.require("Tellor.sol"); // globally injected artifacts helper
 
 const {
   ether,
@@ -72,9 +71,7 @@ contract("BankFactory", function(_accounts) {
     const owner = await bankClone.owner();
     const dtAddress = await bankClone.getDebtTokenAddress();
     const ctAddress = await bankClone.getCollateralTokenAddress();
-    const bankTag = await this.bankFactory.getBankAddressAtIndex(0);
-    const numberOfBanks = await this.bankFactory.getNumberOfBanks();
-    console.log(numberOfBanks.toNumber());
+    const bankTag = await this.bankFactory.getBankAddressAtIndex(0)
 
     assert.equal(bankTag.bankAddress, bankClone.address);
     assert.equal(owner, _accounts[1]);
@@ -87,5 +84,52 @@ contract("BankFactory", function(_accounts) {
     assert.equal(dtAddress, this.dt.address);
     assert.equal(ctAddress, this.ct.address);
   });
+  it("should not allow any changes to the master to propagate", async function(){
+    const bankMaster = await Bank.at(this.bank.address);
 
+    await bankMaster.init(_accounts[2], BANK_NAME, 88, 2, 2, 2, 71111, this.oracle.address,
+      {"from": _accounts[2]});
+
+    const clone = await this.bankFactory.createBank(
+      BANK_NAME, INTEREST_RATE, ORIGINATION_FEE, COLLATERALIZATION_RATIO, LIQUIDATION_PENALTY, PERIOD, this.oracle.address,
+      {"from": _accounts[1]}
+    );
+    const bankClone = await Bank.at(clone.logs[0].args.bankAddress);
+
+    await bankClone.setCollateral(this.ct.address, 2, 1000, 1000, {"from": _accounts[1]});
+    await bankClone.setDebt(this.dt.address, 1, 1000, 1000, {"from": _accounts[1]});
+    const interestRate = await bankClone.getInterestRate();
+    const originationFee = await bankClone.getOriginationFee();
+    const collateralizationRatio = await bankClone.getCollateralizationRatio();
+    const liquidationPenalty = await bankClone.getLiquidationPenalty();
+    const owner = await bankClone.owner();
+
+    assert.equal(owner, _accounts[1]);
+    assert.equal(interestRate, INTEREST_RATE);
+    assert.equal(originationFee, ORIGINATION_FEE);
+    assert.equal(collateralizationRatio, COLLATERALIZATION_RATIO);
+    assert.equal(liquidationPenalty, LIQUIDATION_PENALTY);
+  });
+
+  it("should return the proper number of banks", async function() {
+    for (let i = 0; i < 300; i++) {
+      await this.bankFactory.createBank(
+        BANK_NAME, INTEREST_RATE, ORIGINATION_FEE, COLLATERALIZATION_RATIO, LIQUIDATION_PENALTY, PERIOD, this.oracle.address,
+        {"from": _accounts[1]}
+      );
+    }
+    const numberOfBanks = await this.bankFactory.getNumberOfBanks();
+    assert.equal(numberOfBanks, 300, "number of banks did not match")
+  })
+
+  it("should return the proper number of banks", async function() {
+    for (let i = 0; i < 300; i++) {
+      await this.bankFactory.createBank(
+        BANK_NAME, INTEREST_RATE, ORIGINATION_FEE, COLLATERALIZATION_RATIO, LIQUIDATION_PENALTY, PERIOD, this.oracle.address,
+        {"from": _accounts[1]}
+      );
+    }
+    const numberOfBanks = await this.bankFactory.getNumberOfBanks();
+    assert.equal(numberOfBanks, 300, "number of banks did not match")
+  })
 });

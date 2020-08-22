@@ -57,6 +57,11 @@ contract BankFactory is Ownable, CloneFactory {
         return _currentBankVersion;
     }
 
+
+    function getNumberOfBanks() public view returns (uint256){
+        return _banks.length;
+    }
+
     function getBankAddressAtIndex(uint256 index) public view returns (address bankAddress, uint256 bankVersion){
         BankTag storage bankTag = _banks[index];
         return (bankTag.bankAddress, bankTag.bankVersion);

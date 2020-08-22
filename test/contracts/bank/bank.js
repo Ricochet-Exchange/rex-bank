@@ -1,6 +1,5 @@
-const UsingTellor = artifacts.require("usingtellor/contracts/UsingTellor.sol");
-const TellorMaster = artifacts.require("usingtellor/contracts/testContracts/TellorMaster.sol");
-const Tellor = artifacts.require("usingtellor/contracts/Tellor.sol"); // globally injected artifacts helper
+const TellorMaster = artifacts.require("TellorMaster.sol");
+const Tellor = artifacts.require("Tellor.sol"); // globally injected artifacts helper
 
 const {
   ether,
