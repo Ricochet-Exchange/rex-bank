@@ -8,12 +8,11 @@ var TellorMaster = artifacts.require("usingtellor/contracts/TellorMaster.sol");
 /****Uncomment the body to run this with Truffle migrate for truffle testing*/
 var Bank = artifacts.require("Bank");
 var BankFactory = artifacts.require("BankFactory");
-var CT = artifacts.require("GLDToken");
-var DT = artifacts.require("USDToken");
+var TestToken = artifacts.require("TestToken");
 
 /**
-*@dev Use this for setting up contracts for testing
-*/
+ *@dev Use this for setting up contracts for testing
+ */
 
 module.exports = async function (deployer, network, accounts) {
 
@@ -42,25 +41,21 @@ module.exports = async function (deployer, network, accounts) {
     trbAddress = "0x0ba45a8b5d5575935b8158a88c631e9f9c95a2e5";
     tellorOracleAddress = "0x0ba45a8b5d5575935b8158a88c631e9f9c95a2e5";
 
-  } else if(network == "development") {
+  } else if (network == "development") {
 
     await deployer.deploy(TellorTransfer);
     await deployer.deploy(TellorDispute);
     await deployer.deploy(TellorGettersLibrary);
     await deployer.link(TellorTransfer, TellorLibrary);
     await deployer.deploy(TellorLibrary);
-    await deployer.link(TellorTransfer,Tellor);
-    await deployer.link(TellorDispute,Tellor);
-    await deployer.link(TellorLibrary,Tellor);
+    await deployer.link(TellorTransfer, Tellor);
+    await deployer.link(TellorDispute, Tellor);
+    await deployer.link(TellorLibrary, Tellor);
     await deployer.deploy(Tellor);
-    await deployer.link(TellorTransfer,TellorMaster);
-    await deployer.link(TellorGettersLibrary,TellorMaster);
+    await deployer.link(TellorTransfer, TellorMaster);
+    await deployer.link(TellorGettersLibrary, TellorMaster);
     await deployer.deploy(Tellor);
     await deployer.deploy(TellorMaster, Tellor.address);
-    await deployer.deploy(CT, "10000000000000000000000");
-    await deployer.deploy(DT, "10000000000000000000000");
-    daiAddress = DT.address;
-    trbAddress = CT.address;
     tellorOracleAddress = TellorMaster.address;
 
   }
@@ -70,7 +65,13 @@ module.exports = async function (deployer, network, accounts) {
   await deployer.deploy(BankFactory, bank.address);
   let bankFactory = await BankFactory.deployed(bank.address);
 
-  if(network == "development") {
+  if (network == "development") {
+    await deployer.deploy(TestToken, "USD Token", "USDT", {from: accounts[0]})
+    const dt = await TestToken.deployed();
+    await deployer.deploy(TestToken, "Gold", "GLD", {from: accounts[0]})
+    const ct = await TestToken.deployed();
+    daiAddress = dt.address;
+    trbAddress = ct.address;
     // Local development setup two banks
 
     // TRB/DAI
@@ -79,7 +80,6 @@ module.exports = async function (deployer, network, accounts) {
     await bankClone1.setCollateral(trbAddress, trbusdRequestId, initialPrice, priceGranularity);
     await bankClone1.setDebt(daiAddress, daiusdRequestId, initialPrice, priceGranularity);
     // Funding
-    let dt = await DT.deployed()
     await dt.approve(bankClone1.address, web3.utils.toWei("1000", "ether"))
     await bankClone1.reserveDeposit(web3.utils.toWei("1000", "ether"))
 
@@ -88,8 +88,7 @@ module.exports = async function (deployer, network, accounts) {
     let bankClone2 = await Bank.at(clone2.logs[0].args.bankAddress);
     await bankClone2.setDebt(trbAddress, trbusdRequestId, priceGranularity, initialPrice);
     await bankClone2.setCollateral(daiAddress, daiusdRequestId, priceGranularity, initialPrice);
-    dt = await CT.deployed()
-    await dt.approve(bankClone2.address, web3.utils.toWei("1000", "ether"))
+    await ct.approve(bankClone2.address, web3.utils.toWei("1000", "ether"))
     await bankClone2.reserveDeposit(web3.utils.toWei("1000", "ether"))
 
     console.log("TRB/DAI: " + bankClone1.address);

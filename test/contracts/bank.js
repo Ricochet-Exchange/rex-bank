@@ -13,8 +13,8 @@ const {
 const { expect } = require('chai');
 
 var Bank = artifacts.require("Bank");
-var CT = artifacts.require("GLDToken");
-var DT = artifacts.require("USDToken");
+var TestToken = artifacts.require("TestToken");
+
 
 contract("Bank", function(_accounts) {
   const INTEREST_RATE = 1200; // 12%
@@ -33,8 +33,8 @@ contract("Bank", function(_accounts) {
     this.oracle2 = await new web3.eth.Contract(Tellor.abi,this.oa);
 
     // Bank set up
-    this.ct = await CT.new(ether(new BN(10000)));
-    this.dt = await DT.new(ether(new BN(10000)));
+    this.ct = await TestToken.new("USD Token", "USDT");
+    this.dt = await TestToken.new("Gold", "GLD");
     this.bank = await Bank.new(this.oracle.address);
     await this.bank.init(_accounts[0], BANK_NAME, INTEREST_RATE, ORIGINATION_FEE, COLLATERALIZATION_RATIO, LIQUIDATION_PENALTY, PERIOD, this.oracle.address);
     await this.bank.setCollateral(this.ct.address, 2, 1000, 1000);
@@ -51,9 +51,6 @@ contract("Bank", function(_accounts) {
 
     await this.ct.transfer(_accounts[1], ether(new BN(500)));
     await this.dt.transfer(_accounts[1], ether(new BN(500)));
-
-
-
   });
 
   it("Test getCurrentValue", async function(){
