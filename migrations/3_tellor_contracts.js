@@ -68,14 +68,14 @@ module.exports = async function (deployer, network, accounts) {
   await deployer.deploy(Bank, tellorOracleAddress);
   let bank = await Bank.deployed()
   await deployer.deploy(BankFactory, bank.address);
-  let bankFactory = await BankFactory.deployed();
+  let bankFactory = await BankFactory.deployed(bank.address);
 
   if(network == "development") {
     // Local development setup two banks
 
     // TRB/DAI
     let clone1 = await bankFactory.createBank("Initial Bank 1", interestRate, originationFee, collateralizationRatio, liquidationPenalty, period, tellorOracleAddress);
-    let bankClone1 = await Bank.at(clone1.logs[0].args.newBankAddress);
+    let bankClone1 = await Bank.at(clone1.logs[0].args.bankAddress);
     await bankClone1.setCollateral(trbAddress, trbusdRequestId, initialPrice, priceGranularity);
     await bankClone1.setDebt(daiAddress, daiusdRequestId, initialPrice, priceGranularity);
     // Funding
@@ -85,7 +85,7 @@ module.exports = async function (deployer, network, accounts) {
 
     // DAI/TRB
     let clone2 = await bankFactory.createBank("Initial Bank 2", interestRate, originationFee, collateralizationRatio, liquidationPenalty, period, tellorOracleAddress);
-    let bankClone2 = await Bank.at(clone2.logs[0].args.newBankAddress);
+    let bankClone2 = await Bank.at(clone2.logs[0].args.bankAddress);
     await bankClone2.setDebt(trbAddress, trbusdRequestId, priceGranularity, initialPrice);
     await bankClone2.setCollateral(daiAddress, daiusdRequestId, priceGranularity, initialPrice);
     dt = await CT.deployed()

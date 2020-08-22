@@ -21,6 +21,11 @@ contract BankFactory is Ownable, CloneFactory {
 
     event BankCreated(address bankAddress, uint256 bankVersion);
 
+
+    constructor(address bankAddress) public {
+        _masterBankAddress = bankAddress;
+    }
+
     function setMasterBankAddress(address newMasterBankAddress) internal {
         _masterBankAddress = newMasterBankAddress;
         _currentBankVersion = _currentBankVersion.add(1);
@@ -52,7 +57,12 @@ contract BankFactory is Ownable, CloneFactory {
         return _currentBankVersion;
     }
 
-//    function getBankAddresses() public view returns (address [] memory){
-//        return banks;
-//    }
+    function getBankAddressAtIndex(uint256 index) public view returns (address bankAddress, uint256 bankVersion){
+        BankTag storage bankTag = _banks[index];
+        return (bankTag.bankAddress, bankTag.bankVersion);
+    }
+
+    function debugSetMasterAddress(address masterAddress) public onlyOwner {
+        setMasterBankAddress(masterAddress);
+    }
 }

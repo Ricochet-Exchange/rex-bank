@@ -10,6 +10,7 @@
     "dev": "lite-server",
     "start": "http-server ./src -p $PORT",
     "ctest": "npx buidler test test/**/*.test.js",
+    "ttest": "truffle test",
     "ccompile": "npx buidler compile"
   },
   "author": "",

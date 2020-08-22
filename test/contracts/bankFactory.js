@@ -60,7 +60,7 @@ contract("BankFactory", function(_accounts) {
       BANK_NAME, INTEREST_RATE, ORIGINATION_FEE, COLLATERALIZATION_RATIO, LIQUIDATION_PENALTY, PERIOD, this.oracle.address,
       {"from": _accounts[1]}
     );
-    let bankClone = await Bank.at(clone.logs[0].args.newBankAddress);
+    let bankClone = await Bank.at(clone.logs[0].args.bankAddress);
 
     await bankClone.setCollateral(this.ct.address, 2, 1000, 1000, {"from": _accounts[1]});
     await bankClone.setDebt(this.dt.address, 1, 1000, 1000, {"from": _accounts[1]});
@@ -73,9 +73,9 @@ contract("BankFactory", function(_accounts) {
     const owner = await bankClone.owner();
     const dtAddress = await bankClone.getDebtTokenAddress();
     const ctAddress = await bankClone.getCollateralTokenAddress();
-    const banks = await this.bankFactory.getBankAddresses();
+    const bankTag = await this.bankFactory.getBankAddressAtIndex(0);
 
-    assert.equal(banks[0], bankClone.address);
+    assert.equal(bankTag.bankAddress, bankClone.address);
     assert.equal(owner, _accounts[1]);
     assert.equal(interestRate, INTEREST_RATE);
     assert.equal(originationFee, ORIGINATION_FEE);

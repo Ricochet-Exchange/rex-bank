@@ -9,7 +9,7 @@ const HDWalletProvider = require("truffle-hdwallet-provider");
 var NonceTrackerSubprovider = require("web3-provider-engine/subproviders/nonce-tracker")
 
 
-module.exports = {
+let truffleOptions = {
   plugins: ["solidity-coverage"],
   networks: {
     development: {
@@ -25,8 +25,8 @@ module.exports = {
       gasPrice: 9500000000
     },
     mainnet: {
-      provider: function() {
-        var wallet = new HDWalletProvider(process.env.MAINNET_MNEMONIC,process.env.MAINNET_URL)
+      provider: function () {
+        var wallet = new HDWalletProvider(process.env.MAINNET_MNEMONIC, process.env.MAINNET_URL)
         // var nonceTracker = new NonceTrackerSubprovider()
         // wallet.engine._providers.unshift(nonceTracker)
         // nonceTracker.setEngine(wallet.engine)
@@ -37,3 +37,11 @@ module.exports = {
     },
   }
 }
+
+let reporterArg = process.argv.indexOf('--reporter')
+if (reporterArg >= 0) {
+  truffleOptions['mocha'] = {
+    reporter: process.argv[reporterArg + 1]
+  }
+}
+module.exports = truffleOptions;
