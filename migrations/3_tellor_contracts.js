@@ -1,6 +1,6 @@
 /****Uncomment the body below to run this with Truffle migrate for truffle testing*/
 var TellorTransfer = artifacts.require("usingtellor/contracts/libraries/TellorTransfer.sol");
-var TellorDispute = artifacts.require("./usingtellor/contracts/libraries/TellorDispute.sol");
+var TellorDispute = artifacts.require("usingtellor/contracts/libraries/TellorDispute.sol");
 var TellorLibrary = artifacts.require("usingtellor/contracts/libraries/TellorLibrary.sol");
 var TellorGettersLibrary = artifacts.require("usingtellor/contracts/libraries/TellorGettersLibrary.sol");
 var Tellor = artifacts.require("usingtellor/contracts/Tellor.sol");

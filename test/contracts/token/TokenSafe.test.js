@@ -46,7 +46,7 @@ contract("TokenSafe", ([owner, other]) => {
     );
   });
 
-  it("should allow ~1000 CMD after 24 hr.s", async function () {
+  it("should allow 1000 CMD after 24 hr.s", async function () {
     // Grab the date in which the safe started vesting
     const startTime = await this.tokenSafe.start();
 
