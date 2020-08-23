@@ -14,8 +14,8 @@ export const getVaultCalcValues = (data) => {
   const withdrawAvailable = (aC * (cR * aD * pD)) / (aC * pC);
 
   return {
-    liquidationPrice: liquidationPrice.toFixed(2),
-    withdrawAvailable: withdrawAvailable.toFixed(2),
+    liquidationPrice: liquidationPrice,
+    withdrawAvailable: withdrawAvailable,
   };
 };
 
@@ -33,10 +33,10 @@ export const getVaultTxCalcValues = (data, activeTransaction, newValue) => {
   const newCollateralizationRatio = ((aC * pC) / aD) * pD;
 
   return {
-    newLiquidationPrice: newLiquidationPrice.toFixed(2),
+    newLiquidationPrice: newLiquidationPrice,
     newCollateralizationRatio: !+newValue
       ? +data.vault.collateralizationRatio / 100
-      : (newCollateralizationRatio * 100).toFixed(2),
+      : newCollateralizationRatio * 100,
   };
 };
 
@@ -62,8 +62,8 @@ const getAdModifier = (aD, activeTransaction, newValue) => {
   ) {
     return aD;
   } else if (activeTransaction === "borrow") {
-    return aD - +newValue;
-  } else {
     return aD + +newValue;
+  } else {
+    return aD - +newValue;
   }
 };

@@ -66,8 +66,8 @@ export default class BankService {
       reserveCollateralBalance: await this.contract.methods
         .getReserveCollateralBalance()
         .call(),
-      // name: await this.contract.methods.getName().call(),
-      name: "Commodo Main",
+      name: await this.contract.methods.getName().call(),
+      // name: "Commodo Main",
     };
   }
 
