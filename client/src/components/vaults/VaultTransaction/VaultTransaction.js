@@ -93,12 +93,12 @@ const VaultTransaction = ({
           <div className="VaultTransaction__preview">
             <div>
               <p>New collateralization ratio</p>
-              <p>{vaultTxCalcValues.newCollateralizationRatio} %</p>
+              <p>{vaultTxCalcValues.newCollateralizationRatio.toFixed(2)} %</p>
             </div>
             <div>
               <p>New liquidation price</p>
               <p>
-                {vaultTxCalcValues.newLiquidationPrice}{" "}
+                {vaultTxCalcValues.newLiquidationPrice.toFixed(4)}{" "}
                 {data.collateralToken.symbol}
                 /USD
               </p>

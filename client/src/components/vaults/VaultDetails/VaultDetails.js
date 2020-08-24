@@ -33,7 +33,7 @@ const VaultDetails = ({ bank }) => {
           <div className="VaultDetail">
             <p>Liquidation Price</p>
             <div className="BigDetail liqprice">
-              <h1>{vaultCalcValues.liquidationPrice}</h1>
+              <h1>{vaultCalcValues.liquidationPrice.toFixed(2)}</h1>
               <h3>{data.collateralToken.symbol}/USD</h3>
             </div>
           </div>
@@ -51,7 +51,7 @@ const VaultDetails = ({ bank }) => {
           <div className="VaultDetail">
             <p>Total Collateral Locked</p>
             <h3>
-              {+data.vault.collateralAmount / 1e18}{" "}
+              {(+data.vault.collateralAmount / 1e18).toFixed(4)}{" "}
               {data.collateralToken.symbol}
             </h3>
           </div>
@@ -60,7 +60,8 @@ const VaultDetails = ({ bank }) => {
           <div className="VaultDetail">
             <p>Available to withdraw</p>
             <h3>
-              {vaultCalcValues.withdrawAvailable} {data.collateralToken.symbol}
+              {vaultCalcValues.withdrawAvailable.toFixed(4)}{" "}
+              {data.collateralToken.symbol}
             </h3>
           </div>
         </div>
@@ -77,7 +78,8 @@ const VaultDetails = ({ bank }) => {
           <div className="VaultDetail">
             <p>Total Debt Owed</p>
             <h3>
-              {+data.vault.debtAmount / 1e18} {data.debtToken.symbol}
+              {(+data.vault.debtAmount / 1e18).toFixed(4)}{" "}
+              {data.debtToken.symbol}
             </h3>
           </div>
         </div>
@@ -85,7 +87,7 @@ const VaultDetails = ({ bank }) => {
           <div className="VaultDetail">
             <p>Available to borrow</p>
             <h3>
-              {+data.reserveBalance / 1e18} {data.debtToken.symbol}
+              {(+data.reserveBalance / 1e18).toFixed(4)} {data.debtToken.symbol}
             </h3>
           </div>
         </div>
