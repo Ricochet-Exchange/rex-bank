@@ -28,6 +28,7 @@
 
 $notwhitetxt: #B1B7DD;
 $lightgrey: #F5F7FA;
+$mediumgrey: #a0a0a0;
 $purple: #4F56B5;
 $extrapurple: #4d55bf;
 $textgrey: #848484;
@@ -59,9 +60,13 @@ button {
     transition-property: all;
     transition-duration: 0.05s !important;
     transition-timing-function: ease-in-out;
-    transition-delay: 0;
+    transition-delay: 0s;
 }
 
 button:hover {
     transform: scale(0.98,0.98);
+}
+
+button[disabled]:hover {
+    transform: none;
 }
