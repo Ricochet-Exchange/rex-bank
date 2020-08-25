@@ -18,6 +18,7 @@ const VaultActions = ({
             type="default"
             shape="round"
             size="large"
+            className="purpleoutlined"
             disabled={txPending || activeTransaction}
             onClick={() => setActiveTransaction("withdraw")}
           >
@@ -27,6 +28,7 @@ const VaultActions = ({
             type="primary"
             shape="round"
             size="large"
+            className="purplebutton"
             disabled={txPending || activeTransaction}
             onClick={() => setActiveTransaction("deposit")}
           >
@@ -39,6 +41,7 @@ const VaultActions = ({
             type="default"
             shape="round"
             size="large"
+            className="purpleoutlined"
             disabled={txPending || activeTransaction}
             onClick={() => setActiveTransaction("borrow")}
           >
@@ -48,6 +51,7 @@ const VaultActions = ({
             type="primary"
             shape="round"
             size="large"
+            className="purplebutton"
             disabled={txPending || activeTransaction}
             onClick={() => setActiveTransaction("repay")}
           >

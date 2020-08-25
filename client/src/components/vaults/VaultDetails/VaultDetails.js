@@ -1,8 +1,9 @@
 import React, { useState } from "react";
-import { BankOutlined } from "@ant-design/icons";
 
 import VaultActions from "../VaultActions/VaultActions";
 import VaultTransaction from "../VaultTransaction/VaultTransaction";
+import Icons from "../../../Icons";
+
 
 import "./VaultDetails.scss";
 import { truncateAddr, getVaultCalcValues } from "../../../utils/helpers";
@@ -40,9 +41,13 @@ const VaultDetails = ({ bank }) => {
         </div>
         <div className="VaultDetails__Bank">
           <p>This vault is part of</p>
-          <p>{bank.data.name}</p>
-          <p>{truncateAddr(bank.service.contractAddr)}</p>
-          <BankOutlined />
+          <div className="BankData">
+          <div className="BankDataTxt">
+            <p className="BankName">{bank.data.name}</p>
+            <p>{truncateAddr(bank.service.contractAddr)}</p>
+          </div>
+          <Icons.Bank fill="#848484" />
+          </div>
         </div>
       </div>
 
@@ -56,7 +61,7 @@ const VaultDetails = ({ bank }) => {
             </h3>
           </div>
         </div>
-        <div className="VaultDetails__Column">
+        <div className="VaultDetails__Column flexer">
           <div className="VaultDetail">
             <p>Available to withdraw</p>
             <h3>
@@ -81,7 +86,7 @@ const VaultDetails = ({ bank }) => {
             </h3>
           </div>
         </div>
-        <div className="VaultDetails__Column">
+        <div className="VaultDetails__Column flexer">
           <div className="VaultDetail">
             <p>Available to borrow</p>
             <h3>

@@ -91,19 +91,20 @@ const VaultTransaction = ({
       ) : (
         <>
           <div className="VaultTransaction__preview">
-            <div>
+            <div className="VaultDetail">
               <p>New collateralization ratio</p>
-              <p>{vaultTxCalcValues.newCollateralizationRatio} %</p>
+              <h3>{vaultTxCalcValues.newCollateralizationRatio} %</h3>
             </div>
-            <div>
+            <div className="VaultDetail">
               <p>New liquidation price</p>
-              <p>
+              <h3>
                 {vaultTxCalcValues.newLiquidationPrice}{" "}
                 {data.collateralToken.symbol}
                 /USD
-              </p>
+              </h3>
             </div>
           </div>
+          <div className="VaultTransaction__form__Total">
           <div className="VaultTransaction__form">
             {needsRepayUnlock() ? (
               <>
@@ -147,11 +148,13 @@ const VaultTransaction = ({
               type="primary"
               shape="round"
               size="large"
+              className="purplebutton"
               onClick={() => handleAction()}
               disabled={!newValue}
             >
               {activeTransaction}
             </Button>
+          </div>
           </div>
 
           {error ? (
