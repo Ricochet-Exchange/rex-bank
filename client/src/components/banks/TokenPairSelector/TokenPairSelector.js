@@ -11,7 +11,6 @@ const TokenPairSelector = () => {
 
   const handleMenuClick = () => {
     //TODO: Will dispatch to set active pair in bank context
-    console.log("bank selected");
   };
 
   //TODO: This will need a way to look up all token pairs and associate to a bank so get the correct data

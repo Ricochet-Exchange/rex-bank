@@ -52,11 +52,11 @@ const BankDetails = ({ address, bank }) => {
           <div className="BankDetails__Column">
             <div className="BankDetail">
               <p>Interest Rate</p>
-              <h3>{+data.interestRate} %</h3>
+              <h3>{+data.interestRate / 100} %</h3>
             </div>
             <div className="BankDetail">
               <p>Origination Fee</p>
-              <h3>{data.originationFee} %</h3>
+              <h3>{data.originationFee / 100} %</h3>
             </div>
           </div>
 

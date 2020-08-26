@@ -12,10 +12,12 @@ export const getVaultCalcValues = (data) => {
     +data.collateralToken.price / +data.collateralToken.granularityPrice;
   const liquidationPrice = (cR * aD * pD) / aC;
   const withdrawAvailable = aC - (cR * aD * pD) / pC;
+  const borrowAvailable = (aC * pC) / pD / cR - aD;
 
   return {
-    liquidationPrice: liquidationPrice,
-    withdrawAvailable: withdrawAvailable,
+    liquidationPrice,
+    withdrawAvailable,
+    borrowAvailable,
   };
 };
 

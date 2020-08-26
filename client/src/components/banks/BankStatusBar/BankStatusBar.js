@@ -20,7 +20,7 @@ const BankStatusBar = () => {
         {data.debtToken.symbol} Price (USD) $
         <strong>{+data.debtToken.price / granularity}</strong>
       </div>
-      <TokenPairSelector />
+      {/* <TokenPairSelector /> */}
     </div>
   );
 };

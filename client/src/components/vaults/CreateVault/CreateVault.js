@@ -8,7 +8,6 @@ import Icons from "../../../Icons";
 import "./CreateVault.scss";
 
 const CreateVault = ({ bank, visible, setVisible }) => {
-  console.log("bank", bank);
   const [step, setStep] = useState(1);
   const [vaultData, setVaultData] = useState({
     collateralToken: bank.data.collateralToken.symbol,
@@ -24,10 +23,20 @@ const CreateVault = ({ bank, visible, setVisible }) => {
           <>
             <p>
               You're creating a vault for
-              <br /><strong>Commodo Main (
-              {bank.data.collateralToken.symbol}-{bank.data.debtToken.symbol})</strong>
+              <br />
+              <strong>
+                Commodo Main ({bank.data.collateralToken.symbol}-
+                {bank.data.debtToken.symbol})
+              </strong>
             </p>
-            <Button shape="round" size="large" className="purplebutton" onClick={() => setStep(2)}>start</Button>
+            <Button
+              shape="round"
+              size="large"
+              className="purplebutton"
+              onClick={() => setStep(2)}
+            >
+              start
+            </Button>
           </>
         );
       }
@@ -69,7 +78,7 @@ const CreateVault = ({ bank, visible, setVisible }) => {
         onCancel={() => setVisible(false)}
         maskClosable={false}
         footer={null}
-        closeIcon={<Icons.Xmark width="22px"/>}
+        closeIcon={<Icons.Xmark width="22px" />}
       >
         <h2>Creating a Vault</h2>
         {renderStep()}
