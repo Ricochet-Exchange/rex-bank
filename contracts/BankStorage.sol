@@ -199,19 +199,9 @@ contract BankStorage{
     if(vaults[vaultOwner].debtAmount == 0 ){
       return 0;
     } else {
-      return _percent(vaults[vaultOwner].collateralAmount * collateral.price * 1000 / collateral.priceGranularity,
-                      vaults[vaultOwner].debtAmount * debt.price * 1000 / debt.priceGranularity,
-                      4);
+      return (vaults[vaultOwner].collateralAmount * collateral.price / collateral.priceGranularity)
+        * 10000 / (vaults[vaultOwner].debtAmount * debt.price / debt.priceGranularity);
     }
-  }
-
-  /**
-  * @dev This function calculates the percent of the given numerator, denominator to the
-  * specified precision
-  * @return _quotient
-  */
-  function _percent(uint numerator, uint denominator, uint precision) private pure returns(uint256 _quotient) {
-        _quotient =  ((numerator * 10 ** (precision+1) / denominator) + 5) / 10;
   }
 
 

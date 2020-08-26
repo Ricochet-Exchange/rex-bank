@@ -12,6 +12,7 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 contract Bank is BankStorage, UsingTellor {
 
   address private _owner;
+  address private _bankFactoryOwner;
 
   /*Events*/
   event ReserveDeposit(uint256 amount);
@@ -33,6 +34,7 @@ contract Bank is BankStorage, UsingTellor {
     require(_owner == msg.sender, "IS NOT OWNER");
     _;
   }
+
   /*Functions*/
   /**
   * @dev Returns the owner of the bank
@@ -53,6 +55,7 @@ contract Bank is BankStorage, UsingTellor {
     uint256 collateralizationRatio,
     uint256 liquidationPenalty,
     uint256 period,
+    address bankFactoryOwner,
     address payable oracleContract) public  {
     require(reserve.interestRate == 0); // Ensure not init'd already
     reserve.interestRate = interestRate;
@@ -64,6 +67,7 @@ contract Bank is BankStorage, UsingTellor {
     tellorStorageAddress = oracleContract;
     _tellorm = TellorMaster(tellorStorageAddress);
     _owner = creator; // Make the creator the first admin
+    _bankFactoryOwner = bankFactoryOwner;
     name = bankName;
   }
 
@@ -111,22 +115,28 @@ contract Bank is BankStorage, UsingTellor {
 
   /**
   * @dev This function allows the Bank owner to withdraw the reserve (debt tokens)
+  *      Withdraws incur a 0.5% fee paid to the bankFactoryOwner
   * @param amount is the amount to withdraw
   */
   function reserveWithdraw(uint256 amount) external onlyOwner {
     require(reserve.debtBalance >= amount, "NOT ENOUGH DEBT TOKENS IN RESERVE");
-    require(IERC20(debt.tokenAddress).transfer(msg.sender, amount));
+    uint256 feeAmount = amount / 200; // Bank Factory collects 0.5% fee
+    require(IERC20(debt.tokenAddress).transfer(msg.sender, amount - feeAmount));
+    require(IERC20(debt.tokenAddress).transfer(_bankFactoryOwner, feeAmount));
     reserve.debtBalance -= amount;
     emit ReserveWithdraw(debt.tokenAddress, amount);
   }
 
   /**
   * @dev This function allows the user to withdraw their collateral
+         Withdraws incur a 0.5% fee paid to the bankFactoryOwner
   * @param amount is the amount to withdraw
   */
   function reserveWithdrawCollateral(uint256 amount) external onlyOwner {
     require(reserve.collateralBalance >= amount, "NOT ENOUGH COLLATERAL IN RESERVE");
-    require(IERC20(collateral.tokenAddress).transfer(msg.sender, amount));
+    uint256 feeAmount = amount / 200; // Bank Factory collects 0.5% fee
+    require(IERC20(collateral.tokenAddress).transfer(msg.sender, amount - feeAmount));
+    require(IERC20(collateral.tokenAddress).transfer(_bankFactoryOwner, feeAmount));
     reserve.collateralBalance -= amount;
     emit ReserveWithdraw(collateral.tokenAddress, amount);
   }
@@ -153,7 +163,8 @@ contract Bank is BankStorage, UsingTellor {
 
   /**
   * @dev Anyone can use this function to liquidate a vault's debt,
-  * the bank admins gets the collateral liquidated
+  * the bank admins gets the collateral liquidated, liquidated collateral
+  * is charged a 10% fee which gets paid to the bankFactoryOwner
   * @param vaultOwner is the user the bank admins wants to liquidate
   */
   function liquidate(address vaultOwner) external {
@@ -162,13 +173,14 @@ contract Bank is BankStorage, UsingTellor {
     uint256 debtOwned = vaults[vaultOwner].debtAmount + (vaults[vaultOwner].debtAmount * 100 * reserve.liquidationPenalty / 100 / 100);
     uint256 collateralToLiquidate = debtOwned * debt.price / collateral.price;
 
-    if(collateralToLiquidate <= vaults[vaultOwner].collateralAmount) {
-      reserve.collateralBalance +=  collateralToLiquidate;
-      vaults[vaultOwner].collateralAmount -= collateralToLiquidate;
-    } else {
-      reserve.collateralBalance +=  vaults[vaultOwner].collateralAmount;
-      vaults[vaultOwner].collateralAmount = 0;
+    if(collateralToLiquidate > vaults[vaultOwner].collateralAmount) {
+      collateralToLiquidate = vaults[vaultOwner].collateralAmount;
     }
+
+    uint256 feeAmount = collateralToLiquidate / 10; // Bank Factory collects 10% fee
+    require(IERC20(collateral.tokenAddress).transfer(_bankFactoryOwner, feeAmount));
+    reserve.collateralBalance += collateralToLiquidate - feeAmount;
+    vaults[vaultOwner].collateralAmount -= collateralToLiquidate;
     reserve.debtBalance += vaults[vaultOwner].debtAmount;
     vaults[vaultOwner].debtAmount = 0;
     emit Liquidation(vaultOwner, debtOwned);
@@ -227,6 +239,7 @@ contract Bank is BankStorage, UsingTellor {
 
   /**
   * @dev Allows users to withdraw their collateral from the vault
+  * @param amount withdrawn
   */
   function vaultWithdraw(uint256 amount) external {
     uint256 maxBorrowAfterWithdraw = (vaults[msg.sender].collateralAmount - amount) * collateral.price / debt.price / reserve.collateralizationRatio * 100;
@@ -237,6 +250,15 @@ contract Bank is BankStorage, UsingTellor {
     vaults[msg.sender].collateralAmount -= amount;
     reserve.collateralBalance -= amount;
     emit VaultWithdraw(msg.sender, amount);
+  }
+
+  function getBankFactoryOwner() public view returns (address) {
+    return _bankFactoryOwner;
+  }
+
+  function setBankFactoryOwner(address newOwner) external {
+    require(_bankFactoryOwner == msg.sender, "IS NOT BANK FACTORY OWNER");
+    _bankFactoryOwner = newOwner;
   }
 
 }

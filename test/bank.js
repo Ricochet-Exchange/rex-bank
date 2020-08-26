@@ -36,7 +36,7 @@ contract("Bank", function(_accounts) {
     this.ct = await CT.new(ether(new BN(10000)));
     this.dt = await DT.new(ether(new BN(10000)));
     this.bank = await Bank.new(this.oracle.address);
-    await this.bank.init(_accounts[0], BANK_NAME, INTEREST_RATE, ORIGINATION_FEE, COLLATERALIZATION_RATIO, LIQUIDATION_PENALTY, PERIOD, this.oracle.address);
+    await this.bank.init(_accounts[0], BANK_NAME, INTEREST_RATE, ORIGINATION_FEE, COLLATERALIZATION_RATIO, LIQUIDATION_PENALTY, PERIOD, _accounts[9], this.oracle.address);
     await this.bank.setCollateral(this.ct.address, 2, 1000, 1000);
     await this.bank.setDebt(this.dt.address, 1, 1000, 1000);
     this.depositAmount = ether(new BN(100));
@@ -71,6 +71,8 @@ contract("Bank", function(_accounts) {
     vars = await this.bank.getCurrentValue.call(2);
     assert(vars[0] == true, "ifRetreive is not true");
     assert(vars[1] == 210000, "Get last value should work");
+    await this.bank.updateCollateralPrice();
+    await this.bank.updateDebtPrice();
 
   });
 
@@ -113,11 +115,17 @@ contract("Bank", function(_accounts) {
     const beforeReserveBalance = await this.bank.getReserveBalance();
     await this.bank.reserveWithdraw(this.depositAmount);
     const afterReserveBalance = await this.bank.getReserveBalance();
-    const tokenBalance = await this.dt.balanceOf(this.bank.address);
+    const bankTokenBalance = await this.dt.balanceOf(this.bank.address);
+    const bankFactoryOwner = await this.bank.getBankFactoryOwner();
+    const bankCreatorBalance = await this.dt.balanceOf(_accounts[0]);
+    const bankFactoryOwnerBalance = await this.dt.balanceOf(bankFactoryOwner);
+    const feeAmt = this.depositAmount.div(new BN(200));
     expect(beforeReserveBalance).to.be.bignumber.equal(this.depositAmount);
     expect(afterReserveBalance).to.be.bignumber.equal(this.zero);
-    expect(tokenBalance).to.be.bignumber.equal(this.zero);
+    expect(bankTokenBalance).to.be.bignumber.equal(this.zero);
+    expect(bankFactoryOwnerBalance).to.be.bignumber.equal(feeAmt);
   });
+
 
   it('should not allow non-owner to deposit reserves', async function () {
     await expectRevert(this.bank.reserveDeposit(ether(new BN(100)), {from: _accounts[1]}), "IS NOT OWNER");
@@ -325,7 +333,7 @@ contract("Bank", function(_accounts) {
     await this.bank.vaultDeposit(ether(this.one), {from: _accounts[1]});
     await this.bank.vaultBorrow(ether(new BN(1100)), {from: _accounts[1]});
     const collateralizationRatio = await this.bank.getVaultCollateralizationRatio(_accounts[1]);
-    expect(collateralizationRatio).to.be.bignumber.equal("15302");
+    expect(collateralizationRatio).to.be.bignumber.equal("15301");
   });
 
   it('should not liquidate overcollateralized vault', async function () {
@@ -361,7 +369,8 @@ contract("Bank", function(_accounts) {
     await this.bank.vaultDeposit(this.depositAmount, {from: _accounts[1]});
     await this.bank.vaultBorrow(this.largeBorrowAmount, {from: _accounts[1]});
     var collateralizationRatio = await this.bank.getVaultCollateralizationRatio(_accounts[1]);
-    expect(collateralizationRatio).to.be.bignumber.equal("26403");
+    let b_amount = this.largeBorrowAmount.add(this.largeBorrowAmount.mul(new BN(ORIGINATION_FEE)).div(new BN(10000)));
+    expect(collateralizationRatio).to.be.bignumber.equal(((this.depositAmount.mul(new BN(2000))).mul(new BN(10000))).div(b_amount.mul(new BN(1000))));
 
     // Lower the price of collateral, push the vault into undercollateralized
     // The first price for the collateral and debt
@@ -375,19 +384,31 @@ contract("Bank", function(_accounts) {
     }
     await this.bank.updateCollateralPrice();
     await this.bank.updateDebtPrice();
+    debtPrice = await this.bank.getDebtTokenPrice();
+    collateralPrice = await this.bank.getCollateralTokenPrice();
+    expect(debtPrice).to.be.bignumber.equal("1000")
+    expect(collateralPrice).to.be.bignumber.equal("1000")
     const repayAmount = await this.bank.getVaultRepayAmount({from: _accounts[1]});
 
     collateralizationRatio = await this.bank.getVaultCollateralizationRatio(_accounts[1]);
-    expect(collateralizationRatio).to.be.bignumber.equal("13201");
+    expect(collateralizationRatio).to.be.bignumber.equal(((this.depositAmount.mul(new BN(1000))).mul(new BN(10000))).div(b_amount.mul(new BN(1000))));
     await this.bank.liquidate(_accounts[1]);
+
+    const debtOwed = b_amount.add(b_amount.mul(new BN(LIQUIDATION_PENALTY)).mul(new BN(100)).div(new BN(100)).div(new BN(100)))
+    const collateralToLiquidate = debtOwed.mul(new BN(1000)).div(new BN(1000));
+
     const collateralAmount = await this.bank.getVaultCollateralAmount({from: _accounts[1]});
     const debtAmount = await this.bank.getVaultDebtAmount({from: _accounts[1]});
     const debtReserveBalance = await this.bank.getReserveBalance();
     const collateralReserveBalance = await this.bank.getReserveCollateralBalance();
-    expect(collateralAmount).to.be.bignumber.equal("5312500000000000000"); // TODO: Check math
+    const bankFactoryOwner = await this.bank.getBankFactoryOwner();
+    const bankFactoryOwnerBalance = await this.ct.balanceOf(bankFactoryOwner);
+    const feeAmt = collateralToLiquidate.div(new BN(10));
+    expect(bankFactoryOwnerBalance).to.be.bignumber.equal(feeAmt);
+    expect(collateralAmount).to.be.bignumber.equal(this.depositAmount.sub(collateralToLiquidate)); // TODO: Check math
     expect(debtAmount).to.be.bignumber.equal(this.zero);
     expect(debtReserveBalance).to.be.bignumber.equal(this.depositAmount.sub(this.largeBorrowAmount).add(repayAmount));
-    expect(collateralReserveBalance).to.be.bignumber.equal("94687500000000000000");
+    expect(collateralReserveBalance).to.be.bignumber.equal(collateralToLiquidate.sub(feeAmt));
   });
 
 

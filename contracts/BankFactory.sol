@@ -8,10 +8,14 @@ import "@openzeppelin/contracts/ownership/Ownable.sol";
 contract BankFactory is Ownable, CloneFactory {
 
   /*Variables*/
-  address [] banks;
-  address public bankAddress;
+  struct BankTag {
+    address bankAddress;
+  }
 
-  event BankCreated(address newBankAddress);
+  address public bankAddress;
+  BankTag[] private _banks;
+
+  event BankCreated(address newBankAddress, address owner);
 
   constructor(address _bankAddress) public {
     bankAddress = _bankAddress;
@@ -27,13 +31,21 @@ contract BankFactory is Ownable, CloneFactory {
     address payable oracleAddress) public returns(address) {
 
     address clone = createClone(bankAddress);
-    Bank(clone).init(msg.sender, name, interestRate, originationFee, collateralizationRatio, liquidationPenalty, period, oracleAddress);
-    banks.push(clone);
-    emit BankCreated(clone);
+    Bank(clone).init(msg.sender, name, interestRate, originationFee,
+      collateralizationRatio, liquidationPenalty, period,
+      owner(), oracleAddress);
+    BankTag memory newBankTag = BankTag(clone);
+    _banks.push(newBankTag);
+    emit BankCreated(clone, msg.sender);
   }
 
-  function getBankAddresses() public view returns(address [] memory){
-    return banks;
+  function getNumberOfBanks() public view returns (uint256){
+    return _banks.length;
+  }
+
+  function getBankAddressAtIndex(uint256 index) public view returns (address){
+    BankTag storage bank = _banks[index];
+    return bank.bankAddress;
   }
 
 }

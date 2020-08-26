@@ -1,7 +1,5 @@
 # Commodo Framework
-This is a framework fixed-rate collateral-backed loans on Ethereum. This repository contains the core smart contracts and DApp code.
-
-![Bank protocol](./bank-protocol.png)
+This is a framework for managing fixed-rate collateral-backed lending on Ethereum. This repository contains the core smart contracts and DApp code.
 
 # Design Considerations
 
