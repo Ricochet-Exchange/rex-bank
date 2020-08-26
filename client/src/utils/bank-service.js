@@ -121,7 +121,6 @@ export default class BankService {
       await this.initContract();
     }
 
-    console.log("depositing:" + depositAmount * 1e18);
     const amount = (+depositAmount * 1e18).toString();
 
     let deposit = this.contract.methods
@@ -145,7 +144,6 @@ export default class BankService {
       await this.initContract();
     }
 
-    console.log("Borrowing:" + borrowAmount * 1e18);
     const amount = (+borrowAmount * 1e18).toString();
 
     let deposit = this.contract.methods
@@ -169,7 +167,6 @@ export default class BankService {
       await this.initContract();
     }
 
-    console.log("withdrawing:" + withdrawAmount * 1e18);
     const amount = (+withdrawAmount * 1e18).toString();
 
     let deposit = this.contract.methods
@@ -193,7 +190,6 @@ export default class BankService {
       await this.initContract();
     }
 
-    console.log("Repaying:" + repayAmount * 1e18);
     const amount = (+repayAmount * 1e18).toString();
 
     let deposit = this.contract.methods

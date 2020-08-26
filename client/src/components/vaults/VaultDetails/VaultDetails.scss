@@ -2,6 +2,8 @@
 
 .VaultDetails {
   background-color: #ffffff;
+
+  margin-bottom: 35px;
   border-radius: 10px;
   width: 100%;
 }
@@ -37,7 +39,6 @@
   line-height: 1.15rem;
   margin: 0;
   color: $mediumgrey;
-
 }
 
 .VaultDetail {
@@ -69,7 +70,6 @@
 .VaultDetails__Bank p {
   margin: 0 8px 0 0;
 }
-
 
 .BankData {
   display: flex;
@@ -127,4 +127,3 @@
 .VaultDetails__content .VaultDetail {
   min-width: 220px;
 }
-

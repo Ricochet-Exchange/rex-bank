@@ -51,14 +51,14 @@ const Banks = () => {
   return (
     <div>
       {state.banks ? (
-          <div className="ContentTotal">
-            <BankStatusBar />
+        <div className="ContentTotal">
+          <BankStatusBar />
           {renderBanks()}
-          </div>
+        </div>
       ) : (
-      <div className="fullframe">
-        <Loading />
-      </div>
+        <div className="fullframe">
+          <Loading />
+        </div>
       )}
     </div>
   );
