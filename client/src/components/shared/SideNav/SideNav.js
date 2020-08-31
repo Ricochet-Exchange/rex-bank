@@ -6,6 +6,7 @@ import { Web3Context } from "../../../contexts/RootContexts";
 import Web3SignIn from "../../account/Web3SignIn";
 
 import Icons from "../../../Icons";
+import { truncateAddr } from "../../../utils/helpers";
 
 import "./SideNav.scss";
 
@@ -20,8 +21,12 @@ const SideNav = () => {
         mode="inline"
         inlineIndent={0}
       >
+
+
+
+
         <div className="web3feedback">
-          {web3 && web3.account ? null : <Web3SignIn size="small" />}
+          {web3 && web3.account ? <div className="connected"><div className="dot"></div><p>{truncateAddr(web3.account)}</p></div> : <Web3SignIn size="small" />}
         </div>
         <Menu.Item key="/banks">
           <Link to="/banks">
