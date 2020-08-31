@@ -25,7 +25,7 @@ const CreateVault = ({ bank, visible, setVisible }) => {
               You're creating a vault for
               <br />
               <strong>
-                Commodo Main ({bank.data.collateralToken.symbol}-
+                {bank.data.name} ({bank.data.collateralToken.symbol}-
                 {bank.data.debtToken.symbol})
               </strong>
             </p>

@@ -5,7 +5,6 @@ import { Button } from "antd";
 import { BankContext } from "../../contexts/BankContext";
 import { Web3Context } from "../../contexts/RootContexts";
 import BankService from "../../utils/bank-service";
-import BankStatusBar from "../../components/banks/BankStatusBar/BankStatusBar";
 import VaultDetails from "../../components/vaults/VaultDetails/VaultDetails";
 import Loading from "../../components/shared/Loader/Loader";
 import Icons from "../../Icons";
@@ -73,7 +72,6 @@ const Vault = () => {
         <>
           {state.banks ? (
             <div className="ContentTotal">
-              <BankStatusBar />
               {hasVault ? (
                 <>{renderVaults()}</>
               ) : (

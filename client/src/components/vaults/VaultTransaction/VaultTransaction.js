@@ -66,6 +66,10 @@ const VaultTransaction = ({
     setNewValue(e.target.value);
   };
 
+  const handleMaxRepay = () => {
+    setNewValue(+bank.data.vault.debtAmount / 1e18);
+  };
+
   const needsRepayUnlock = () => {
     const isRepay = activeTransaction === "repay";
     const needsApproval =
@@ -93,7 +97,12 @@ const VaultTransaction = ({
           <div className="VaultTransaction__preview">
             <div className="VaultDetail">
               <p>New collateralization ratio</p>
-              <h3>{vaultTxCalcValues.newCollateralizationRatio.toFixed(2)} %</h3>
+              <h3>
+                {vaultTxCalcValues.newCollateralizationRatio === Infinity
+                  ? ""
+                  : vaultTxCalcValues.newCollateralizationRatio.toFixed(2)}{" "}
+                %
+              </h3>
             </div>
             <div className="VaultDetail">
               <p>New liquidation price</p>
@@ -105,56 +114,61 @@ const VaultTransaction = ({
             </div>
           </div>
           <div className="VaultTransaction__form__Total">
-          <div className="VaultTransaction__form">
-            {needsRepayUnlock() ? (
-              <>
-                <p>Please give allowance for your repay to continue.</p>
-                <ApproveToken
-                  tokenAddress={bank.data.debtToken.address}
-                  bankAddress={bank.service.contractAddr}
-                  setError={setError}
-                  setLocalApproved={setLocalApproved}
-                />
-              </>
-            ) : (
-              <>
-                <p>
-                  How much{" "}
-                  {isCollateral
-                    ? bank.data.collateralToken.symbol
-                    : bank.data.debtToken.symbol}{" "}
-                  do you wish to {activeTransaction}?
-                </p>
-
-                <Input
-                  type="number"
-                  size="large"
-                  value={newValue}
-                  onChange={handleChange}
-                  addonAfter={
-                    isCollateral
+            <div className="VaultTransaction__form">
+              {needsRepayUnlock() ? (
+                <>
+                  <p>Please give allowance for your repay to continue.</p>
+                  <ApproveToken
+                    tokenAddress={bank.data.debtToken.address}
+                    bankAddress={bank.service.contractAddr}
+                    setError={setError}
+                    setLocalApproved={setLocalApproved}
+                  />
+                </>
+              ) : (
+                <>
+                  <p>
+                    How much{" "}
+                    {isCollateral
                       ? bank.data.collateralToken.symbol
-                      : bank.data.debtToken.symbol
-                  }
-                />
-              </>
-            )}
-          </div>
-          <div className="VaultTransaction__buttons">
-            <Button type="link" onClick={() => handleCancel()}>
-              cancel
-            </Button>
-            <Button
-              type="primary"
-              shape="round"
-              size="large"
-              className="purplebutton"
-              onClick={() => handleAction()}
-              disabled={!newValue}
-            >
-              {activeTransaction}
-            </Button>
-          </div>
+                      : bank.data.debtToken.symbol}{" "}
+                    do you wish to {activeTransaction}?
+                  </p>
+
+                  <Input
+                    type="number"
+                    size="large"
+                    value={newValue}
+                    onChange={handleChange}
+                    addonAfter={
+                      isCollateral
+                        ? bank.data.collateralToken.symbol
+                        : bank.data.debtToken.symbol
+                    }
+                  />
+                </>
+              )}
+            </div>
+            <div className="VaultTransaction__buttons">
+              {activeTransaction === "repay" ? (
+                <Button type="link" onClick={() => handleMaxRepay()}>
+                  repay max
+                </Button>
+              ) : null}
+              <Button type="link" onClick={() => handleCancel()}>
+                cancel
+              </Button>
+              <Button
+                type="primary"
+                shape="round"
+                size="large"
+                className="purplebutton"
+                onClick={() => handleAction()}
+                disabled={!newValue}
+              >
+                {activeTransaction}
+              </Button>
+            </div>
           </div>
 
           {error ? (

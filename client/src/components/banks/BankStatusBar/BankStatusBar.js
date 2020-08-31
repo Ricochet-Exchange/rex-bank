@@ -1,7 +1,6 @@
 import React, { useContext } from "react";
 
 import { BankContext } from "../../../contexts/BankContext";
-import TokenPairSelector from "../TokenPairSelector/TokenPairSelector";
 
 import "./BankStatusBar.scss";
 
@@ -20,7 +19,6 @@ const BankStatusBar = () => {
         {data.debtToken.symbol} Price (USD) $
         <strong>{+data.debtToken.price / granularity}</strong>
       </div>
-      {/* <TokenPairSelector /> */}
     </div>
   );
 };
