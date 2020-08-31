@@ -4,7 +4,6 @@ import VaultActions from "../VaultActions/VaultActions";
 import VaultTransaction from "../VaultTransaction/VaultTransaction";
 import Icons from "../../../Icons";
 
-
 import "./VaultDetails.scss";
 import { truncateAddr, getVaultCalcValues } from "../../../utils/helpers";
 
@@ -14,7 +13,6 @@ const VaultDetails = ({ bank }) => {
   const [txPending, setTxPending] = useState();
 
   const data = bank.data;
-  console.log("bank.data", bank.data);
 
   const vaultCalcValues = getVaultCalcValues(data);
 
@@ -42,11 +40,11 @@ const VaultDetails = ({ bank }) => {
         <div className="VaultDetails__Bank">
           <p>This vault is part of</p>
           <div className="BankData">
-          <div className="BankDataTxt">
-            <p className="BankName">{bank.data.name}</p>
-            <p>{truncateAddr(bank.service.contractAddr)}</p>
-          </div>
-          <Icons.Bank fill="#848484" />
+            <div className="BankDataTxt">
+              <p className="BankName">{bank.data.name}</p>
+              <p>{truncateAddr(bank.service.contractAddr)}</p>
+            </div>
+            <Icons.Bank fill="#848484" />
           </div>
         </div>
       </div>
@@ -92,7 +90,8 @@ const VaultDetails = ({ bank }) => {
           <div className="VaultDetail">
             <p>Available to borrow</p>
             <h3>
-              {(+data.reserveBalance / 1e18).toFixed(4)} {data.debtToken.symbol}
+              {vaultCalcValues.borrowAvailable.toFixed(4)}{" "}
+              {data.debtToken.symbol}
             </h3>
           </div>
         </div>

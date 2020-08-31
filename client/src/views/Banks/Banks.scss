@@ -1,23 +1,23 @@
-@import '../../branding';
+@import "../../branding";
 
-
-.BankStatusBar, .BankDetails, .VaultDetails {
-    @include font;
-    width: 100%;
+.BankStatusBar,
+.BankDetails,
+.VaultDetails {
+  @include font;
+  width: 100%;
 }
 
 .BankStatusBar {
-    margin: 50px 0;
+  margin: 50px 0;
 }
 
-.BankDetails, .VaultDetails {
-    max-width: 1400px;
+.BankDetails,
+.VaultDetails {
+  max-width: 1400px;
 }
-
-
 /* Desktop XL */
-@media only screen and (min-width : 1824px) {
-    .BankDetails {
-        margin-top:20px;
-    }
+@media only screen and (min-width: 1824px) {
+  .BankDetails {
+    margin-top: 20px;
+  }
 }

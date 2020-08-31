@@ -1,8 +1,9 @@
-@import '../../../branding.scss';
+@import "../../../branding.scss";
 
 .BankDetails {
   background-color: #ffffff;
   border-radius: 10px;
+  margin-bottom: 35px;
 }
 
 .BankDetails__header {
@@ -36,7 +37,6 @@
   // width: 100px;
   flex: 1;
 }
-
 
 .BankDetails__content {
   @include box;
@@ -88,7 +88,6 @@
 .BigDetail h3 {
   margin: 0 0 8px 10px;
 }
-
 
 .flexer {
   flex: 1;
