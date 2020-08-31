@@ -39,7 +39,6 @@ const VaultDetails = ({ bank }) => {
           </div>
         </div>
         <div className="VaultDetails__Bank">
-          <BankStatusBar />
           <p>This vault is part of</p>
           <div className="BankData">
             <div className="BankDataTxt">
@@ -61,7 +60,7 @@ const VaultDetails = ({ bank }) => {
             </h3>
           </div>
         </div>
-        <div className="VaultDetails__Column flexer">
+        <div className="VaultDetails__Column">
           <div className="VaultDetail">
             <p>Available to withdraw</p>
             <h3>
@@ -69,6 +68,9 @@ const VaultDetails = ({ bank }) => {
               {data.collateralToken.symbol}
             </h3>
           </div>
+        </div>
+        <div className="VaultDetails__Column flexer">
+          <BankStatusBar vault coll />
         </div>
         <VaultActions
           section="locked"
@@ -88,7 +90,7 @@ const VaultDetails = ({ bank }) => {
             </h3>
           </div>
         </div>
-        <div className="VaultDetails__Column flexer">
+        <div className="VaultDetails__Column">
           <div className="VaultDetail">
             <p>Available to borrow</p>
             <h3>
@@ -96,6 +98,9 @@ const VaultDetails = ({ bank }) => {
               {data.debtToken.symbol}
             </h3>
           </div>
+        </div>
+        <div className="VaultDetails__Column flexer">
+          <BankStatusBar vault />
         </div>
         <VaultActions
           section="borrow"
