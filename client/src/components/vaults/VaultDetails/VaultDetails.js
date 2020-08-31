@@ -6,6 +6,7 @@ import Icons from "../../../Icons";
 
 import "./VaultDetails.scss";
 import { truncateAddr, getVaultCalcValues } from "../../../utils/helpers";
+import BankStatusBar from "../../banks/BankStatusBar/BankStatusBar";
 
 const VaultDetails = ({ bank }) => {
   const [collColor] = useState("tellorgreen");
@@ -38,6 +39,7 @@ const VaultDetails = ({ bank }) => {
           </div>
         </div>
         <div className="VaultDetails__Bank">
+          <BankStatusBar />
           <p>This vault is part of</p>
           <div className="BankData">
             <div className="BankDataTxt">

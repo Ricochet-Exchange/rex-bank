@@ -3,7 +3,6 @@ import React, { useEffect, useContext } from "react";
 import { Web3Context } from "../../contexts/RootContexts";
 import { BankContext } from "../../contexts/BankContext";
 import BankService from "../../utils/bank-service";
-import BankStatusBar from "../../components/banks/BankStatusBar/BankStatusBar";
 import BankDetails from "../../components/banks/BankDetails/BankDetails";
 import Loading from "../../components/shared/Loader/Loader";
 
@@ -29,12 +28,14 @@ const Banks = () => {
       dispatch({ type: "setBanks", payload: banks });
     };
 
-    if (web3 && web3.service && !state.banks) {
+    const hasWeb3 = web3 && web3.service;
+    const needsData = !state.banks;
+    if (hasWeb3 && needsData) {
       getBankData();
     }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [web3]);
+  }, [web3, state.banks]);
 
   const renderBanks = () => {
     return Object.keys(state.banks).map((address) => {
@@ -51,10 +52,7 @@ const Banks = () => {
   return (
     <div>
       {state.banks ? (
-        <div className="ContentTotal">
-          <BankStatusBar />
-          {renderBanks()}
-        </div>
+        <div className="ContentTotal">{renderBanks()}</div>
       ) : (
         <div className="fullframe">
           <Loading />

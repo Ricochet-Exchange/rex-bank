@@ -6,6 +6,7 @@ import { truncateAddr } from "../../../utils/helpers";
 import EtherscanLink from "../../shared/EtherscanLink/EthercanLink";
 import CreateVault from "../../vaults/CreateVault/CreateVault";
 import Web3SignIn from "../../account/Web3SignIn";
+import BankStatusBar from "../BankStatusBar/BankStatusBar";
 
 import "./BankDetails.scss";
 
@@ -21,6 +22,8 @@ const BankDetails = ({ address, bank }) => {
           <h2>{data.name}</h2>
           <p>{truncateAddr(address)}</p>
           <EtherscanLink path="address" hash={address} />
+
+          <BankStatusBar />
 
           {web3 && web3.account ? (
             <>
@@ -45,7 +48,7 @@ const BankDetails = ({ address, bank }) => {
             <p>Available for borrow</p>
             <div className="BigDetail">
               <h1>{(+data.reserveBalance / 1e18).toFixed()}</h1>
-              <h3> DAI</h3>
+              <h3>{data.debtToken.symbol}</h3>
             </div>
           </div>
 
