@@ -22,9 +22,6 @@ const BankDetails = ({ address, bank }) => {
           <h2>{data.name}</h2>
           <p>{truncateAddr(address)}</p>
           <EtherscanLink path="address" hash={address} />
-
-          <BankStatusBar />
-
           {web3 && web3.account ? (
             <>
               {!bank.data.vault.hasVault ? (
@@ -51,6 +48,11 @@ const BankDetails = ({ address, bank }) => {
               <h3>{data.debtToken.symbol}</h3>
             </div>
           </div>
+
+          <div className="BankDetails__Column">
+            <BankStatusBar />
+          </div>
+
 
           <div className="BankDetails__Column">
             <div className="BankDetail">
