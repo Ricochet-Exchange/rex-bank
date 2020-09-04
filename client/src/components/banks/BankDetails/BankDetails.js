@@ -21,7 +21,8 @@ const BankDetails = ({ address, bank }) => {
         <div className="BankDetails__header">
           <h2>{data.name}</h2>
           <p>{truncateAddr(address)}</p>
-          <EtherscanLink path="address" hash={address} />
+          <EtherscanLink className="flexer" path="address" hash={address} />
+          <div className="flexer"></div>
           {web3 && web3.account ? (
             <>
               {!bank.data.vault.hasVault ? (
