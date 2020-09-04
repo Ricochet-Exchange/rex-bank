@@ -74,7 +74,7 @@ export default class BankService {
     const tokenService = new TokenService(tokenAddress, this.web3Service);
 
     let unlocked = 0;
-    if (this.connectedAccount !== "") {
+    if (this.connectedAccount) {
       unlocked = await tokenService.allowance(
         this.connectedAccount,
         this.contractAddr
@@ -101,7 +101,7 @@ export default class BankService {
       .call({ from: this.connectedAccount });
 
     let collateralizationRatio = 0;
-    if (this.connectedAccount !== "") {
+    if (this.connectedAccount) {
       collateralizationRatio = await this.contract.methods
         .getVaultCollateralizationRatio(this.connectedAccount)
         .call();

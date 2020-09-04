@@ -49,7 +49,7 @@ const getAcModifier = (aC, activeTransaction, newValue) => {
     !+newValue
   ) {
     return aC;
-  } else if (activeTransaction === "widthdraw") {
+  } else if (activeTransaction === "withdraw") {
     return aC - +newValue;
   } else {
     return aC + +newValue;
@@ -58,7 +58,7 @@ const getAcModifier = (aC, activeTransaction, newValue) => {
 
 const getAdModifier = (aD, activeTransaction, newValue) => {
   if (
-    activeTransaction === "widthdraw" ||
+    activeTransaction === "withdraw" ||
     activeTransaction === "deposit" ||
     !+newValue
   ) {
