@@ -20,7 +20,6 @@ const ApproveToken = ({
     const tokenService = new TokenService(tokenAddress, web3.service);
     const approval = await tokenService.approve(web3.account, bankAddress);
 
-    console.log("approval", approval);
     if (approval.error) {
       setError("Error approving token allowance");
     } else {
