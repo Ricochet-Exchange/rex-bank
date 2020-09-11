@@ -10,6 +10,8 @@ substitutions:
 
 steps:
 - name: 'gcr.io/cloud-builders/yarn'
+  args: ['--cwd', 'client', 'install']
+- name: 'gcr.io/cloud-builders/yarn'
   args: ['--cwd', 'client', 'build']
 - name: 'gcr.io/cloud-builders/docker'
   args: ['build', '-t', 'us.gcr.io/$PROJECT_ID/$_IMAGE_NAME:$COMMIT_SHA', './client']
