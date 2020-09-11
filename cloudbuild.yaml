@@ -1,0 +1,48 @@
+substitutions:
+  _TARGET_CLUSTER: tellor-pool-development
+  _IMAGE_NAME: commodo
+  _WEB_SSL_DOMAIN_NAME: rinkeby.commodo.finance
+  _REACT_APP_INFURA_URI: https://rinkeby.infura.io/v3/af8276083f02406390d70dab5bff7070
+  _REACT_APP_CHAIN_ID: "4"
+  _IP: commodo-rinkeby
+  _CERT: commodo-rinkeby
+
+
+steps:
+- name: 'gcr.io/cloud-builders/yarn'
+  args: ['--cwd', 'client', 'build']
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['build', '-t', 'us.gcr.io/$PROJECT_ID/$_IMAGE_NAME:$COMMIT_SHA', './client']
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['push', 'us.gcr.io/$PROJECT_ID/$_IMAGE_NAME:$COMMIT_SHA']
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['tag', 'us.gcr.io/$PROJECT_ID/$_IMAGE_NAME:$COMMIT_SHA', 'us.gcr.io/$PROJECT_ID/$_IMAGE_NAME:latest']
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['push', 'us.gcr.io/$PROJECT_ID/$_IMAGE_NAME:latest']
+
+- name: 'gcr.io/$PROJECT_ID/helm'
+  args: [
+    'upgrade',
+    '--set',
+    'ssl.domain_name=$_WEB_SSL_DOMAIN_NAME',
+    '--set',
+    'ssl.ip=$_IP',
+    '--set',
+    'ssl.cert=$_CERT',
+    '--set',
+    'react_app_infura_uri=$_REACT_APP_INFURA_URI',
+    '--set',
+    'react_app_chain_id=$_REACT_APP_CHAIN_ID',
+    '--set',
+    'image.repository=us.gcr.io/$PROJECT_ID/$_IMAGE_NAME',
+    '--install',
+    '$_IMAGE_NAME',
+    '--namespace',
+    '$_IMAGE_NAME',
+    'infrastructure'
+  ]
+  env:
+  - 'TILLERLESS=true'
+  - 'TILLER_NAMESPACE=$_IMAGE_NAME'
+  - 'CLOUDSDK_COMPUTE_ZONE=$_TARGET_ZONE'
+  - 'CLOUDSDK_CONTAINER_CLUSTER=$_TARGET_CLUSTER'

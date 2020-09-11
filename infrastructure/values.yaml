@@ -1,0 +1,11 @@
+image:
+  repository: us.gcr.io/tellor-pool-development/commodo
+  tag: 0.1.0
+ssl:
+  domain_name: rinkeby.commodo.finance
+  ip: commodo-rinkeby
+  cert: commodo-rinkeby
+
+environment: development
+react_app_infura_uri: https://rinkeby.infura.io/v3/aae7ae81e84f4e8987ccc759822af26e
+react_app_chain_id: "4"

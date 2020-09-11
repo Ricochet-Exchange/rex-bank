@@ -1,0 +1,13 @@
+{{ if eq .Values.environment "production" }}
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: tellor-pool-ingress-web
+  annotations:
+    kubernetes.io/ingress.global-static-ip-name: {{.Values.ssl.ip}}
+    networking.gke.io/managed-certificates: {{.Values.ssl.cert}}
+spec:
+  backend:
+    serviceName: commodo
+    servicePort: 80
+{{ end }}
