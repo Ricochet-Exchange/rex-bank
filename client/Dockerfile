@@ -1,6 +1,7 @@
 FROM node:alpine as builder
 WORKDIR /app
 COPY . .
+COPY ./env.sh .
 RUN chmod +x env.sh
 RUN /bin/bash ./env.sh
 RUN yarn build
