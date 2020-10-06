@@ -18,7 +18,7 @@ spec:
         - name: REACT_APP_INFURA_URI
           value: {{.Values.react_app_infura_uri}}
         - name: REACT_APP_CHAIN_ID
-          value: {{.Values.react_app_chain_id}}
+          value: "{{.Values.react_app_chain_id}}"
         image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
         name: commodo
         resources:
