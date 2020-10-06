@@ -4,6 +4,7 @@ COPY . .
 COPY ./env.sh .
 RUN chmod +x env.sh
 CMD chmod 755 env.sh && ./env.sh
+RUN apk add --no-cache git
 RUN npm install
 RUN yarn build
 
