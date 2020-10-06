@@ -3,4 +3,3 @@ node_modules/*
 build/contracts
 secret*
 .env
-client/build
