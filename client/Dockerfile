@@ -3,7 +3,8 @@ WORKDIR /app
 COPY . .
 COPY ./env.sh .
 RUN chmod +x env.sh
-RUN ls
+RUN env.sh
+RUN npm install
 RUN yarn build
 
 FROM nginx:1.19.0
