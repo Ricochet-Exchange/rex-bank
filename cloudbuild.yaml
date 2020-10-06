@@ -38,7 +38,8 @@ steps:
     '$_IMAGE_NAME',
     '--namespace',
     '$_IMAGE_NAME',
-    'infrastructure'
+    'infrastructure',
+    '--force'
   ]
   env:
   - 'TILLERLESS=true'
