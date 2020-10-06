@@ -33,7 +33,7 @@ module.exports = {
         return wallet
       },
       network_id: 1,
-      gasPrice: 42000000000
+      gasPrice: 165000000000
     },
   }
 }
