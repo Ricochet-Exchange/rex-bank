@@ -9,4 +9,3 @@ RUN yarn build
 
 FROM nginx:1.19.0
 COPY build/ /usr/share/nginx/html
-CMD ["/bin/bash", "-c", "/usr/share/nginx/html/env.sh && nginx -g \"daemon off;\""]
