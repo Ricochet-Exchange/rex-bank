@@ -1,5 +1,5 @@
 FROM nginx:1.19.0
 COPY default.conf /etc/nginx/conf.d/default.conf
 COPY .env .env
-RUN ls .env
+RUN cat .env
 COPY build/ /usr/share/nginx/html
