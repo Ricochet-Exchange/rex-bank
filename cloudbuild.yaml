@@ -7,9 +7,20 @@ substitutions:
   _REACT_APP_CHAIN_ID: "4"
   _IP: commodo-rinkeby
   _CERT: commodo-rinkeby
+  _ENVIRONMENT: development
 
 
 steps:
+- name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+  args: ['gsutil', 'cp', 'gs://commodo-env/$_ENVIRONMENT/env', 'client/.env']
+- name: 'node'
+  entrypoint: 'yarn'
+  args: ['install']
+  dir: 'client'
+- name: 'node'
+  entrypoint: 'yarn'
+  args: ['build']
+  dir: 'client'
 - name: 'gcr.io/cloud-builders/docker'
   args: ['build', '-t', 'us.gcr.io/$PROJECT_ID/$_IMAGE_NAME:$COMMIT_SHA', './client']
 - name: 'gcr.io/cloud-builders/docker'
