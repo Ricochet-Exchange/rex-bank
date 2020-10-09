@@ -48,7 +48,7 @@ steps:
     '--set',
     'image.tag=$COMMIT_SHA',
     '--install',
-    '$_IMAGE_NAME',
+    '$_IMAGE_NAME-$_ENVIRONMENT',
     '--namespace',
     '$_IMAGE_NAME',
     'infrastructure',
