@@ -1,11 +1,11 @@
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
-  name: tellor-pool-ingress-web
+  name: tellor-pool-ingress-web-{{.Values.environment}}
   annotations:
-    kubernetes.io/ingress.global-static-ip-name: {{.Values.ssl.ip}}
-    networking.gke.io/managed-certificates: {{.Values.ssl.cert}}
+    kubernetes.io/ingress.global-static-ip-name: {{.Values.ssl.ip}}-{{.Values.environment}}
+    networking.gke.io/managed-certificates: {{.Values.ssl.cert}}-{{.Values.environment}}
 spec:
   backend:
-    serviceName: commodo
+    serviceName: commodo-{{.Values.environment}}
     servicePort: 80

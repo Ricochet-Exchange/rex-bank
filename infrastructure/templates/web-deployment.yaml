@@ -2,8 +2,8 @@ apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
   labels:
-    io.kompose.service: commodo
-  name: commodo
+    io.kompose.service: commodo-{{.Values.environment}}
+  name: commodo-{{.Values.environment}}
 spec:
   replicas: 1
   strategy:
@@ -11,7 +11,7 @@ spec:
   template:
     metadata:
       labels:
-        io.kompose.service: commodo
+        io.kompose.service: commodo-{{.Values.environment}}
     spec:
       containers:
       - env:
@@ -20,7 +20,7 @@ spec:
         - name: REACT_APP_CHAIN_ID
           value: "{{.Values.react_app_chain_id}}"
         image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
-        name: commodo
+        name: commodo-{{.Values.environment}}
         resources:
           requests:
             memory: "128Mi"
