@@ -80,6 +80,15 @@ const supportedChains = [
     network_id: 1,
     rpc_url: "https://dai.poa.network",
   },
+  {
+    name: "Polygon Network",
+    short_name: "polygon",
+    chain: "Polygon",
+    network: "mainnet",
+    chain_id: 137,
+    network_id: 1,
+    rpc_url: "https://polygon-rpc.com",
+  },
 ];
 
 export function getChainData(chainId) {
