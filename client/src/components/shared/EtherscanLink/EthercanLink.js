@@ -10,6 +10,9 @@ const EtherscanLink = ({ path, hash }) => {
       case "4": {
         return `https://rinkeby.etherscan.io/${path}/`;
       }
+      case "137": {
+        return `https://polygonscan.com/${path}/`;
+      }
       default: {
         return `https://etherscan.io/${path}/`;
       }
@@ -19,7 +22,7 @@ const EtherscanLink = ({ path, hash }) => {
   return (
     <div className="EtherscanLink">
       <a href={`${uri()}${hash}`} target="_blank" rel="noopener noreferrer">
-        view on Etherscan
+        view on Polygonscan
       </a>
     </div>
   );

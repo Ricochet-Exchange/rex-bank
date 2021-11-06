@@ -85,9 +85,18 @@ const supportedChains = [
     short_name: "polygon",
     chain: "Polygon",
     network: "mainnet",
+    chain_id: 1337,
+    network_id: 1,
+    rpc_url: "http://127.0.0.1:7545",
+  },
+  {
+    name: "Polygon Network",
+    short_name: "polygon",
+    chain: "Polygon",
+    network: "mainnet",
     chain_id: 137,
     network_id: 1,
-    rpc_url: "https://polygon-rpc.com",
+    rpc_url: "",
   },
 ];
 

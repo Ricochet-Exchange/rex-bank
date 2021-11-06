@@ -1,6 +1,7 @@
 pragma solidity ^0.5.0;
 
 import "./BankStorage.sol";
+import "./ITellor.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 /**
@@ -9,7 +10,7 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 * origination fees from users that borrow against their collateral.
 * The oracle for Bank is Tellor.
 */
-contract Bank is BankStorage, UsingTellor {
+contract Bank is BankStorage {
 
   address private _owner;
   address private _bankFactoryOwner;
@@ -25,7 +26,7 @@ contract Bank is BankStorage, UsingTellor {
   event Liquidation(address borrower, uint256 debtAmount);
 
   /*Constructor*/
-  constructor(address payable oracleContract) public UsingTellor(oracleContract) {
+  constructor(address payable oracleContract) public {
     reserve.oracleContract = oracleContract;
   }
 
@@ -64,8 +65,6 @@ contract Bank is BankStorage, UsingTellor {
     reserve.oracleContract = oracleContract;
     reserve.liquidationPenalty = liquidationPenalty;
     reserve.period = period;
-    tellorStorageAddress = oracleContract;
-    _tellorm = TellorMaster(tellorStorageAddress);
     _owner = creator; // Make the creator the first admin
     _bankFactoryOwner = bankFactoryOwner;
     name = bankName;
@@ -145,7 +144,7 @@ contract Bank is BankStorage, UsingTellor {
   * @dev Use this function to get and update the price for the collateral token
   * using the Tellor Oracle.
   */
-  function updateCollateralPrice() external {
+  function updateCollateralPrice() external onlyOwner {
     bool ifRetrieve;
     (ifRetrieve, collateral.price, collateral.lastUpdatedAt) = getCurrentValue(collateral.tellorRequestId); //,now - 1 hours);
     emit PriceUpdate(collateral.tokenAddress, collateral.price);
@@ -155,7 +154,7 @@ contract Bank is BankStorage, UsingTellor {
   * @dev Use this function to get and update the price for the debt token
   * using the Tellor Oracle.
   */
-  function updateDebtPrice() external {
+  function updateDebtPrice() external onlyOwner {
     bool ifRetrieve;
     (ifRetrieve, debt.price, debt.lastUpdatedAt) = getCurrentValue(debt.tellorRequestId); //,now - 1 hours);
     emit PriceUpdate(debt.tokenAddress, debt.price);
@@ -167,7 +166,7 @@ contract Bank is BankStorage, UsingTellor {
   * is charged a 10% fee which gets paid to the bankFactoryOwner
   * @param vaultOwner is the user the bank admins wants to liquidate
   */
-  function liquidate(address vaultOwner) external {
+  function liquidate(address vaultOwner) external onlyOwner {
     // Require undercollateralization
     require(getVaultCollateralizationRatio(vaultOwner) < reserve.collateralizationRatio * 100, "VAULT NOT UNDERCOLLATERALIZED");
     uint256 debtOwned = vaults[vaultOwner].debtAmount + (vaults[vaultOwner].debtAmount * 100 * reserve.liquidationPenalty / 100 / 100);
@@ -259,6 +258,26 @@ contract Bank is BankStorage, UsingTellor {
   function setBankFactoryOwner(address newOwner) external {
     require(_bankFactoryOwner == msg.sender, "IS NOT BANK FACTORY OWNER");
     _bankFactoryOwner = newOwner;
+  }
+
+  function getCurrentValue(
+    uint256 _requestId
+  )
+      public
+      view
+      returns (
+          bool ifRetrieve,
+          uint256 value,
+          uint256 _timestampRetrieved
+      )
+  {
+      ITellor oracle = ITellor(reserve.oracleContract);
+      uint256 _count = oracle.getNewValueCountbyRequestId(_requestId);
+      uint256 _time =
+          oracle.getTimestampbyRequestIDandIndex(_requestId, _count - 1);
+      uint256 _value = oracle.retrieveData(_requestId, _time);
+      if (_value > 0) return (true, _value, _time);
+      return (false, 0, _time);
   }
 
 }

@@ -17,42 +17,21 @@ var DT = artifacts.require("USDToken");
 
 module.exports = async function (deployer, network, accounts) {
 
-  // Deploy for Ricochet Lending inital RIC/USDCx lending pool
-  let interestRate = 1200;
-  let originationFee = 100;
-  let collateralizationRatio = 150;
-  let liquidationPenalty = 20;
-  let period = 86400;
-  let ricusdRequestId = 77;
-  let usdcusdRequestId = 78;
-  let initialPriceRic = 31000;
-  let initialPriceUsdc = 100000;
-  let priceGranularity = 1000000;
-  let ricAddress = "0x263026e7e53dbfdce5ae55ade22493f828922965";
-  let usdcxAddress = "0xCAa7349CEA390F89641fe306D93591f87595dc1F";
-  let tellorOracleAddress = "0xACC2d27400029904919ea54fFc0b18Bf07C57875";
 
-  if (network == "polygon") {
-
-    await deployer.deploy(Bank, tellorOracleAddress);
-    let bank = await Bank.deployed()
-    await deployer.deploy(BankFactory, bank.address);
-    let bankFactory = await BankFactory.deployed();
-
-    // TRB/DAI
-    let clone1 = await bankFactory.createBank("REX Bank", interestRate, originationFee, collateralizationRatio, liquidationPenalty, period, tellorOracleAddress);
-    let bankClone1 = await Bank.at(clone1.logs[0].args.newBankAddress);
-    await bankClone1.setCollateral(ricAddress, ricusdRequestId, priceGranularity, initialPriceRic);
-    await bankClone1.setDebt(usdcxAddress, usdcusdRequestId, priceGranularity, initialPriceUsdc);
-
-    console.log("BankFactory: " + bankFactory.address);
-    console.log("Bank: " + bank.address);
-    console.log("REX Bank: " + bankClone1.address);
-    console.log("Initial RIC Price:", (await bankClone1.getCollateralTokenPrice()).toString())
-
-
-  }
-  // else if (network == "rinkeby" || network == "rinkeby-fork") {
+  // let interestRate = 1200;
+  // let originationFee = 100;
+  // let collateralizationRatio = 150;
+  // let liquidationPenalty = 20;
+  // let period = 86400;
+  // let trbusdRequestId = 50;
+  // let daiusdRequestId = 39;
+  // let initialPrice = 1000000;
+  // let priceGranularity = 1000000;
+  // let daiAddress;
+  // let trbAddress;
+  // let tellorOracleAddress;
+  //
+  // if (network == "rinkeby" || network == "rinkeby-fork") {
   //
   //   daiAddress = "0x5592EC0cfb4dbc12D3aB100b257153436a1f0FEa";
   //   trbAddress = "0xfe41cb708cd98c5b20423433309e55b53f79134a";
@@ -86,29 +65,75 @@ module.exports = async function (deployer, network, accounts) {
   //   tellorOracleAddress = TellorMaster.address;
   //
   // }
+  //
+  // await deployer.deploy(Bank, tellorOracleAddress);
+  // let bank = await Bank.deployed()
+  // await deployer.deploy(BankFactory, bank.address);
+  // let bankFactory = await BankFactory.deployed();
+  //
+  // if(network == "development") {
+  //   // Local development setup two banks
+  //
+  //   // TRB/DAI
+  //   let clone1 = await bankFactory.createBank("Initial Bank 1", interestRate, originationFee, collateralizationRatio, liquidationPenalty, period, tellorOracleAddress);
+  //   let bankClone1 = await Bank.at(clone1.logs[0].args.newBankAddress);
+  //   await bankClone1.setCollateral(trbAddress, trbusdRequestId, initialPrice, priceGranularity);
+  //   await bankClone1.setDebt(daiAddress, daiusdRequestId, initialPrice, priceGranularity);
+  //   // Funding
+  //   let dt = await DT.deployed()
+  //   await dt.approve(bankClone1.address, web3.utils.toWei("1000", "ether"))
+  //   await bankClone1.reserveDeposit(web3.utils.toWei("1000", "ether"))
+  //
+  //   // DAI/TRB
+  //   let clone2 = await bankFactory.createBank("Initial Bank 2", interestRate, originationFee, collateralizationRatio, liquidationPenalty, period, tellorOracleAddress);
+  //   let bankClone2 = await Bank.at(clone2.logs[0].args.newBankAddress);
+  //   await bankClone2.setDebt(trbAddress, trbusdRequestId, priceGranularity, initialPrice);
+  //   await bankClone2.setCollateral(daiAddress, daiusdRequestId, priceGranularity, initialPrice);
+  //   dt = await CT.deployed()
+  //   await dt.approve(bankClone2.address, web3.utils.toWei("1000", "ether"))
+  //   await bankClone2.reserveDeposit(web3.utils.toWei("1000", "ether"))
+  //
+  //   console.log("TRB/DAI: " + bankClone1.address);
+  //   console.log("DAI/TRB: " + bankClone2.address);
+  //
+  // }
 
 
-  if(network == "development") {
-    // Local development setup two banks
+  // Deploy for Ricochet Lending inital RIC/USDCx lending pool
+  let interestRate = 1200;
+  let originationFee = 100;
+  let collateralizationRatio = 150;
+  let liquidationPenalty = 20;
+  let period = 86400;
+  let ricusdRequestId = 77;
+  let usdcusdRequestId = 78;
+  let initialPriceRic = 300000;
+  let initialPriceUsdc = 1000000;
+  let priceGranularity = 1000000;
+  let ricAddress = "0x263026e7e53dbfdce5ae55ade22493f828922965";
+  let usdcxAddress = "0xCAa7349CEA390F89641fe306D93591f87595dc1F";
+  let tellorOracleAddress = "0xACC2d27400029904919ea54fFc0b18Bf07C57875";
 
+  if (network == "polygon") {
 
-    // Funding
-    let dt = await DT.deployed()
-    await dt.approve(bankClone1.address, web3.utils.toWei("1000", "ether"))
-    await bankClone1.reserveDeposit(web3.utils.toWei("1000", "ether"))
+    await deployer.deploy(Bank, tellorOracleAddress);
+    let bank = await Bank.deployed()
+    await deployer.deploy(BankFactory, bank.address);
+    let bankFactory = await BankFactory.deployed();
 
-    // DAI/TRB
-    let clone2 = await bankFactory.createBank("Initial Bank 2", interestRate, originationFee, collateralizationRatio, liquidationPenalty, period, tellorOracleAddress);
-    let bankClone2 = await Bank.at(clone2.logs[0].args.newBankAddress);
-    await bankClone2.setDebt(trbAddress, trbusdRequestId, priceGranularity, initialPrice);
-    await bankClone2.setCollateral(daiAddress, daiusdRequestId, priceGranularity, initialPrice);
-    dt = await CT.deployed()
-    await dt.approve(bankClone2.address, web3.utils.toWei("1000", "ether"))
-    await bankClone2.reserveDeposit(web3.utils.toWei("1000", "ether"))
+    // TRB/DAI
+    let clone1 = await bankFactory.createBank("REX Bank", interestRate, originationFee, collateralizationRatio, liquidationPenalty, period, tellorOracleAddress);
+    let bankClone1 = await Bank.at(clone1.logs[0].args.newBankAddress);
+    await bankClone1.setCollateral(ricAddress, ricusdRequestId, priceGranularity, initialPriceRic);
+    await bankClone1.setDebt(usdcxAddress, usdcusdRequestId, priceGranularity, initialPriceUsdc);
 
-    console.log("TRB/DAI: " + bankClone1.address);
-    console.log("DAI/TRB: " + bankClone2.address);
+    console.log("BankFactory: " + bankFactory.address);
+    console.log("Bank: " + bank.address);
+    console.log("REX Bank: " + bankClone1.address);
+    console.log("Initial RIC Price:", (await bankClone1.getCollateralTokenPrice()).toString())
+
 
   }
+
 
 };
