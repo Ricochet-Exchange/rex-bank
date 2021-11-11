@@ -45,6 +45,15 @@ contract Bank is BankStorage {
   }
 
   /**
+   * @dev Transfers ownership of the contract to a new account (`newOwner`).
+   * Can only be called by the current owner.
+   * NOTE: Override this to add changing the
+   */
+  function transferOwnership(address newOwner) public onlyOwner {
+      _owner = newOwner;
+  }
+
+  /**
   * @dev This function sets the fundamental parameters for the bank
   *      and assigns the first admin
   */

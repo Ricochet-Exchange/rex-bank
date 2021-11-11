@@ -24,6 +24,13 @@ module.exports = {
       gasPrice: 50000000000,
       network_id: 137,
     },
+    local: {
+      provider: () => new HDWalletProvider(
+        process.env.MATIC_PRIVATE_KEY,
+        "http://127.0.0.1:7545"),
+      gasPrice: 50000000000,
+      network_id: 137,
+    },
     mainnet: {
       provider: function() {
         var wallet = new HDWalletProvider(process.env.MAINNET_MNEMONIC,process.env.MAINNET_URL)
