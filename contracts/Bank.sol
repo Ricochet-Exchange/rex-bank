@@ -189,7 +189,6 @@ contract Bank is BankStorage {
     require(IERC20(collateral.tokenAddress).transfer(_bankFactoryOwner, feeAmount));
     reserve.collateralBalance += collateralToLiquidate - feeAmount;
     vaults[vaultOwner].collateralAmount -= collateralToLiquidate;
-    reserve.debtBalance += vaults[vaultOwner].debtAmount;
     vaults[vaultOwner].debtAmount = 0;
     emit Liquidation(vaultOwner, debtOwned);
   }
@@ -250,6 +249,7 @@ contract Bank is BankStorage {
   * @param amount withdrawn
   */
   function vaultWithdraw(uint256 amount) external {
+    require(amount <= vaults[msg.sender].collateralAmount, "CANNOT WITHDRAW MORE COLLATERAL");
     uint256 maxBorrowAfterWithdraw = (vaults[msg.sender].collateralAmount - amount) * collateral.price / debt.price / reserve.collateralizationRatio * 100;
     maxBorrowAfterWithdraw *= debt.priceGranularity;
     maxBorrowAfterWithdraw /= collateral.priceGranularity;
