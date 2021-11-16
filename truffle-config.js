@@ -10,19 +10,26 @@ var NonceTrackerSubprovider = require("web3-provider-engine/subproviders/nonce-t
 
 
 module.exports = {
-  plugins: ["solidity-coverage"],
+  plugins: ["truffle-plugin-verify"],
   networks: {
     development: {
       host: '127.0.0.1',
       port: 7545,
       network_id: '*'
     },
-    rinkeby: {
+    polygon: {
       provider: () => new HDWalletProvider(
-        process.env.RINKEBY_MNEMONIC,
-        process.env.RINKEBY_URL),
-      network_id: 4,
-      gasPrice: 20000000000
+        process.env.MATIC_PRIVATE_KEY,
+        "https://green-nameless-water.matic.quiknode.pro/a71984d8cf1bf9b030e643a09c7475bde1792b32/"),
+      gasPrice: 50000000000,
+      network_id: 137,
+    },
+    local: {
+      provider: () => new HDWalletProvider(
+        process.env.MATIC_PRIVATE_KEY,
+        "http://127.0.0.1:7545"),
+      gasPrice: 50000000000,
+      network_id: 137,
     },
     mainnet: {
       provider: function() {
@@ -35,5 +42,8 @@ module.exports = {
       network_id: 1,
       gasPrice: 42000000000
     },
+  },
+  api_keys: {
+    etherscan: 'SA38RNSDDD4KS4HVP2B1RP3UA53EHZBFV9'
   }
 }
