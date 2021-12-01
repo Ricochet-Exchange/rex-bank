@@ -28,7 +28,7 @@ contract BankFactory is Ownable {
         uint256 liquidationPenalty,
         uint256 period,
         address payable oracleAddress
-    ) public returns (address) {
+    ) public {
         address clone = Clones.clone(bankAddress);
         Bank(clone).init(
             msg.sender,
