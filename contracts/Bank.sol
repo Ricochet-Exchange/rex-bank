@@ -4,6 +4,7 @@ pragma solidity ^0.8.0;
 import "./BankStorage.sol";
 import "./ITellor.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/proxy/utils/Initializable.sol";
 
@@ -14,6 +15,8 @@ import "@openzeppelin/contracts/proxy/utils/Initializable.sol";
  * The oracle for Bank is Tellor.
  */
 contract Bank is BankStorage, Ownable, Initializable {
+    using SafeERC20 for IERC20;
+
     address private _owner;
     address private _bankFactoryOwner;
 
@@ -93,14 +96,13 @@ contract Bank is BankStorage, Ownable, Initializable {
      * @param amount is the amount to deposit
      */
     function reserveDeposit(uint256 amount) external onlyOwner {
-        require(
-            IERC20(debt.tokenAddress).transferFrom(
-                msg.sender,
-                address(this),
-                amount
-            )
-        );
+        require(amount > 0, "Amount is zero !!");
         reserve.debtBalance += amount;
+        IERC20(debt.tokenAddress).safeTransferFrom(
+            msg.sender,
+            address(this),
+            amount
+        );
         emit ReserveDeposit(amount);
     }
 
@@ -115,13 +117,9 @@ contract Bank is BankStorage, Ownable, Initializable {
             "NOT ENOUGH DEBT TOKENS IN RESERVE"
         );
         uint256 feeAmount = amount / 200; // Bank Factory collects 0.5% fee
-        require(
-            IERC20(debt.tokenAddress).transfer(msg.sender, amount - feeAmount)
-        );
-        require(
-            IERC20(debt.tokenAddress).transfer(_bankFactoryOwner, feeAmount)
-        );
         reserve.debtBalance -= amount;
+        IERC20(debt.tokenAddress).safeTransfer(msg.sender, amount - feeAmount);
+        IERC20(debt.tokenAddress).safeTransfer(_bankFactoryOwner, feeAmount);
         emit ReserveWithdraw(debt.tokenAddress, amount);
     }
 
@@ -136,20 +134,13 @@ contract Bank is BankStorage, Ownable, Initializable {
             "NOT ENOUGH COLLATERAL IN RESERVE"
         );
         uint256 feeAmount = amount / 200; // Bank Factory collects 0.5% fee
-        require(
-            IERC20(collateral.tokenAddress).transfer(
-                msg.sender,
-                amount - feeAmount
-            )
-        );
-        require(
-            IERC20(collateral.tokenAddress).transfer(
-                _bankFactoryOwner,
-                feeAmount
-            )
-        );
         reserve.collateralBalance -= amount;
         emit ReserveWithdraw(collateral.tokenAddress, amount);
+        IERC20(collateral.tokenAddress).safeTransfer(
+            msg.sender,
+            amount - feeAmount
+        );
+        IERC20(collateral.tokenAddress).safeTransfer(_bankFactoryOwner, feeAmount);
     }
 
     /**
@@ -205,15 +196,10 @@ contract Bank is BankStorage, Ownable, Initializable {
         }
 
         uint256 feeAmount = collateralToLiquidate / 10; // Bank Factory collects 10% fee
-        require(
-            IERC20(collateral.tokenAddress).transfer(
-                _bankFactoryOwner,
-                feeAmount
-            )
-        );
         reserve.collateralBalance += collateralToLiquidate - feeAmount;
         vaults[vaultOwner].collateralAmount -= collateralToLiquidate;
         vaults[vaultOwner].debtAmount = 0;
+        IERC20(collateral.tokenAddress).safeTransfer(_bankFactoryOwner, feeAmount);
         emit Liquidation(vaultOwner, debtOwned);
     }
 
@@ -222,14 +208,13 @@ contract Bank is BankStorage, Ownable, Initializable {
      * @param amount is the collateral amount
      */
     function vaultDeposit(uint256 amount) external {
-        require(
-            IERC20(collateral.tokenAddress).transferFrom(
-                msg.sender,
-                address(this),
-                amount
-            )
-        );
+        require(amount > 0, "Amount is zero !!");
         vaults[msg.sender].collateralAmount += amount;
+        IERC20(collateral.tokenAddress).safeTransferFrom(
+            msg.sender,
+            address(this),
+            amount
+        );
         emit VaultDeposit(msg.sender, amount);
     }
 
@@ -258,7 +243,7 @@ contract Bank is BankStorage, Ownable, Initializable {
             vaults[msg.sender].createdAt = block.timestamp;
         }
         reserve.debtBalance -= amount;
-        require(IERC20(debt.tokenAddress).transfer(msg.sender, amount));
+        IERC20(debt.tokenAddress).safeTransfer(msg.sender, amount);
         emit VaultBorrow(msg.sender, amount);
     }
 
@@ -268,23 +253,22 @@ contract Bank is BankStorage, Ownable, Initializable {
      * @param amount owed
      */
     function vaultRepay(uint256 amount) external {
+        require(amount > 0, "Amount is zero !!");
         vaults[msg.sender].debtAmount = getVaultRepayAmount();
         require(
             amount <= vaults[msg.sender].debtAmount,
             "CANNOT REPAY MORE THAN OWED"
-        );
-        require(
-            IERC20(debt.tokenAddress).transferFrom(
-                msg.sender,
-                address(this),
-                amount
-            )
         );
         vaults[msg.sender].debtAmount -= amount;
         reserve.debtBalance += amount;
         uint256 periodsElapsed = (block.timestamp / reserve.period) -
             (vaults[msg.sender].createdAt / reserve.period);
         vaults[msg.sender].createdAt += periodsElapsed * reserve.period;
+        IERC20(debt.tokenAddress).safeTransferFrom(
+            msg.sender,
+            address(this),
+            amount
+        );
         emit VaultRepay(msg.sender, amount);
     }
 
@@ -307,9 +291,9 @@ contract Bank is BankStorage, Ownable, Initializable {
             vaults[msg.sender].debtAmount <= maxBorrowAfterWithdraw,
             "CANNOT UNDERCOLLATERALIZE VAULT"
         );
-        require(IERC20(collateral.tokenAddress).transfer(msg.sender, amount));
         vaults[msg.sender].collateralAmount -= amount;
         reserve.collateralBalance -= amount;
+        IERC20(collateral.tokenAddress).safeTransfer(msg.sender, amount);
         emit VaultWithdraw(msg.sender, amount);
     }
 
