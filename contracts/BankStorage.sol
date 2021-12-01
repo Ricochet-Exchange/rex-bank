@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
@@ -185,7 +186,7 @@ contract BankStorage {
     /**
      * @dev Getter function for the user's vault debt amount
      *   uses a simple interest formula (i.e. not compound  interest)
-     * @return principal debt amount 
+     * @return principal debt amount
      */
     function getVaultRepayAmount() public view returns (uint256 principal) {
         principal = vaults[msg.sender].debtAmount;
