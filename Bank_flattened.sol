@@ -2,7 +2,7 @@
  *Submitted for verification at Etherscan.io on 2020-07-01
 */
 
-pragma solidity ^0.5.0;
+pragma solidity ^0.8.0;
 
 /**
 * @title Tellor Transfer

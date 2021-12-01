@@ -1,4 +1,4 @@
-pragma solidity ^0.5.0;
+pragma solidity ^0.8.0;
 
 import "./BankStorage.sol";
 import "./ITellor.sol";
@@ -26,7 +26,7 @@ contract Bank is BankStorage {
   event Liquidation(address borrower, uint256 debtAmount);
 
   /*Constructor*/
-  constructor(address payable oracleContract) public {
+  constructor(address payable oracleContract) {
     reserve.oracleContract = oracleContract;
   }
 

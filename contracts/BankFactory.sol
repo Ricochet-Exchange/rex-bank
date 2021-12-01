@@ -1,11 +1,12 @@
-pragma solidity ^0.5.0;
+pragma solidity ^0.8.0;
 
 import "./Bank.sol";
-import "@optionality.io/clone-factory/contracts/CloneFactory.sol";
-import "@openzeppelin/contracts/ownership/Ownable.sol";
+// import "@optionality.io/clone-factory/contracts/CloneFactory.sol";
+import "@openzeppelin/contracts/proxy/Clones.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 
 
-contract BankFactory is Ownable, CloneFactory {
+contract BankFactory is Ownable { // , CloneFactory {
 
   /*Variables*/
   struct BankTag {
@@ -17,7 +18,7 @@ contract BankFactory is Ownable, CloneFactory {
 
   event BankCreated(address newBankAddress, address owner);
 
-  constructor(address _bankAddress) public {
+  constructor(address _bankAddress) {
     bankAddress = _bankAddress;
   }
 
@@ -30,7 +31,8 @@ contract BankFactory is Ownable, CloneFactory {
     uint256 period,
     address payable oracleAddress) public returns(address) {
 
-    address clone = createClone(bankAddress);
+    // address clone = createClone(bankAddress);
+    address clone = Clones.clone(bankAddress);
     Bank(clone).init(msg.sender, name, interestRate, originationFee,
       collateralizationRatio, liquidationPenalty, period,
       owner(), oracleAddress);
