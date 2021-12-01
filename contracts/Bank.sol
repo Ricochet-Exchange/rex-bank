@@ -4,6 +4,7 @@ pragma solidity ^0.8.0;
 import "./BankStorage.sol";
 import "./ITellor.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/proxy/utils/Initializable.sol";
 
 /**
@@ -12,7 +13,7 @@ import "@openzeppelin/contracts/proxy/utils/Initializable.sol";
  * origination fees from users that borrow against their collateral.
  * The oracle for Bank is Tellor.
  */
-contract Bank is BankStorage, Initializable {
+contract Bank is BankStorage, Ownable, Initializable {
     address private _owner;
     address private _bankFactoryOwner;
 
@@ -31,29 +32,6 @@ contract Bank is BankStorage, Initializable {
         reserve.oracleContract = oracleContract;
     }
 
-    /*Modifiers*/
-    modifier onlyOwner() {
-        require(_owner == msg.sender, "IS NOT OWNER");
-        _;
-    }
-
-    /*Functions*/
-    /**
-     * @dev Returns the owner of the bank
-     */
-    function owner() public view returns (address) {
-        return _owner;
-    }
-
-    /**
-     * @dev Transfers ownership of the contract to a new account (`newOwner`).
-     * Can only be called by the current owner.
-     * NOTE: Override this to add changing the
-     */
-    function transferOwnership(address newOwner) public onlyOwner {
-        _owner = newOwner;
-    }
-
     /**
      * @dev This function sets the fundamental parameters for the bank
      *      and assigns the first admin
@@ -69,7 +47,6 @@ contract Bank is BankStorage, Initializable {
         address bankFactoryOwner,
         address payable oracleContract
     ) public initializer {
-        require(reserve.interestRate == 0, "It's initialized already"); // Ensure not init'd already
         reserve.interestRate = interestRate;
         reserve.originationFee = originationFee;
         reserve.collateralizationRatio = collateralizationRatio;
