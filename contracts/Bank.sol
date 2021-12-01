@@ -68,7 +68,7 @@ contract Bank is BankStorage {
     uint256 period,
     address bankFactoryOwner,
     address payable oracleContract) public  {
-    require(reserve.interestRate == 0); // Ensure not init'd already
+    require(reserve.interestRate == 0, "It's initialized already"); // Ensure not init'd already
     reserve.interestRate = interestRate;
     reserve.originationFee = originationFee;
     reserve.collateralizationRatio = collateralizationRatio;
@@ -89,7 +89,7 @@ contract Bank is BankStorage {
     uint256 collateralTokenPriceGranularity,
     uint256 collateralTokenPrice) public onlyOwner {
 
-    require(collateral.tokenAddress == address(0)); // Ensure not init'd already
+    require(collateral.tokenAddress == address(0), "It's initialized already"); // Ensure not init'd already
     collateral.tokenAddress = collateralToken;
     collateral.price = collateralTokenPrice;
     collateral.priceGranularity = collateralTokenPriceGranularity;
@@ -105,7 +105,7 @@ contract Bank is BankStorage {
     uint256 debtTokenPriceGranularity,
     uint256 debtTokenPrice) public onlyOwner {
 
-    require(debt.tokenAddress == address(0)); // Ensure not init'd already
+    require(debt.tokenAddress == address(0), "It's initialized already"); // Ensure not init'd already
     debt.tokenAddress = debtToken;
     debt.price = debtTokenPrice;
     debt.priceGranularity = debtTokenPriceGranularity;
