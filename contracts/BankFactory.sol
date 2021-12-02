@@ -1,51 +1,61 @@
-pragma solidity ^0.5.0;
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
 
 import "./Bank.sol";
-import "@optionality.io/clone-factory/contracts/CloneFactory.sol";
-import "@openzeppelin/contracts/ownership/Ownable.sol";
+import "@openzeppelin/contracts/proxy/Clones.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 
+contract BankFactory is Ownable {
+    /*Variables*/
+    struct BankTag {
+        address bankAddress;
+    }
 
-contract BankFactory is Ownable, CloneFactory {
+    address public bankAddress;
+    BankTag[] private _banks;
 
-  /*Variables*/
-  struct BankTag {
-    address bankAddress;
-  }
+    event BankCreated(address newBankAddress, address owner);
 
-  address public bankAddress;
-  BankTag[] private _banks;
+    constructor(address _bankAddress) {
+        bankAddress = _bankAddress;
+    }
 
-  event BankCreated(address newBankAddress, address owner);
+    function createBank(
+        string memory name,
+        uint256 interestRate,
+        uint256 originationFee,
+        uint256 collateralizationRatio,
+        uint256 liquidationPenalty,
+        uint256 period,
+        address payable oracleAddress
+    ) public {
+        address clone = Clones.clone(bankAddress);
+        Bank(clone).init(
+            msg.sender,
+            name,
+            interestRate,
+            originationFee,
+            collateralizationRatio,
+            liquidationPenalty,
+            period,
+            owner(),
+            oracleAddress
+        );
+        BankTag memory newBankTag = BankTag(clone);
+        _banks.push(newBankTag);
+        emit BankCreated(clone, msg.sender);
+    }
 
-  constructor(address _bankAddress) public {
-    bankAddress = _bankAddress;
-  }
+    function getNumberOfBanks() public view returns (uint256) {
+        return _banks.length;
+    }
 
-  function createBank(
-    string memory name,
-    uint256 interestRate,
-    uint256 originationFee,
-    uint256 collateralizationRatio,
-    uint256 liquidationPenalty,
-    uint256 period,
-    address payable oracleAddress) public returns(address) {
-
-    address clone = createClone(bankAddress);
-    Bank(clone).init(msg.sender, name, interestRate, originationFee,
-      collateralizationRatio, liquidationPenalty, period,
-      owner(), oracleAddress);
-    BankTag memory newBankTag = BankTag(clone);
-    _banks.push(newBankTag);
-    emit BankCreated(clone, msg.sender);
-  }
-
-  function getNumberOfBanks() public view returns (uint256){
-    return _banks.length;
-  }
-
-  function getBankAddressAtIndex(uint256 index) public view returns (address){
-    BankTag storage bank = _banks[index];
-    return bank.bankAddress;
-  }
-
+    function getBankAddressAtIndex(uint256 index)
+        public
+        view
+        returns (address)
+    {
+        BankTag storage bank = _banks[index];
+        return bank.bankAddress;
+    }
 }

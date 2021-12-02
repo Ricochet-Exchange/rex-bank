@@ -11,6 +11,11 @@ var NonceTrackerSubprovider = require("web3-provider-engine/subproviders/nonce-t
 
 module.exports = {
   plugins: ["truffle-plugin-verify"],
+  compilers: {
+    solc: {
+      version: "^0.8.0"
+    }
+  },
   networks: {
     development: {
       host: '127.0.0.1',
@@ -32,8 +37,8 @@ module.exports = {
       network_id: 137,
     },
     mainnet: {
-      provider: function() {
-        var wallet = new HDWalletProvider(process.env.MAINNET_MNEMONIC,process.env.MAINNET_URL)
+      provider: function () {
+        var wallet = new HDWalletProvider(process.env.MAINNET_MNEMONIC, process.env.MAINNET_URL)
         // var nonceTracker = new NonceTrackerSubprovider()
         // wallet.engine._providers.unshift(nonceTracker)
         // nonceTracker.setEngine(wallet.engine)
