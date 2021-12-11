@@ -14,7 +14,7 @@ import "@openzeppelin/contracts/proxy/utils/Initializable.sol";
  * origination fees from users that borrow against their collateral.
  * The oracle for Bank is Tellor.
  */
-contract Bank is BankStorage, Ownable, Initializable {
+contract Bank is BankStorage, Initializable {
     using SafeERC20 for IERC20;
 
     address private _owner;
@@ -33,6 +33,29 @@ contract Bank is BankStorage, Ownable, Initializable {
     /*Constructor*/
     constructor(address payable oracleContract) {
         reserve.oracleContract = oracleContract;
+    }
+
+    /*Modifiers*/
+    modifier onlyOwner() {
+        require(_owner == msg.sender, "IS NOT OWNER");
+        _;
+    }
+
+    /*Functions*/
+    /**
+     * @dev Returns the owner of the bank
+     */
+    function owner() public view returns (address) {
+        return _owner;
+    }
+
+    /**
+     * @dev Transfers ownership of the contract to a new account (`newOwner`).
+     * Can only be called by the current owner.
+     * NOTE: Override this to add changing the
+     */
+    function transferOwnership(address newOwner) public onlyOwner {
+        _owner = newOwner;
     }
 
     /**
