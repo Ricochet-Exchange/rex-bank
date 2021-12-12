@@ -22,13 +22,13 @@ contract Bank is BankStorage, Ownable, Initializable {
 
     /*Events*/
     event ReserveDeposit(uint256 amount);
-    event ReserveWithdraw(address token, uint256 amount);
-    event VaultDeposit(address owner, uint256 amount);
-    event VaultBorrow(address borrower, uint256 amount);
-    event VaultRepay(address borrower, uint256 amount);
-    event VaultWithdraw(address borrower, uint256 amount);
-    event PriceUpdate(address token, uint256 price);
-    event Liquidation(address borrower, uint256 debtAmount);
+    event ReserveWithdraw(address indexed token, uint256 amount);
+    event VaultDeposit(address indexed owner, uint256 amount);
+    event VaultBorrow(address indexed borrower, uint256 amount);
+    event VaultRepay(address indexed borrower, uint256 amount);
+    event VaultWithdraw(address indexed borrower, uint256 amount);
+    event PriceUpdate(address indexed token, uint256 price);
+    event Liquidation(address indexed borrower, uint256 debtAmount);
 
     /*Constructor*/
     constructor(address payable oracleContract) {
