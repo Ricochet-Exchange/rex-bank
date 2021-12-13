@@ -5,6 +5,8 @@ import "./Bank.sol";
 import "@openzeppelin/contracts/proxy/Clones.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
+import "hardhat/console.sol";
+
 contract BankFactory is Ownable {
     /*Variables*/
     struct BankTag {
@@ -18,6 +20,8 @@ contract BankFactory is Ownable {
 
     constructor(address _bankAddress) {
         bankAddress = _bankAddress;
+        console.log("BankFactory constructor called with bankAddress: ");
+        console.log(bankAddress);
     }
 
     function createBank(
@@ -28,7 +32,12 @@ contract BankFactory is Ownable {
         uint256 liquidationPenalty,
         uint256 period,
         address payable oracleAddress
-    ) public {
+    ) public returns (address) {
+        console.log("Inside BankFactory.createBank. Parameters: ");
+        console.log(interestRate);
+        console.log(originationFee);
+        console.log(period);
+        console.log(oracleAddress);
         address clone = Clones.clone(bankAddress);
         Bank(clone).init(
             msg.sender,
@@ -44,6 +53,7 @@ contract BankFactory is Ownable {
         BankTag memory newBankTag = BankTag(clone);
         _banks.push(newBankTag);
         emit BankCreated(clone, msg.sender);
+        return clone;
     }
 
     function getNumberOfBanks() public view returns (uint256) {
