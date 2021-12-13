@@ -14,7 +14,7 @@ import "@openzeppelin/contracts/proxy/utils/Initializable.sol";
  * origination fees from users that borrow against their collateral.
  * The oracle for Bank is Tellor.
  */
-contract Bank is BankStorage, Ownable, Initializable {
+contract Bank is BankStorage, Initializable {
     using SafeERC20 for IERC20;
 
     address private _owner;
@@ -33,6 +33,29 @@ contract Bank is BankStorage, Ownable, Initializable {
     /*Constructor*/
     constructor(address payable oracleContract) {
         reserve.oracleContract = oracleContract;
+    }
+
+    /*Modifiers*/
+    modifier onlyOwner() {
+        require(_owner == msg.sender, "IS NOT OWNER");
+        _;
+    }
+
+    /*Functions*/
+    /**
+     * @dev Returns the owner of the bank
+     */
+    function owner() public view returns (address) {
+        return _owner;
+    }
+
+    /**
+     * @dev Transfers ownership of the contract to a new account (`newOwner`).
+     * Can only be called by the current owner.
+     * NOTE: Override this to add changing the
+     */
+    function transferOwnership(address newOwner) public onlyOwner {
+        _owner = newOwner;
     }
 
     /**
@@ -69,7 +92,8 @@ contract Bank is BankStorage, Ownable, Initializable {
         uint256 collateralTokenTellorRequestId,
         uint256 collateralTokenPriceGranularity,
         uint256 collateralTokenPrice
-    ) public onlyOwner initializer {
+    ) public onlyOwner {
+        require(collateral.tokenAddress == address(0) && collateralToken != address(0), "!setable");
         collateral.tokenAddress = collateralToken;
         collateral.price = collateralTokenPrice;
         collateral.priceGranularity = collateralTokenPriceGranularity;
@@ -84,7 +108,8 @@ contract Bank is BankStorage, Ownable, Initializable {
         uint256 debtTokenTellorRequestId,
         uint256 debtTokenPriceGranularity,
         uint256 debtTokenPrice
-    ) public onlyOwner initializer {
+    ) public onlyOwner {
+        require(debt.tokenAddress == address(0) && debtToken != address(0), "!setable");
         debt.tokenAddress = debtToken;
         debt.price = debtTokenPrice;
         debt.priceGranularity = debtTokenPriceGranularity;
@@ -113,7 +138,7 @@ contract Bank is BankStorage, Ownable, Initializable {
      */
     function reserveWithdraw(uint256 amount) external onlyOwner {
         require(
-            reserve.debtBalance >= amount,
+            IERC20(debt.tokenAddress).balanceOf(address(this)) >= amount,
             "NOT ENOUGH DEBT TOKENS IN RESERVE"
         );
         uint256 feeAmount = amount / 200; // Bank Factory collects 0.5% fee
@@ -210,6 +235,7 @@ contract Bank is BankStorage, Ownable, Initializable {
     function vaultDeposit(uint256 amount) external {
         require(amount > 0, "Amount is zero !!");
         vaults[msg.sender].collateralAmount += amount;
+        reserve.collateralBalance += amount;
         IERC20(collateral.tokenAddress).safeTransferFrom(
             msg.sender,
             address(this),
@@ -233,11 +259,11 @@ contract Bank is BankStorage, Ownable, Initializable {
         maxBorrow *= debt.priceGranularity;
         maxBorrow /= collateral.priceGranularity;
         maxBorrow -= vaults[msg.sender].debtAmount;
-        require(amount < maxBorrow, "NOT ENOUGH COLLATERAL");
-        require(amount <= reserve.debtBalance, "NOT ENOUGH RESERVES");
         vaults[msg.sender].debtAmount +=
             amount +
             ((amount * reserve.originationFee) / 10000);
+        require(vaults[msg.sender].debtAmount < maxBorrow, "NOT ENOUGH COLLATERAL");
+        require(amount <= IERC20(debt.tokenAddress).balanceOf(address(this)), "NOT ENOUGH RESERVES");
         if (block.timestamp - vaults[msg.sender].createdAt > reserve.period) {
             // Only adjust if more than 1 interest rate period has past
             vaults[msg.sender].createdAt = block.timestamp;
@@ -281,6 +307,7 @@ contract Bank is BankStorage, Ownable, Initializable {
             amount <= vaults[msg.sender].collateralAmount,
             "CANNOT WITHDRAW MORE COLLATERAL"
         );
+
         uint256 maxBorrowAfterWithdraw = (((vaults[msg.sender]
             .collateralAmount - amount) * collateral.price) /
             debt.price /
