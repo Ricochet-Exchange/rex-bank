@@ -22,6 +22,11 @@ import { FunctionFragment, EventFragment, Result } from "@ethersproject/abi";
 
 interface BankInterface extends ethers.utils.Interface {
   functions: {
+    "DEFAULT_ADMIN_ROLE()": FunctionFragment;
+    "KEEPER_ROLE()": FunctionFragment;
+    "PRICE_UPDATER_ROLE()": FunctionFragment;
+    "addKeeper(address)": FunctionFragment;
+    "addPriceUpdater(address)": FunctionFragment;
     "getBankFactoryOwner()": FunctionFragment;
     "getCollateralTokenAddress()": FunctionFragment;
     "getCollateralTokenLastUpdatedAt()": FunctionFragment;
@@ -39,21 +44,28 @@ interface BankInterface extends ethers.utils.Interface {
     "getOriginationFee()": FunctionFragment;
     "getReserveBalance()": FunctionFragment;
     "getReserveCollateralBalance()": FunctionFragment;
+    "getRoleAdmin(bytes32)": FunctionFragment;
+    "getRoleMember(bytes32,uint256)": FunctionFragment;
+    "getRoleMemberCount(bytes32)": FunctionFragment;
     "getVaultCollateralAmount()": FunctionFragment;
     "getVaultCollateralizationRatio(address)": FunctionFragment;
     "getVaultDebtAmount()": FunctionFragment;
     "getVaultRepayAmount()": FunctionFragment;
+    "grantRole(bytes32,address)": FunctionFragment;
+    "hasRole(bytes32,address)": FunctionFragment;
     "init(address,string,uint256,uint256,uint256,uint256,uint256,address,address)": FunctionFragment;
     "liquidate(address)": FunctionFragment;
-    "owner()": FunctionFragment;
-    "renounceOwnership()": FunctionFragment;
+    "renounceRole(bytes32,address)": FunctionFragment;
     "reserveDeposit(uint256)": FunctionFragment;
     "reserveWithdraw(uint256)": FunctionFragment;
     "reserveWithdrawCollateral(uint256)": FunctionFragment;
+    "revokeKeeper(address)": FunctionFragment;
+    "revokePriceUpdater(address)": FunctionFragment;
+    "revokeRole(bytes32,address)": FunctionFragment;
     "setBankFactoryOwner(address)": FunctionFragment;
     "setCollateral(address,uint256,uint256,uint256)": FunctionFragment;
     "setDebt(address,uint256,uint256,uint256)": FunctionFragment;
-    "transferOwnership(address)": FunctionFragment;
+    "supportsInterface(bytes4)": FunctionFragment;
     "updateCollateralPrice()": FunctionFragment;
     "updateDebtPrice()": FunctionFragment;
     "vaultBorrow(uint256)": FunctionFragment;
@@ -63,6 +75,23 @@ interface BankInterface extends ethers.utils.Interface {
     "vaults(address)": FunctionFragment;
   };
 
+  encodeFunctionData(
+    functionFragment: "DEFAULT_ADMIN_ROLE",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "KEEPER_ROLE",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "PRICE_UPDATER_ROLE",
+    values?: undefined
+  ): string;
+  encodeFunctionData(functionFragment: "addKeeper", values: [string]): string;
+  encodeFunctionData(
+    functionFragment: "addPriceUpdater",
+    values: [string]
+  ): string;
   encodeFunctionData(
     functionFragment: "getBankFactoryOwner",
     values?: undefined
@@ -129,6 +158,18 @@ interface BankInterface extends ethers.utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
+    functionFragment: "getRoleAdmin",
+    values: [BytesLike]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getRoleMember",
+    values: [BytesLike, BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getRoleMemberCount",
+    values: [BytesLike]
+  ): string;
+  encodeFunctionData(
     functionFragment: "getVaultCollateralAmount",
     values?: undefined
   ): string;
@@ -145,6 +186,14 @@ interface BankInterface extends ethers.utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
+    functionFragment: "grantRole",
+    values: [BytesLike, string]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "hasRole",
+    values: [BytesLike, string]
+  ): string;
+  encodeFunctionData(
     functionFragment: "init",
     values: [
       string,
@@ -159,10 +208,9 @@ interface BankInterface extends ethers.utils.Interface {
     ]
   ): string;
   encodeFunctionData(functionFragment: "liquidate", values: [string]): string;
-  encodeFunctionData(functionFragment: "owner", values?: undefined): string;
   encodeFunctionData(
-    functionFragment: "renounceOwnership",
-    values?: undefined
+    functionFragment: "renounceRole",
+    values: [BytesLike, string]
   ): string;
   encodeFunctionData(
     functionFragment: "reserveDeposit",
@@ -177,6 +225,18 @@ interface BankInterface extends ethers.utils.Interface {
     values: [BigNumberish]
   ): string;
   encodeFunctionData(
+    functionFragment: "revokeKeeper",
+    values: [string]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "revokePriceUpdater",
+    values: [string]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "revokeRole",
+    values: [BytesLike, string]
+  ): string;
+  encodeFunctionData(
     functionFragment: "setBankFactoryOwner",
     values: [string]
   ): string;
@@ -189,8 +249,8 @@ interface BankInterface extends ethers.utils.Interface {
     values: [string, BigNumberish, BigNumberish, BigNumberish]
   ): string;
   encodeFunctionData(
-    functionFragment: "transferOwnership",
-    values: [string]
+    functionFragment: "supportsInterface",
+    values: [BytesLike]
   ): string;
   encodeFunctionData(
     functionFragment: "updateCollateralPrice",
@@ -218,6 +278,23 @@ interface BankInterface extends ethers.utils.Interface {
   ): string;
   encodeFunctionData(functionFragment: "vaults", values: [string]): string;
 
+  decodeFunctionResult(
+    functionFragment: "DEFAULT_ADMIN_ROLE",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "KEEPER_ROLE",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "PRICE_UPDATER_ROLE",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "addKeeper", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "addPriceUpdater",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "getBankFactoryOwner",
     data: BytesLike
@@ -284,6 +361,18 @@ interface BankInterface extends ethers.utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "getRoleAdmin",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getRoleMember",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getRoleMemberCount",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "getVaultCollateralAmount",
     data: BytesLike
   ): Result;
@@ -299,11 +388,12 @@ interface BankInterface extends ethers.utils.Interface {
     functionFragment: "getVaultRepayAmount",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "grantRole", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "hasRole", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "init", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "liquidate", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "renounceOwnership",
+    functionFragment: "renounceRole",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -319,6 +409,15 @@ interface BankInterface extends ethers.utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "revokeKeeper",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "revokePriceUpdater",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "revokeRole", data: BytesLike): Result;
+  decodeFunctionResult(
     functionFragment: "setBankFactoryOwner",
     data: BytesLike
   ): Result;
@@ -328,7 +427,7 @@ interface BankInterface extends ethers.utils.Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "setDebt", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "transferOwnership",
+    functionFragment: "supportsInterface",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -356,10 +455,12 @@ interface BankInterface extends ethers.utils.Interface {
 
   events: {
     "Liquidation(address,uint256)": EventFragment;
-    "OwnershipTransferred(address,address)": EventFragment;
     "PriceUpdate(address,uint256)": EventFragment;
     "ReserveDeposit(uint256)": EventFragment;
     "ReserveWithdraw(address,uint256)": EventFragment;
+    "RoleAdminChanged(bytes32,bytes32,bytes32)": EventFragment;
+    "RoleGranted(bytes32,address,address)": EventFragment;
+    "RoleRevoked(bytes32,address,address)": EventFragment;
     "VaultBorrow(address,uint256)": EventFragment;
     "VaultDeposit(address,uint256)": EventFragment;
     "VaultRepay(address,uint256)": EventFragment;
@@ -367,10 +468,12 @@ interface BankInterface extends ethers.utils.Interface {
   };
 
   getEvent(nameOrSignatureOrTopic: "Liquidation"): EventFragment;
-  getEvent(nameOrSignatureOrTopic: "OwnershipTransferred"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "PriceUpdate"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "ReserveDeposit"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "ReserveWithdraw"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "RoleAdminChanged"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "RoleGranted"): EventFragment;
+  getEvent(nameOrSignatureOrTopic: "RoleRevoked"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "VaultBorrow"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "VaultDeposit"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "VaultRepay"): EventFragment;
@@ -391,6 +494,50 @@ export class Bank extends Contract {
   interface: BankInterface;
 
   functions: {
+    DEFAULT_ADMIN_ROLE(overrides?: CallOverrides): Promise<{
+      0: string;
+    }>;
+
+    "DEFAULT_ADMIN_ROLE()"(overrides?: CallOverrides): Promise<{
+      0: string;
+    }>;
+
+    KEEPER_ROLE(overrides?: CallOverrides): Promise<{
+      0: string;
+    }>;
+
+    "KEEPER_ROLE()"(overrides?: CallOverrides): Promise<{
+      0: string;
+    }>;
+
+    PRICE_UPDATER_ROLE(overrides?: CallOverrides): Promise<{
+      0: string;
+    }>;
+
+    "PRICE_UPDATER_ROLE()"(overrides?: CallOverrides): Promise<{
+      0: string;
+    }>;
+
+    addKeeper(
+      keeper: string,
+      overrides?: Overrides
+    ): Promise<ContractTransaction>;
+
+    "addKeeper(address)"(
+      keeper: string,
+      overrides?: Overrides
+    ): Promise<ContractTransaction>;
+
+    addPriceUpdater(
+      updater: string,
+      overrides?: Overrides
+    ): Promise<ContractTransaction>;
+
+    "addPriceUpdater(address)"(
+      updater: string,
+      overrides?: Overrides
+    ): Promise<ContractTransaction>;
+
     getBankFactoryOwner(overrides?: CallOverrides): Promise<{
       0: string;
     }>;
@@ -543,6 +690,50 @@ export class Bank extends Contract {
       0: BigNumber;
     }>;
 
+    getRoleAdmin(
+      role: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<{
+      0: string;
+    }>;
+
+    "getRoleAdmin(bytes32)"(
+      role: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<{
+      0: string;
+    }>;
+
+    getRoleMember(
+      role: BytesLike,
+      index: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<{
+      0: string;
+    }>;
+
+    "getRoleMember(bytes32,uint256)"(
+      role: BytesLike,
+      index: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<{
+      0: string;
+    }>;
+
+    getRoleMemberCount(
+      role: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<{
+      0: BigNumber;
+    }>;
+
+    "getRoleMemberCount(bytes32)"(
+      role: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<{
+      0: BigNumber;
+    }>;
+
     getVaultCollateralAmount(overrides?: CallOverrides): Promise<{
       0: BigNumber;
     }>;
@@ -583,6 +774,34 @@ export class Bank extends Contract {
       0: BigNumber;
     }>;
 
+    grantRole(
+      role: BytesLike,
+      account: string,
+      overrides?: Overrides
+    ): Promise<ContractTransaction>;
+
+    "grantRole(bytes32,address)"(
+      role: BytesLike,
+      account: string,
+      overrides?: Overrides
+    ): Promise<ContractTransaction>;
+
+    hasRole(
+      role: BytesLike,
+      account: string,
+      overrides?: CallOverrides
+    ): Promise<{
+      0: boolean;
+    }>;
+
+    "hasRole(bytes32,address)"(
+      role: BytesLike,
+      account: string,
+      overrides?: CallOverrides
+    ): Promise<{
+      0: boolean;
+    }>;
+
     init(
       creator: string,
       bankName: string,
@@ -619,17 +838,17 @@ export class Bank extends Contract {
       overrides?: Overrides
     ): Promise<ContractTransaction>;
 
-    owner(overrides?: CallOverrides): Promise<{
-      0: string;
-    }>;
+    renounceRole(
+      role: BytesLike,
+      account: string,
+      overrides?: Overrides
+    ): Promise<ContractTransaction>;
 
-    "owner()"(overrides?: CallOverrides): Promise<{
-      0: string;
-    }>;
-
-    renounceOwnership(overrides?: Overrides): Promise<ContractTransaction>;
-
-    "renounceOwnership()"(overrides?: Overrides): Promise<ContractTransaction>;
+    "renounceRole(bytes32,address)"(
+      role: BytesLike,
+      account: string,
+      overrides?: Overrides
+    ): Promise<ContractTransaction>;
 
     reserveDeposit(
       amount: BigNumberish,
@@ -658,6 +877,38 @@ export class Bank extends Contract {
 
     "reserveWithdrawCollateral(uint256)"(
       amount: BigNumberish,
+      overrides?: Overrides
+    ): Promise<ContractTransaction>;
+
+    revokeKeeper(
+      oldKeeper: string,
+      overrides?: Overrides
+    ): Promise<ContractTransaction>;
+
+    "revokeKeeper(address)"(
+      oldKeeper: string,
+      overrides?: Overrides
+    ): Promise<ContractTransaction>;
+
+    revokePriceUpdater(
+      oldUpdater: string,
+      overrides?: Overrides
+    ): Promise<ContractTransaction>;
+
+    "revokePriceUpdater(address)"(
+      oldUpdater: string,
+      overrides?: Overrides
+    ): Promise<ContractTransaction>;
+
+    revokeRole(
+      role: BytesLike,
+      account: string,
+      overrides?: Overrides
+    ): Promise<ContractTransaction>;
+
+    "revokeRole(bytes32,address)"(
+      role: BytesLike,
+      account: string,
       overrides?: Overrides
     ): Promise<ContractTransaction>;
 
@@ -703,15 +954,19 @@ export class Bank extends Contract {
       overrides?: Overrides
     ): Promise<ContractTransaction>;
 
-    transferOwnership(
-      newOwner: string,
-      overrides?: Overrides
-    ): Promise<ContractTransaction>;
+    supportsInterface(
+      interfaceId: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<{
+      0: boolean;
+    }>;
 
-    "transferOwnership(address)"(
-      newOwner: string,
-      overrides?: Overrides
-    ): Promise<ContractTransaction>;
+    "supportsInterface(bytes4)"(
+      interfaceId: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<{
+      0: boolean;
+    }>;
 
     updateCollateralPrice(overrides?: Overrides): Promise<ContractTransaction>;
 
@@ -787,6 +1042,38 @@ export class Bank extends Contract {
       2: BigNumber;
     }>;
   };
+
+  DEFAULT_ADMIN_ROLE(overrides?: CallOverrides): Promise<string>;
+
+  "DEFAULT_ADMIN_ROLE()"(overrides?: CallOverrides): Promise<string>;
+
+  KEEPER_ROLE(overrides?: CallOverrides): Promise<string>;
+
+  "KEEPER_ROLE()"(overrides?: CallOverrides): Promise<string>;
+
+  PRICE_UPDATER_ROLE(overrides?: CallOverrides): Promise<string>;
+
+  "PRICE_UPDATER_ROLE()"(overrides?: CallOverrides): Promise<string>;
+
+  addKeeper(
+    keeper: string,
+    overrides?: Overrides
+  ): Promise<ContractTransaction>;
+
+  "addKeeper(address)"(
+    keeper: string,
+    overrides?: Overrides
+  ): Promise<ContractTransaction>;
+
+  addPriceUpdater(
+    updater: string,
+    overrides?: Overrides
+  ): Promise<ContractTransaction>;
+
+  "addPriceUpdater(address)"(
+    updater: string,
+    overrides?: Overrides
+  ): Promise<ContractTransaction>;
 
   getBankFactoryOwner(overrides?: CallOverrides): Promise<string>;
 
@@ -888,6 +1175,35 @@ export class Bank extends Contract {
     overrides?: CallOverrides
   ): Promise<BigNumber>;
 
+  getRoleAdmin(role: BytesLike, overrides?: CallOverrides): Promise<string>;
+
+  "getRoleAdmin(bytes32)"(
+    role: BytesLike,
+    overrides?: CallOverrides
+  ): Promise<string>;
+
+  getRoleMember(
+    role: BytesLike,
+    index: BigNumberish,
+    overrides?: CallOverrides
+  ): Promise<string>;
+
+  "getRoleMember(bytes32,uint256)"(
+    role: BytesLike,
+    index: BigNumberish,
+    overrides?: CallOverrides
+  ): Promise<string>;
+
+  getRoleMemberCount(
+    role: BytesLike,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
+
+  "getRoleMemberCount(bytes32)"(
+    role: BytesLike,
+    overrides?: CallOverrides
+  ): Promise<BigNumber>;
+
   getVaultCollateralAmount(overrides?: CallOverrides): Promise<BigNumber>;
 
   "getVaultCollateralAmount()"(overrides?: CallOverrides): Promise<BigNumber>;
@@ -909,6 +1225,30 @@ export class Bank extends Contract {
   getVaultRepayAmount(overrides?: CallOverrides): Promise<BigNumber>;
 
   "getVaultRepayAmount()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+  grantRole(
+    role: BytesLike,
+    account: string,
+    overrides?: Overrides
+  ): Promise<ContractTransaction>;
+
+  "grantRole(bytes32,address)"(
+    role: BytesLike,
+    account: string,
+    overrides?: Overrides
+  ): Promise<ContractTransaction>;
+
+  hasRole(
+    role: BytesLike,
+    account: string,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
+
+  "hasRole(bytes32,address)"(
+    role: BytesLike,
+    account: string,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
 
   init(
     creator: string,
@@ -946,13 +1286,17 @@ export class Bank extends Contract {
     overrides?: Overrides
   ): Promise<ContractTransaction>;
 
-  owner(overrides?: CallOverrides): Promise<string>;
+  renounceRole(
+    role: BytesLike,
+    account: string,
+    overrides?: Overrides
+  ): Promise<ContractTransaction>;
 
-  "owner()"(overrides?: CallOverrides): Promise<string>;
-
-  renounceOwnership(overrides?: Overrides): Promise<ContractTransaction>;
-
-  "renounceOwnership()"(overrides?: Overrides): Promise<ContractTransaction>;
+  "renounceRole(bytes32,address)"(
+    role: BytesLike,
+    account: string,
+    overrides?: Overrides
+  ): Promise<ContractTransaction>;
 
   reserveDeposit(
     amount: BigNumberish,
@@ -981,6 +1325,38 @@ export class Bank extends Contract {
 
   "reserveWithdrawCollateral(uint256)"(
     amount: BigNumberish,
+    overrides?: Overrides
+  ): Promise<ContractTransaction>;
+
+  revokeKeeper(
+    oldKeeper: string,
+    overrides?: Overrides
+  ): Promise<ContractTransaction>;
+
+  "revokeKeeper(address)"(
+    oldKeeper: string,
+    overrides?: Overrides
+  ): Promise<ContractTransaction>;
+
+  revokePriceUpdater(
+    oldUpdater: string,
+    overrides?: Overrides
+  ): Promise<ContractTransaction>;
+
+  "revokePriceUpdater(address)"(
+    oldUpdater: string,
+    overrides?: Overrides
+  ): Promise<ContractTransaction>;
+
+  revokeRole(
+    role: BytesLike,
+    account: string,
+    overrides?: Overrides
+  ): Promise<ContractTransaction>;
+
+  "revokeRole(bytes32,address)"(
+    role: BytesLike,
+    account: string,
     overrides?: Overrides
   ): Promise<ContractTransaction>;
 
@@ -1026,15 +1402,15 @@ export class Bank extends Contract {
     overrides?: Overrides
   ): Promise<ContractTransaction>;
 
-  transferOwnership(
-    newOwner: string,
-    overrides?: Overrides
-  ): Promise<ContractTransaction>;
+  supportsInterface(
+    interfaceId: BytesLike,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
 
-  "transferOwnership(address)"(
-    newOwner: string,
-    overrides?: Overrides
-  ): Promise<ContractTransaction>;
+  "supportsInterface(bytes4)"(
+    interfaceId: BytesLike,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
 
   updateCollateralPrice(overrides?: Overrides): Promise<ContractTransaction>;
 
@@ -1111,6 +1487,32 @@ export class Bank extends Contract {
   }>;
 
   callStatic: {
+    DEFAULT_ADMIN_ROLE(overrides?: CallOverrides): Promise<string>;
+
+    "DEFAULT_ADMIN_ROLE()"(overrides?: CallOverrides): Promise<string>;
+
+    KEEPER_ROLE(overrides?: CallOverrides): Promise<string>;
+
+    "KEEPER_ROLE()"(overrides?: CallOverrides): Promise<string>;
+
+    PRICE_UPDATER_ROLE(overrides?: CallOverrides): Promise<string>;
+
+    "PRICE_UPDATER_ROLE()"(overrides?: CallOverrides): Promise<string>;
+
+    addKeeper(keeper: string, overrides?: CallOverrides): Promise<void>;
+
+    "addKeeper(address)"(
+      keeper: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    addPriceUpdater(updater: string, overrides?: CallOverrides): Promise<void>;
+
+    "addPriceUpdater(address)"(
+      updater: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
     getBankFactoryOwner(overrides?: CallOverrides): Promise<string>;
 
     "getBankFactoryOwner()"(overrides?: CallOverrides): Promise<string>;
@@ -1215,6 +1617,35 @@ export class Bank extends Contract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    getRoleAdmin(role: BytesLike, overrides?: CallOverrides): Promise<string>;
+
+    "getRoleAdmin(bytes32)"(
+      role: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<string>;
+
+    getRoleMember(
+      role: BytesLike,
+      index: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<string>;
+
+    "getRoleMember(bytes32,uint256)"(
+      role: BytesLike,
+      index: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<string>;
+
+    getRoleMemberCount(
+      role: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    "getRoleMemberCount(bytes32)"(
+      role: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     getVaultCollateralAmount(overrides?: CallOverrides): Promise<BigNumber>;
 
     "getVaultCollateralAmount()"(overrides?: CallOverrides): Promise<BigNumber>;
@@ -1236,6 +1667,30 @@ export class Bank extends Contract {
     getVaultRepayAmount(overrides?: CallOverrides): Promise<BigNumber>;
 
     "getVaultRepayAmount()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+    grantRole(
+      role: BytesLike,
+      account: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    "grantRole(bytes32,address)"(
+      role: BytesLike,
+      account: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    hasRole(
+      role: BytesLike,
+      account: string,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
+
+    "hasRole(bytes32,address)"(
+      role: BytesLike,
+      account: string,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
 
     init(
       creator: string,
@@ -1270,13 +1725,17 @@ export class Bank extends Contract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    owner(overrides?: CallOverrides): Promise<string>;
+    renounceRole(
+      role: BytesLike,
+      account: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
 
-    "owner()"(overrides?: CallOverrides): Promise<string>;
-
-    renounceOwnership(overrides?: CallOverrides): Promise<void>;
-
-    "renounceOwnership()"(overrides?: CallOverrides): Promise<void>;
+    "renounceRole(bytes32,address)"(
+      role: BytesLike,
+      account: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
 
     reserveDeposit(
       amount: BigNumberish,
@@ -1305,6 +1764,35 @@ export class Bank extends Contract {
 
     "reserveWithdrawCollateral(uint256)"(
       amount: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    revokeKeeper(oldKeeper: string, overrides?: CallOverrides): Promise<void>;
+
+    "revokeKeeper(address)"(
+      oldKeeper: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    revokePriceUpdater(
+      oldUpdater: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    "revokePriceUpdater(address)"(
+      oldUpdater: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    revokeRole(
+      role: BytesLike,
+      account: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
+
+    "revokeRole(bytes32,address)"(
+      role: BytesLike,
+      account: string,
       overrides?: CallOverrides
     ): Promise<void>;
 
@@ -1350,15 +1838,15 @@ export class Bank extends Contract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    transferOwnership(
-      newOwner: string,
+    supportsInterface(
+      interfaceId: BytesLike,
       overrides?: CallOverrides
-    ): Promise<void>;
+    ): Promise<boolean>;
 
-    "transferOwnership(address)"(
-      newOwner: string,
+    "supportsInterface(bytes4)"(
+      interfaceId: BytesLike,
       overrides?: CallOverrides
-    ): Promise<void>;
+    ): Promise<boolean>;
 
     updateCollateralPrice(overrides?: CallOverrides): Promise<void>;
 
@@ -1428,29 +1916,68 @@ export class Bank extends Contract {
   };
 
   filters: {
-    Liquidation(borrower: null, debtAmount: null): EventFilter;
+    Liquidation(borrower: string | null, debtAmount: null): EventFilter;
 
-    OwnershipTransferred(
-      previousOwner: string | null,
-      newOwner: string | null
-    ): EventFilter;
-
-    PriceUpdate(token: null, price: null): EventFilter;
+    PriceUpdate(token: string | null, price: null): EventFilter;
 
     ReserveDeposit(amount: null): EventFilter;
 
-    ReserveWithdraw(token: null, amount: null): EventFilter;
+    ReserveWithdraw(token: string | null, amount: null): EventFilter;
 
-    VaultBorrow(borrower: null, amount: null): EventFilter;
+    RoleAdminChanged(
+      role: BytesLike | null,
+      previousAdminRole: BytesLike | null,
+      newAdminRole: BytesLike | null
+    ): EventFilter;
 
-    VaultDeposit(owner: null, amount: null): EventFilter;
+    RoleGranted(
+      role: BytesLike | null,
+      account: string | null,
+      sender: string | null
+    ): EventFilter;
 
-    VaultRepay(borrower: null, amount: null): EventFilter;
+    RoleRevoked(
+      role: BytesLike | null,
+      account: string | null,
+      sender: string | null
+    ): EventFilter;
 
-    VaultWithdraw(borrower: null, amount: null): EventFilter;
+    VaultBorrow(borrower: string | null, amount: null): EventFilter;
+
+    VaultDeposit(owner: string | null, amount: null): EventFilter;
+
+    VaultRepay(borrower: string | null, amount: null): EventFilter;
+
+    VaultWithdraw(borrower: string | null, amount: null): EventFilter;
   };
 
   estimateGas: {
+    DEFAULT_ADMIN_ROLE(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "DEFAULT_ADMIN_ROLE()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+    KEEPER_ROLE(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "KEEPER_ROLE()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+    PRICE_UPDATER_ROLE(overrides?: CallOverrides): Promise<BigNumber>;
+
+    "PRICE_UPDATER_ROLE()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+    addKeeper(keeper: string, overrides?: Overrides): Promise<BigNumber>;
+
+    "addKeeper(address)"(
+      keeper: string,
+      overrides?: Overrides
+    ): Promise<BigNumber>;
+
+    addPriceUpdater(updater: string, overrides?: Overrides): Promise<BigNumber>;
+
+    "addPriceUpdater(address)"(
+      updater: string,
+      overrides?: Overrides
+    ): Promise<BigNumber>;
+
     getBankFactoryOwner(overrides?: CallOverrides): Promise<BigNumber>;
 
     "getBankFactoryOwner()"(overrides?: CallOverrides): Promise<BigNumber>;
@@ -1543,6 +2070,38 @@ export class Bank extends Contract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    getRoleAdmin(
+      role: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    "getRoleAdmin(bytes32)"(
+      role: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    getRoleMember(
+      role: BytesLike,
+      index: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    "getRoleMember(bytes32,uint256)"(
+      role: BytesLike,
+      index: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    getRoleMemberCount(
+      role: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    "getRoleMemberCount(bytes32)"(
+      role: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     getVaultCollateralAmount(overrides?: CallOverrides): Promise<BigNumber>;
 
     "getVaultCollateralAmount()"(overrides?: CallOverrides): Promise<BigNumber>;
@@ -1564,6 +2123,30 @@ export class Bank extends Contract {
     getVaultRepayAmount(overrides?: CallOverrides): Promise<BigNumber>;
 
     "getVaultRepayAmount()"(overrides?: CallOverrides): Promise<BigNumber>;
+
+    grantRole(
+      role: BytesLike,
+      account: string,
+      overrides?: Overrides
+    ): Promise<BigNumber>;
+
+    "grantRole(bytes32,address)"(
+      role: BytesLike,
+      account: string,
+      overrides?: Overrides
+    ): Promise<BigNumber>;
+
+    hasRole(
+      role: BytesLike,
+      account: string,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    "hasRole(bytes32,address)"(
+      role: BytesLike,
+      account: string,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
 
     init(
       creator: string,
@@ -1598,13 +2181,17 @@ export class Bank extends Contract {
       overrides?: Overrides
     ): Promise<BigNumber>;
 
-    owner(overrides?: CallOverrides): Promise<BigNumber>;
+    renounceRole(
+      role: BytesLike,
+      account: string,
+      overrides?: Overrides
+    ): Promise<BigNumber>;
 
-    "owner()"(overrides?: CallOverrides): Promise<BigNumber>;
-
-    renounceOwnership(overrides?: Overrides): Promise<BigNumber>;
-
-    "renounceOwnership()"(overrides?: Overrides): Promise<BigNumber>;
+    "renounceRole(bytes32,address)"(
+      role: BytesLike,
+      account: string,
+      overrides?: Overrides
+    ): Promise<BigNumber>;
 
     reserveDeposit(
       amount: BigNumberish,
@@ -1633,6 +2220,35 @@ export class Bank extends Contract {
 
     "reserveWithdrawCollateral(uint256)"(
       amount: BigNumberish,
+      overrides?: Overrides
+    ): Promise<BigNumber>;
+
+    revokeKeeper(oldKeeper: string, overrides?: Overrides): Promise<BigNumber>;
+
+    "revokeKeeper(address)"(
+      oldKeeper: string,
+      overrides?: Overrides
+    ): Promise<BigNumber>;
+
+    revokePriceUpdater(
+      oldUpdater: string,
+      overrides?: Overrides
+    ): Promise<BigNumber>;
+
+    "revokePriceUpdater(address)"(
+      oldUpdater: string,
+      overrides?: Overrides
+    ): Promise<BigNumber>;
+
+    revokeRole(
+      role: BytesLike,
+      account: string,
+      overrides?: Overrides
+    ): Promise<BigNumber>;
+
+    "revokeRole(bytes32,address)"(
+      role: BytesLike,
+      account: string,
       overrides?: Overrides
     ): Promise<BigNumber>;
 
@@ -1678,14 +2294,14 @@ export class Bank extends Contract {
       overrides?: Overrides
     ): Promise<BigNumber>;
 
-    transferOwnership(
-      newOwner: string,
-      overrides?: Overrides
+    supportsInterface(
+      interfaceId: BytesLike,
+      overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    "transferOwnership(address)"(
-      newOwner: string,
-      overrides?: Overrides
+    "supportsInterface(bytes4)"(
+      interfaceId: BytesLike,
+      overrides?: CallOverrides
     ): Promise<BigNumber>;
 
     updateCollateralPrice(overrides?: Overrides): Promise<BigNumber>;
@@ -1742,6 +2358,46 @@ export class Bank extends Contract {
   };
 
   populateTransaction: {
+    DEFAULT_ADMIN_ROLE(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "DEFAULT_ADMIN_ROLE()"(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    KEEPER_ROLE(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    "KEEPER_ROLE()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+
+    PRICE_UPDATER_ROLE(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "PRICE_UPDATER_ROLE()"(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    addKeeper(
+      keeper: string,
+      overrides?: Overrides
+    ): Promise<PopulatedTransaction>;
+
+    "addKeeper(address)"(
+      keeper: string,
+      overrides?: Overrides
+    ): Promise<PopulatedTransaction>;
+
+    addPriceUpdater(
+      updater: string,
+      overrides?: Overrides
+    ): Promise<PopulatedTransaction>;
+
+    "addPriceUpdater(address)"(
+      updater: string,
+      overrides?: Overrides
+    ): Promise<PopulatedTransaction>;
+
     getBankFactoryOwner(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
@@ -1868,6 +2524,38 @@ export class Bank extends Contract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
+    getRoleAdmin(
+      role: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "getRoleAdmin(bytes32)"(
+      role: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    getRoleMember(
+      role: BytesLike,
+      index: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "getRoleMember(bytes32,uint256)"(
+      role: BytesLike,
+      index: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    getRoleMemberCount(
+      role: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "getRoleMemberCount(bytes32)"(
+      role: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     getVaultCollateralAmount(
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
@@ -1899,6 +2587,30 @@ export class Bank extends Contract {
     ): Promise<PopulatedTransaction>;
 
     "getVaultRepayAmount()"(
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    grantRole(
+      role: BytesLike,
+      account: string,
+      overrides?: Overrides
+    ): Promise<PopulatedTransaction>;
+
+    "grantRole(bytes32,address)"(
+      role: BytesLike,
+      account: string,
+      overrides?: Overrides
+    ): Promise<PopulatedTransaction>;
+
+    hasRole(
+      role: BytesLike,
+      account: string,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    "hasRole(bytes32,address)"(
+      role: BytesLike,
+      account: string,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
@@ -1938,13 +2650,17 @@ export class Bank extends Contract {
       overrides?: Overrides
     ): Promise<PopulatedTransaction>;
 
-    owner(overrides?: CallOverrides): Promise<PopulatedTransaction>;
+    renounceRole(
+      role: BytesLike,
+      account: string,
+      overrides?: Overrides
+    ): Promise<PopulatedTransaction>;
 
-    "owner()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
-    renounceOwnership(overrides?: Overrides): Promise<PopulatedTransaction>;
-
-    "renounceOwnership()"(overrides?: Overrides): Promise<PopulatedTransaction>;
+    "renounceRole(bytes32,address)"(
+      role: BytesLike,
+      account: string,
+      overrides?: Overrides
+    ): Promise<PopulatedTransaction>;
 
     reserveDeposit(
       amount: BigNumberish,
@@ -1973,6 +2689,38 @@ export class Bank extends Contract {
 
     "reserveWithdrawCollateral(uint256)"(
       amount: BigNumberish,
+      overrides?: Overrides
+    ): Promise<PopulatedTransaction>;
+
+    revokeKeeper(
+      oldKeeper: string,
+      overrides?: Overrides
+    ): Promise<PopulatedTransaction>;
+
+    "revokeKeeper(address)"(
+      oldKeeper: string,
+      overrides?: Overrides
+    ): Promise<PopulatedTransaction>;
+
+    revokePriceUpdater(
+      oldUpdater: string,
+      overrides?: Overrides
+    ): Promise<PopulatedTransaction>;
+
+    "revokePriceUpdater(address)"(
+      oldUpdater: string,
+      overrides?: Overrides
+    ): Promise<PopulatedTransaction>;
+
+    revokeRole(
+      role: BytesLike,
+      account: string,
+      overrides?: Overrides
+    ): Promise<PopulatedTransaction>;
+
+    "revokeRole(bytes32,address)"(
+      role: BytesLike,
+      account: string,
       overrides?: Overrides
     ): Promise<PopulatedTransaction>;
 
@@ -2018,14 +2766,14 @@ export class Bank extends Contract {
       overrides?: Overrides
     ): Promise<PopulatedTransaction>;
 
-    transferOwnership(
-      newOwner: string,
-      overrides?: Overrides
+    supportsInterface(
+      interfaceId: BytesLike,
+      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    "transferOwnership(address)"(
-      newOwner: string,
-      overrides?: Overrides
+    "supportsInterface(bytes4)"(
+      interfaceId: BytesLike,
+      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     updateCollateralPrice(overrides?: Overrides): Promise<PopulatedTransaction>;
