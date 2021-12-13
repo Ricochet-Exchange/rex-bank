@@ -30,7 +30,7 @@ const config: HardhatUserConfig = {
       forking: {
         url: `https://green-nameless-water.matic.quiknode.pro/${process.env.QUICKNODE_ENDPOINT}/`,
         // accounts: [process.env.MATIC_PRIVATE_KEY],
-        blockNumber: 19403280,
+        blockNumber: parseInt(`${process.env.FORK_BLOCK_NUMBER}`),
         // gasPrice: 50000000000,
         // network_id: 137,
       },

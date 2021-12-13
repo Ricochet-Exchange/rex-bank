@@ -2,13 +2,13 @@
   "name": "ricochet-rex-bank",
   "version": "0.1",
   "description": "Fixed-rate Collateral-backed ERC20 Lending Framework",
-  "main": "truffle.js",
   "directories": {
     "test": "test"
   },
   "scripts": {
     "compile": "npx hardhat compile",
-    "test": "npx hardhat test"
+    "test": "npx hardhat test",
+    "build": "waffle"
   },
   "author": "Ricochet team",
   "license": "ISC",
