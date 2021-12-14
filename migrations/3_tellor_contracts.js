@@ -18,7 +18,7 @@ module.exports = async function (deployer, network, accounts) {
   let period = 86400;
   let ricusdRequestId = 77;
   let usdcusdRequestId = 78;
-  let initialPriceRic = 300000;
+  let initialPriceRic = 900000;
   let initialPriceUsdc = 1000000;
   let priceGranularity = 1000000;
   let ricAddress = "0x263026e7e53dbfdce5ae55ade22493f828922965";
@@ -36,7 +36,7 @@ module.exports = async function (deployer, network, accounts) {
     console.log("Bank owner", await bank.owner())
     console.log("Deployed");
     // TRB/DAI
-    let clone1 = await bankFactory.createBank("REX Bank", interestRate, originationFee, collateralizationRatio, liquidationPenalty, period, tellorOracleAddress);
+    let clone1 = await bankFactory.createBank("🚰 REX Bank v1.0", interestRate, originationFee, collateralizationRatio, liquidationPenalty, period, tellorOracleAddress);
     console.log("createBank")
     let bankClone1 = await Bank.at(clone1.logs[0].args.newBankAddress);
     await bankClone1.setCollateral(ricAddress, ricusdRequestId, priceGranularity, initialPriceRic);

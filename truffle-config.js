@@ -26,7 +26,7 @@ module.exports = {
       provider: () => new HDWalletProvider(
         process.env.MATIC_PRIVATE_KEY,
         "https://green-nameless-water.matic.quiknode.pro/a71984d8cf1bf9b030e643a09c7475bde1792b32/"),
-      gasPrice: 50000000000,
+      gasPrice: 33000000000,
       network_id: 137,
     },
     local: {

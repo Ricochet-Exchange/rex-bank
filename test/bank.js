@@ -39,7 +39,7 @@ contract("Bank", function(_accounts) {
     this.withdrawAmount = ether(new BN(50));
     this.borrowAmount = ether(new BN(66));
     this.largeBorrowAmount = ether(new BN(75));
-    this.smallBorrowAmount = ether(new BN(30));
+    this.smallBorrowAmount = ether(new BN(20));
     this.two = new BN(2);
     this.one = new BN(1);
     this.zero = new BN(0);
@@ -101,11 +101,11 @@ contract("Bank", function(_accounts) {
 
 
   it('should not allow non-owner to deposit reserves', async function () {
-    await expectRevert(this.bank.reserveDeposit(ether(new BN(100)), {from: _accounts[1]}), "IS NOT OWNER");
+    await expectRevert(this.bank.reserveDeposit(ether(new BN(100)), {from: _accounts[1]}), "Ownable: caller is not the owner");
   });
 
   it('should not allow non-owner to withdraw reserves', async function () {
-    await expectRevert(this.bank.reserveWithdraw(ether(new BN(100)), {from: _accounts[1]}), "IS NOT OWNER");
+    await expectRevert(this.bank.reserveWithdraw(ether(new BN(100)), {from: _accounts[1]}), "Ownable: caller is not the owner");
   });
 
   it('should allow user to deposit collateral into vault', async function () {
@@ -169,7 +169,7 @@ contract("Bank", function(_accounts) {
     expect(debtBalance).to.be.bignumber.equal(ether(new BN(34)));
   });
 
-  it('should allow the user to borrow more', async function () {
+  it('should allow the user to borrow', async function () {
     await this.dt.approve(this.bank.address, this.depositAmount);
     await this.bank.reserveDeposit(this.depositAmount);
     await this.ct.approve(this.bank.address, this.depositAmount, {from: _accounts[1]});
@@ -193,7 +193,17 @@ contract("Bank", function(_accounts) {
     const collateralBalance = await this.ct.balanceOf(this.bank.address);
     const debtBalance = await this.dt.balanceOf(this.bank.address);
     expect(collateralBalance).to.be.bignumber.equal(this.depositAmount);
-    expect(debtBalance).to.be.bignumber.equal(ether(new BN(40)));
+    expect(debtBalance).to.be.bignumber.equal(ether(new BN(60)));
+  });
+
+  it('should not allow the user to borrow above collateralization ratio', async function () {
+    await this.dt.approve(this.bank.address, this.depositAmount);
+    await this.bank.reserveDeposit(this.depositAmount);
+    await this.ct.approve(this.bank.address, this.depositAmount, {from: _accounts[1]});
+    await this.bank.vaultDeposit(this.depositAmount, {from: _accounts[1]});
+    await expectRevert(this.bank.vaultBorrow("66600000000000000000", {from: _accounts[1]}), "NOT ENOUGH COLLATERAL");
+    await this.bank.vaultBorrow(ether(new BN(66)), {from: _accounts[1]});
+    await expectRevert(this.bank.vaultBorrow(ether(new BN(1)), {from: _accounts[1]}), "NOT ENOUGH COLLATERAL");
   });
 
   it('should accrue interest on a vault\'s borrowed amount', async function () {
