@@ -27,14 +27,14 @@ const config: HardhatUserConfig = {
   solidity: "0.8.4",
   networks: {
     hardhat: {
-      forking: {
-        url: `https://green-nameless-water.matic.quiknode.pro/${process.env.QUICKNODE_ENDPOINT}/`,
+      // forking: {
+      //   url: `https://green-nameless-water.matic.quiknode.pro/${process.env.QUICKNODE_ENDPOINT}/`,
         // accounts: [process.env.MATIC_PRIVATE_KEY],
-        blockNumber: parseInt(`${process.env.FORK_BLOCK_NUMBER}`),
+        // blockNumber: parseInt(`${process.env.FORK_BLOCK_NUMBER}`),
         // gasPrice: 50000000000,
         // network_id: 137,
       },
-    }
+    // }
     // gasReporter: {
     //   enabled: process.env.REPORT_GAS !== undefined,
     //   currency: "USD",
