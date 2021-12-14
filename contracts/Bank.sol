@@ -154,8 +154,8 @@ contract Bank is BankStorage, AccessControlEnumerable, Initializable {
      */
     function updateCollateralPrice() external {
         require(
-            hasRole(PRICE_UPDATER_ROLE, msg.sender) ||
-            hasRole(DEFAULT_ADMIN_ROLE, msg.sender), "not price updater or admin");
+            hasRole(REPORTER_ROLE, msg.sender) ||
+            hasRole(DEFAULT_ADMIN_ROLE, msg.sender), "not reporter or admin");
         (, collateral.price, collateral.lastUpdatedAt) = getCurrentValue(
             collateral.tellorRequestId
         ); //,now - 1 hours);
@@ -168,8 +168,8 @@ contract Bank is BankStorage, AccessControlEnumerable, Initializable {
      */
     function updateDebtPrice() external {
         require(
-            hasRole(PRICE_UPDATER_ROLE, msg.sender) ||
-            hasRole(DEFAULT_ADMIN_ROLE, msg.sender), "not price updater or admin");
+            hasRole(REPORTER_ROLE, msg.sender) ||
+            hasRole(DEFAULT_ADMIN_ROLE, msg.sender), "not reporter or admin");
         (, debt.price, debt.lastUpdatedAt) = getCurrentValue(
             debt.tellorRequestId
         ); //,now - 1 hours);
@@ -356,19 +356,19 @@ contract Bank is BankStorage, AccessControlEnumerable, Initializable {
     }
 
     /**
-     * @dev Allows admin to add address to price updater role
-     * @param updater address of new price updater
+     * @dev Allows admin to add address to reporter role
+     * @param updater address of new reporter
      */
-    function addPriceUpdater(address updater) external {
+    function addReporter(address updater) external {
         require(updater != address(0), "operation not allowed");
-        grantRole(PRICE_UPDATER_ROLE, updater);
+        grantRole(REPORTER_ROLE, updater);
     }
 
     /**
-     * @dev Allows admin to remove address from price updater role
-     * @param oldUpdater address of old price updater
+     * @dev Allows admin to remove address from reporter role
+     * @param oldUpdater address of old reporter
      */
-    function revokePriceUpdater(address oldUpdater) external {
-        revokeRole(PRICE_UPDATER_ROLE, oldUpdater);
+    function revokeReporter(address oldUpdater) external {
+        revokeRole(REPORTER_ROLE, oldUpdater);
     }
 }

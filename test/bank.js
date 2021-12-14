@@ -17,7 +17,7 @@ var DT = artifacts.require("USDToken");
 contract("Bank", function (_accounts) {
   const DEFAULT_ADMIN_ROLE = "0x0000000000000000000000000000000000000000000000000000000000000000";
   const KEEPER_ROLE = web3.utils.soliditySha3("KEEPER_ROLE");
-  const PRICE_UPDATER_ROLE = web3.utils.soliditySha3("PRICE_UPDATER_ROLE");
+  const REPORTER_ROLE = web3.utils.soliditySha3("REPORTER_ROLE");
 
   const INTEREST_RATE = 1200; // 12%
   const ORIGINATION_FEE = 100; // 1%
@@ -55,8 +55,8 @@ contract("Bank", function (_accounts) {
     await this.bank.addKeeper(_accounts[3]);
     await this.bank.addKeeper(_accounts[4]);
     //set updaters
-    await this.bank.addPriceUpdater(_accounts[5]);
-    await this.bank.addPriceUpdater(_accounts[6]);
+    await this.bank.addReporter(_accounts[5]);
+    await this.bank.addReporter(_accounts[6]);
   });
 
   it('should create bank with correct parameters', async function () {
@@ -69,8 +69,8 @@ contract("Bank", function (_accounts) {
     const isAdmin = await this.bank.hasRole(DEFAULT_ADMIN_ROLE, _accounts[0]);
     const isKeeper1 = await this.bank.hasRole(KEEPER_ROLE, _accounts[3]);
     const isKeeper2 = await this.bank.hasRole(KEEPER_ROLE, _accounts[4]);
-    const isPriceUpdater1 = await this.bank.hasRole(PRICE_UPDATER_ROLE, _accounts[5]);
-    const isPriceUpdater2 = await this.bank.hasRole(PRICE_UPDATER_ROLE, _accounts[6]);
+    const isReporter1 = await this.bank.hasRole(REPORTER_ROLE, _accounts[5]);
+    const isReporter2 = await this.bank.hasRole(REPORTER_ROLE, _accounts[6]);
     const dtAddress = await this.bank.getDebtTokenAddress();
     const ctAddress = await this.bank.getCollateralTokenAddress();
     const name = await this.bank.getName();
@@ -78,8 +78,8 @@ contract("Bank", function (_accounts) {
     assert.ok(isAdmin);
     assert.ok(isKeeper1);
     assert.ok(isKeeper2);
-    assert.ok(isPriceUpdater1);
-    assert.ok(isPriceUpdater2);
+    assert.ok(isReporter1);
+    assert.ok(isReporter2);
     assert.equal(name, BANK_NAME);
     assert.equal(interestRate, INTEREST_RATE);
     assert.equal(originationFee, ORIGINATION_FEE);
@@ -94,23 +94,27 @@ contract("Bank", function (_accounts) {
   it('only admin role should add / remove new roles', async function () {
     const admin = await this.bank.getRoleMember(DEFAULT_ADMIN_ROLE, 0);
     expect(await this.bank.getRoleMemberCount(KEEPER_ROLE)).to.be.bignumber.equal(new BN(2));
-    expect(await this.bank.getRoleMemberCount(PRICE_UPDATER_ROLE)).to.be.bignumber.equal(new BN(2));
+    expect(await this.bank.getRoleMemberCount(REPORTER_ROLE)).to.be.bignumber.equal(new BN(2));
+
+    //user not in role adds keeper
+    expectRevert(this.bank.addKeeper(_accounts[8], { from: _accounts[7] }), "AccessControl");
+    expectRevert(this.bank.addReporter(_accounts[8], { from: _accounts[7] }), "AccessControl");
 
     //keeper adds another keeper
     let keeper = await this.bank.getRoleMember(KEEPER_ROLE, 0);
     expectRevert(this.bank.addKeeper(_accounts[8], { from: keeper }), "AccessControl");
 
-    //price updater adds another keeper
-    let priceUpdater = await this.bank.getRoleMember(PRICE_UPDATER_ROLE, 0);
-    expectRevert(this.bank.addPriceUpdater(_accounts[8], { from: priceUpdater }), "AccessControl");
+    //reporter adds another keeper
+    let reporter = await this.bank.getRoleMember(REPORTER_ROLE, 0);
+    expectRevert(this.bank.addReporter(_accounts[8], { from: reporter }), "AccessControl");
 
     //admin add new keeper
     this.bank.addKeeper(_accounts[8], { from: admin });
     expect(await this.bank.getRoleMemberCount(KEEPER_ROLE)).to.be.bignumber.equal(new BN(3));
 
-    //admin add new price updater
-    this.bank.addPriceUpdater(_accounts[8], { from: admin });
-    expect(await this.bank.getRoleMemberCount(PRICE_UPDATER_ROLE)).to.be.bignumber.equal(new BN(3));
+    //admin add new reporter
+    this.bank.addReporter(_accounts[8], { from: admin });
+    expect(await this.bank.getRoleMemberCount(REPORTER_ROLE)).to.be.bignumber.equal(new BN(3));
 
     //keeper remove keeper
     keeper = await this.bank.getRoleMember(KEEPER_ROLE, 0);
@@ -118,16 +122,16 @@ contract("Bank", function (_accounts) {
     expectRevert(this.bank.revokeKeeper(removeKeeper, { from: keeper }), "AccessControl");
 
     //keeper remove keeper
-    priceUpdater = await this.bank.getRoleMember(PRICE_UPDATER_ROLE, 0);
-    const removePriceUpdater = await this.bank.getRoleMember(PRICE_UPDATER_ROLE, 1);
-    expectRevert(this.bank.revokePriceUpdater(removePriceUpdater, { from: priceUpdater }), "AccessControl");
+    reporter = await this.bank.getRoleMember(REPORTER_ROLE, 0);
+    const removeReporter = await this.bank.getRoleMember(REPORTER_ROLE, 1);
+    expectRevert(this.bank.revokeReporter(removeReporter, { from: reporter }), "AccessControl");
 
     //admin removes keeper and updater
     this.bank.revokeKeeper(removeKeeper, { from: admin });
-    this.bank.revokePriceUpdater(removePriceUpdater, { from: admin });
+    this.bank.revokeReporter(removeReporter, { from: admin });
 
     expect(await this.bank.getRoleMemberCount(KEEPER_ROLE)).to.be.bignumber.equal(new BN(2));
-    expect(await this.bank.getRoleMemberCount(PRICE_UPDATER_ROLE)).to.be.bignumber.equal(new BN(2));
+    expect(await this.bank.getRoleMemberCount(REPORTER_ROLE)).to.be.bignumber.equal(new BN(2));
   })
 
   it('should allow admin to deposit reserves', async function () {
@@ -461,9 +465,9 @@ contract("Bank", function (_accounts) {
     expect(collateralReserveBalance).to.be.bignumber.equal(collateralToLiquidate.sub(feeAmt));
   });
 
-  it('should not update prices if not admin / price updater', async function () {
-    await expectRevert(this.bank.updateCollateralPrice({ from: _accounts[3] }), "not price updater or admin");
-    await expectRevert(this.bank.updateDebtPrice({ from: _accounts[3] }), "not price updater or admin");
+  it('should not update prices if not admin / reporter', async function () {
+    await expectRevert(this.bank.updateCollateralPrice({ from: _accounts[3] }), "not reporter or admin");
+    await expectRevert(this.bank.updateDebtPrice({ from: _accounts[3] }), "not reporter or admin");
   })
 
 });
