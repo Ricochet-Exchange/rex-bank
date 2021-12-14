@@ -69,7 +69,8 @@ contract Bank is BankStorage, AccessControlEnumerable, Initializable {
         uint256 collateralTokenTellorRequestId,
         uint256 collateralTokenPriceGranularity,
         uint256 collateralTokenPrice
-    ) public onlyRole(DEFAULT_ADMIN_ROLE) {
+    ) public {
+        // onlyRole(DEFAULT_ADMIN_ROLE) {
         require(
             collateral.tokenAddress == address(0) &&
                 collateralToken != address(0),
@@ -89,7 +90,8 @@ contract Bank is BankStorage, AccessControlEnumerable, Initializable {
         uint256 debtTokenTellorRequestId,
         uint256 debtTokenPriceGranularity,
         uint256 debtTokenPrice
-    ) public onlyRole(DEFAULT_ADMIN_ROLE) {
+    ) public {
+        // onlyRole(DEFAULT_ADMIN_ROLE) {
         require(
             debt.tokenAddress == address(0) && debtToken != address(0),
             "!setable"
@@ -106,7 +108,7 @@ contract Bank is BankStorage, AccessControlEnumerable, Initializable {
      */
     function reserveDeposit(uint256 amount)
         external
-        onlyRole(DEFAULT_ADMIN_ROLE)
+    // onlyRole(DEFAULT_ADMIN_ROLE)
     {
         require(amount > 0, "Amount is zero !!");
         reserve.debtBalance += amount;
@@ -125,7 +127,7 @@ contract Bank is BankStorage, AccessControlEnumerable, Initializable {
      */
     function reserveWithdraw(uint256 amount)
         external
-        onlyRole(DEFAULT_ADMIN_ROLE)
+    // onlyRole(DEFAULT_ADMIN_ROLE)
     {
         require(
             IERC20(debt.tokenAddress).balanceOf(address(this)) >= amount,
@@ -145,7 +147,7 @@ contract Bank is BankStorage, AccessControlEnumerable, Initializable {
   */
     function reserveWithdrawCollateral(uint256 amount)
         external
-        onlyRole(DEFAULT_ADMIN_ROLE)
+    // onlyRole(DEFAULT_ADMIN_ROLE)
     {
         require(
             reserve.collateralBalance >= amount,
