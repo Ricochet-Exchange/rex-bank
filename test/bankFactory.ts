@@ -34,11 +34,6 @@ describe("BankFactory", function () {
   let deployer: SignerWithAddress;
   let randomUser: SignerWithAddress;
   let randomUser2: SignerWithAddress;
-  // const DEFAULT_ADMIN_ROLE = ethers.utils.formatBytes32String("0x00000000000000000000000000000000000000000000000000000000000000");
-  const DEFAULT_ADMIN_ROLE = 0x00000000000000000000000000000000000000000000000000000000000000;
-  // const DEFAULT_ADMIN_ROLE = ethers.utils.formatBytes32String("0x00");
-  // let adminRole: BytesLike;
-  // const DEFAULT_ADMIN_ROLE = parseBytes32String("0x00"); //  ethers.utils.formatBytes32String("0x00");
   let depositAmount = ethers.BigNumber.from(100);
   let largeDepositAmount = ethers.BigNumber.from(100);
   let withdrawAmount = ethers.BigNumber.from(50);
@@ -64,7 +59,6 @@ describe("BankFactory", function () {
     ));
 
     bankInstance = await bank.deploy(TELLOR_ORACLE_ADDRESS);
-    // await bankInstance.deployed();
     // Deployed bank factory, sets which bank contract to reference when cloning
     bankFactoryInstance = await bankFactory.deploy(bankInstance.address);
     await bankFactoryInstance.deployed();
@@ -85,6 +79,9 @@ describe("BankFactory", function () {
   });
 
   describe("createBank", () => {
+    const FIRST_BANK_NUMBER = 0;
+    const SECOND_BANK_NUMBER = 1;
+    const THIRD_BANK_NUMBER = 2;
 
     it("should be owned by the creator", async function () {
       owner = await bankFactoryInstance.owner();
@@ -99,13 +96,12 @@ describe("BankFactory", function () {
     });
 
     it("should accept emitted events with correct bank address", async function () {
-      newBank = await filterEvent(bankFactoryInstance, 0);
-      assert.equal(newBank, await bankFactoryInstance.getBankAddressAtIndex(0));
+      newBank = await filterEvent(bankFactoryInstance, FIRST_BANK_NUMBER);
+      assert.equal(newBank, await bankFactoryInstance.getBankAddressAtIndex(FIRST_BANK_NUMBER));
     });
 
     it("should create a bank clone with correct parameters", async function () {
-      // await myBank.deployTransaction.wait();   // Error
-      newBank = await filterEvent(bankFactoryInstance, 0);
+      newBank = await filterEvent(bankFactoryInstance, FIRST_BANK_NUMBER);
       let myBank = await bankInstance.attach(newBank);
       console.log("===== 0 newBank: " + newBank);
       await myBank.deployed();
@@ -113,7 +109,6 @@ describe("BankFactory", function () {
       console.log("randomUser.address: " + randomUser.address);
       console.log("collateral.tokenAddress: " + await bankInstance.getCollateralTokenAddress());
       console.log("collateralToken: " + await ctInstance.address);
-      // await bankInstance.setCollateral(ctInstance.address, 2, 1000, 1000, { "from": randomUser.address });   // IMP. ---> Error
       await myBank.connect(randomUser).setCollateral(ctInstance.address, 2, 1000, 1000);
       await myBank.connect(randomUser).setDebt(dtInstance.address, 1, 1000, 1000);
       console.log("bankInstance.address: " + bankInstance.address);
@@ -125,14 +120,11 @@ describe("BankFactory", function () {
       const liquidationPenalty = await myBank.getLiquidationPenalty();
       const reserveBalance = await myBank.getReserveBalance();
       const reserveCollateralBalance = await myBank.getReserveCollateralBalance();
-      // console.log(" AAAAAAAAAAA - myBank.getRoleAdmin(myBank.address): " + await myBank.getRoleAdmin(myBank.address));
       // const owner = await myBank.getRoleAdmin(myBank.address);         // TODO
       const dtAddress = await myBank.getDebtTokenAddress();
       const ctAddress = await myBank.getCollateralTokenAddress();
 
-      // assert.equal(bankAddress, clone.address);    // In Truffle
-
-      assert.equal(await bankFactoryInstance.getBankAddressAtIndex(0), await myBank.address);
+      assert.equal(await bankFactoryInstance.getBankAddressAtIndex(FIRST_BANK_NUMBER), await myBank.address);
       assert((await bankFactoryInstance.getNumberOfBanks()).eq(ONE));
       // assert(owner, await deployer.getAddress()); // TODO  
       // const owner1 = await myBank.getRoleAdmin(myBank.address);   // .owner();  // TODO
@@ -143,10 +135,11 @@ describe("BankFactory", function () {
       assert(reserveBalance.eq(ZERO));
       assert(reserveCollateralBalance.eq(ZERO));
       assert(dtAddress, dtInstance.address);
-      assert(ctAddress, ctInstance.address);     
+      assert(ctAddress, ctInstance.address);
     });   // End of "it" block
 
     it("should create multiple bank clones with correct parameters", async function () {
+
       // Create first bank
       clone = await bankFactoryInstance.connect(randomUser).createBank(BANK_NAME, INTEREST_RATE,
         ORIGINATION_FEE, COLLATERALIZATION_RATIO, LIQUIDATION_PENALTY, PERIOD, TELLOR_ORACLE_ADDRESS);
@@ -159,14 +152,14 @@ describe("BankFactory", function () {
       await myBank.connect(randomUser).setDebt(dtInstance.address, 1, 1000, 1000);
       // const owner1 = await myBank.getRoleAdmin(myBank.address);   // .owner();    // TODO
       assert.equal(newBank, myBank.address);
-      assert.equal(await bankFactoryInstance.getBankAddressAtIndex(1), await myBank.address);
+      assert.equal(await bankFactoryInstance.getBankAddressAtIndex(SECOND_BANK_NUMBER), await myBank.address);
       assert((await bankFactoryInstance.getNumberOfBanks()).eq(TWO));
 
       // Create second bank
       clone = await bankFactoryInstance.connect(randomUser2).createBank(BANK_NAME, INTEREST_RATE,
         ORIGINATION_FEE, COLLATERALIZATION_RATIO, LIQUIDATION_PENALTY, PERIOD, TELLOR_ORACLE_ADDRESS);
 
-      newBank = await filterEvent(bankFactoryInstance, 2);
+      newBank = await filterEvent(bankFactoryInstance, SECOND_BANK_NUMBER);
       console.log("  ===== New Bank 3: " + newBank);
       myBank = await deployBank(bankInstance, newBank);
 
@@ -174,11 +167,11 @@ describe("BankFactory", function () {
       await myBank.connect(randomUser2).setDebt(dtInstance.address, 1, 1000, 1000);
       // const owner2 = await myBank.getRoleAdmin(myBank.address);   // .owner();  // TODO
 
-      const bankAddress1 = await bankFactoryInstance.getBankAddressAtIndex(0);
-      const bankAddress2 = await bankFactoryInstance.getBankAddressAtIndex(1);
+      const bankAddress1 = await bankFactoryInstance.getBankAddressAtIndex(FIRST_BANK_NUMBER);
+      const bankAddress2 = await bankFactoryInstance.getBankAddressAtIndex(SECOND_BANK_NUMBER);
 
       assert.equal(newBank, myBank.address);
-      assert.equal(await bankFactoryInstance.getBankAddressAtIndex(2), await myBank.address);
+      assert.equal(await bankFactoryInstance.getBankAddressAtIndex(THIRD_BANK_NUMBER), await myBank.address);
       assert((await bankFactoryInstance.getNumberOfBanks()).eq(ethers.BigNumber.from(3)));
       // assert.equal(owner1, randomUser.address);    // TODO
       // assert.equal(owner2, await randomUser2.getAddress());    // TODO
@@ -205,9 +198,9 @@ describe("BankFactory", function () {
     });
   });
 
-  async function filterEvent(bankFactoryInstance: BankFactory, numBank: number): Promise<string> {
+  async function filterEvent(bankFactoryInstance: BankFactory, bankNumber: number): Promise<string> {
     let newAddress: string = "";
-    const bankAddress = await bankFactoryInstance.getBankAddressAtIndex(numBank);
+    const bankAddress = await bankFactoryInstance.getBankAddressAtIndex(bankNumber);
     const filter = bankFactoryInstance.filters.BankCreated();
     // beware about an error regarding the block number in mainnet forking
     const logs = bankFactoryInstance.queryFilter(filter, parseInt(`${process.env.FORK_BLOCK_NUMBER}`));
@@ -221,3 +214,4 @@ describe("BankFactory", function () {
 
 });
 
+// TODO: there are three asserts to do. Also, a "beforeEach" block must be added in order the reset the state.
