@@ -320,135 +320,135 @@
     },
     "deployedBytecode": {
       "functionDebugData": {
-        "@KEEPER_ROLE_4148": {
+        "@KEEPER_ROLE_4144": {
           "entryPoint": 1535,
-          "id": 4148,
+          "id": 4144,
           "parameterSlots": 0,
           "returnSlots": 0
         },
-        "@PRICE_UPDATER_ROLE_4153": {
+        "@PRICE_UPDATER_ROLE_4149": {
           "entryPoint": 2222,
-          "id": 4153,
+          "id": 4149,
           "parameterSlots": 0,
           "returnSlots": 0
         },
-        "@getCollateralTokenAddress_4303": {
+        "@getCollateralTokenAddress_4299": {
           "entryPoint": 1671,
-          "id": 4303,
+          "id": 4299,
           "parameterSlots": 0,
           "returnSlots": 1
         },
-        "@getCollateralTokenLastUpdatedAt_4333": {
+        "@getCollateralTokenLastUpdatedAt_4329": {
           "entryPoint": 1584,
-          "id": 4333,
+          "id": 4329,
           "parameterSlots": 0,
           "returnSlots": 1
         },
-        "@getCollateralTokenPriceGranularity_4323": {
+        "@getCollateralTokenPriceGranularity_4319": {
           "entryPoint": 1522,
-          "id": 4323,
+          "id": 4319,
           "parameterSlots": 0,
           "returnSlots": 1
         },
-        "@getCollateralTokenPrice_4313": {
+        "@getCollateralTokenPrice_4309": {
           "entryPoint": 1037,
-          "id": 4313,
+          "id": 4309,
           "parameterSlots": 0,
           "returnSlots": 1
         },
-        "@getCollateralizationRatio_4243": {
+        "@getCollateralizationRatio_4239": {
           "entryPoint": 1716,
-          "id": 4243,
+          "id": 4239,
           "parameterSlots": 0,
           "returnSlots": 1
         },
-        "@getDebtTokenAddress_4263": {
+        "@getDebtTokenAddress_4259": {
           "entryPoint": 2151,
-          "id": 4263,
+          "id": 4259,
           "parameterSlots": 0,
           "returnSlots": 1
         },
-        "@getDebtTokenLastUpdatedAt_4293": {
+        "@getDebtTokenLastUpdatedAt_4289": {
           "entryPoint": 2196,
-          "id": 4293,
+          "id": 4289,
           "parameterSlots": 0,
           "returnSlots": 1
         },
-        "@getDebtTokenPriceGranularity_4283": {
+        "@getDebtTokenPriceGranularity_4279": {
           "entryPoint": 1025,
-          "id": 4283,
+          "id": 4279,
           "parameterSlots": 0,
           "returnSlots": 1
         },
-        "@getDebtTokenPrice_4273": {
+        "@getDebtTokenPrice_4269": {
           "entryPoint": 2125,
-          "id": 4273,
+          "id": 4269,
           "parameterSlots": 0,
           "returnSlots": 1
         },
-        "@getInterestRate_4223": {
+        "@getInterestRate_4219": {
           "entryPoint": 1571,
-          "id": 4223,
+          "id": 4219,
           "parameterSlots": 0,
           "returnSlots": 1
         },
-        "@getLiquidationPenalty_4253": {
+        "@getLiquidationPenalty_4249": {
           "entryPoint": 1509,
-          "id": 4253,
+          "id": 4249,
           "parameterSlots": 0,
           "returnSlots": 1
         },
-        "@getName_4213": {
+        "@getName_4209": {
           "entryPoint": 1050,
-          "id": 4213,
+          "id": 4209,
           "parameterSlots": 0,
           "returnSlots": 1
         },
-        "@getOriginationFee_4233": {
+        "@getOriginationFee_4229": {
           "entryPoint": 2258,
-          "id": 4233,
+          "id": 4229,
           "parameterSlots": 0,
           "returnSlots": 1
         },
-        "@getReserveBalance_4343": {
+        "@getReserveBalance_4339": {
           "entryPoint": 2138,
-          "id": 4343,
+          "id": 4339,
           "parameterSlots": 0,
           "returnSlots": 1
         },
-        "@getReserveCollateralBalance_4353": {
+        "@getReserveCollateralBalance_4349": {
           "entryPoint": 2209,
-          "id": 4353,
+          "id": 4349,
           "parameterSlots": 0,
           "returnSlots": 1
         },
-        "@getVaultCollateralAmount_4366": {
+        "@getVaultCollateralAmount_4362": {
           "entryPoint": 1771,
-          "id": 4366,
+          "id": 4362,
           "parameterSlots": 0,
           "returnSlots": 1
         },
-        "@getVaultCollateralizationRatio_4484": {
+        "@getVaultCollateralizationRatio_4480": {
           "entryPoint": 1196,
-          "id": 4484,
+          "id": 4480,
           "parameterSlots": 1,
           "returnSlots": 1
         },
-        "@getVaultDebtAmount_4379": {
+        "@getVaultDebtAmount_4375": {
           "entryPoint": 1597,
-          "id": 4379,
+          "id": 4375,
           "parameterSlots": 0,
           "returnSlots": 1
         },
-        "@getVaultRepayAmount_4435": {
+        "@getVaultRepayAmount_4431": {
           "entryPoint": 1845,
-          "id": 4435,
+          "id": 4431,
           "parameterSlots": 0,
           "returnSlots": 1
         },
-        "@vaults_4195": {
+        "@vaults_4191": {
           "entryPoint": 1729,
-          "id": 4195,
+          "id": 4191,
           "parameterSlots": 0,
           "returnSlots": 0
         },

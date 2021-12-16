@@ -258,7 +258,7 @@ export class BankFactory extends Contract {
       period: BigNumberish,
       oracleAddress: string,
       overrides?: CallOverrides
-    ): Promise<void>;
+    ): Promise<string>;
 
     "createBank(string,uint256,uint256,uint256,uint256,uint256,address)"(
       name: string,
@@ -269,7 +269,7 @@ export class BankFactory extends Contract {
       period: BigNumberish,
       oracleAddress: string,
       overrides?: CallOverrides
-    ): Promise<void>;
+    ): Promise<string>;
 
     getBankAddressAtIndex(
       index: BigNumberish,
