@@ -11,6 +11,10 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 contract BankStorage {
     /*Variables*/
     string name;
+    // role identifier for keeper that can make liquidations
+    bytes32 public constant KEEPER_ROLE = keccak256("KEEPER_ROLE");
+    // role identifier for price updater
+    bytes32 public constant REPORTER_ROLE = keccak256("REPORTER_ROLE");
 
     struct Reserve {
         uint256 collateralBalance;

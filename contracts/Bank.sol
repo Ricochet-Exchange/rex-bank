@@ -5,8 +5,8 @@ import "./BankStorage.sol";
 import "./ITellor.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/proxy/utils/Initializable.sol";
+import "@openzeppelin/contracts/access/AccessControlEnumerable.sol";
 
 /**
  * @title Bank
@@ -14,21 +14,22 @@ import "@openzeppelin/contracts/proxy/utils/Initializable.sol";
  * origination fees from users that borrow against their collateral.
  * The oracle for Bank is Tellor.
  */
-contract Bank is BankStorage, Initializable {
+
+contract Bank is BankStorage, AccessControlEnumerable, Initializable {
+
     using SafeERC20 for IERC20;
 
-    address private _owner;
     address private _bankFactoryOwner;
 
     /*Events*/
     event ReserveDeposit(uint256 amount);
-    event ReserveWithdraw(address token, uint256 amount);
-    event VaultDeposit(address owner, uint256 amount);
-    event VaultBorrow(address borrower, uint256 amount);
-    event VaultRepay(address borrower, uint256 amount);
-    event VaultWithdraw(address borrower, uint256 amount);
-    event PriceUpdate(address token, uint256 price);
-    event Liquidation(address borrower, uint256 debtAmount);
+    event ReserveWithdraw(address indexed token, uint256 amount);
+    event VaultDeposit(address indexed owner, uint256 amount);
+    event VaultBorrow(address indexed borrower, uint256 amount);
+    event VaultRepay(address indexed borrower, uint256 amount);
+    event VaultWithdraw(address indexed borrower, uint256 amount);
+    event PriceUpdate(address indexed token, uint256 price);
+    event Liquidation(address indexed borrower, uint256 debtAmount);
 
     /*Constructor*/
     constructor(address payable oracleContract) {
@@ -73,13 +74,14 @@ contract Bank is BankStorage, Initializable {
         address bankFactoryOwner,
         address payable oracleContract
     ) public initializer {
+        //set up as admin / owner
+        _setupRole(DEFAULT_ADMIN_ROLE, creator);
         reserve.interestRate = interestRate;
         reserve.originationFee = originationFee;
         reserve.collateralizationRatio = collateralizationRatio;
         reserve.oracleContract = oracleContract;
         reserve.liquidationPenalty = liquidationPenalty;
         reserve.period = period;
-        _owner = creator; // Make the creator the first admin
         _bankFactoryOwner = bankFactoryOwner;
         name = bankName;
     }
@@ -92,7 +94,7 @@ contract Bank is BankStorage, Initializable {
         uint256 collateralTokenTellorRequestId,
         uint256 collateralTokenPriceGranularity,
         uint256 collateralTokenPrice
-    ) public onlyOwner {
+    ) public onlyRole(DEFAULT_ADMIN_ROLE) {
         require(collateral.tokenAddress == address(0) && collateralToken != address(0), "!setable");
         collateral.tokenAddress = collateralToken;
         collateral.price = collateralTokenPrice;
@@ -108,7 +110,10 @@ contract Bank is BankStorage, Initializable {
         uint256 debtTokenTellorRequestId,
         uint256 debtTokenPriceGranularity,
         uint256 debtTokenPrice
-    ) public onlyOwner {
+    )
+        public
+        onlyRole(DEFAULT_ADMIN_ROLE)
+    {
         require(debt.tokenAddress == address(0) && debtToken != address(0), "!setable");
         debt.tokenAddress = debtToken;
         debt.price = debtTokenPrice;
@@ -120,7 +125,7 @@ contract Bank is BankStorage, Initializable {
      * @dev This function allows the Bank owner to deposit the reserve (debt tokens)
      * @param amount is the amount to deposit
      */
-    function reserveDeposit(uint256 amount) external onlyOwner {
+    function reserveDeposit(uint256 amount) external onlyRole(DEFAULT_ADMIN_ROLE) {
         require(amount > 0, "Amount is zero !!");
         reserve.debtBalance += amount;
         IERC20(debt.tokenAddress).safeTransferFrom(
@@ -136,7 +141,7 @@ contract Bank is BankStorage, Initializable {
      *      Withdraws incur a 0.5% fee paid to the bankFactoryOwner
      * @param amount is the amount to withdraw
      */
-    function reserveWithdraw(uint256 amount) external onlyOwner {
+    function reserveWithdraw(uint256 amount) external onlyRole(DEFAULT_ADMIN_ROLE) {
         require(
             IERC20(debt.tokenAddress).balanceOf(address(this)) >= amount,
             "NOT ENOUGH DEBT TOKENS IN RESERVE"
@@ -153,7 +158,7 @@ contract Bank is BankStorage, Initializable {
          Withdraws incur a 0.5% fee paid to the bankFactoryOwner
   * @param amount is the amount to withdraw
   */
-    function reserveWithdrawCollateral(uint256 amount) external onlyOwner {
+    function reserveWithdrawCollateral(uint256 amount) external onlyRole(DEFAULT_ADMIN_ROLE) {
         require(
             reserve.collateralBalance >= amount,
             "NOT ENOUGH COLLATERAL IN RESERVE"
@@ -172,13 +177,13 @@ contract Bank is BankStorage, Initializable {
      * @dev Use this function to get and update the price for the collateral token
      * using the Tellor Oracle.
      */
-    function updateCollateralPrice() external onlyOwner {
-        bool ifRetrieve;
-        (
-            ifRetrieve,
-            collateral.price,
-            collateral.lastUpdatedAt
-        ) = getCurrentValue(collateral.tellorRequestId); //,now - 1 hours);
+    function updateCollateralPrice() external {
+        require(
+            hasRole(REPORTER_ROLE, msg.sender) ||
+            hasRole(DEFAULT_ADMIN_ROLE, msg.sender), "not reporter or admin");
+        (, collateral.price, collateral.lastUpdatedAt) = getCurrentValue(
+            collateral.tellorRequestId
+        ); //,now - 1 hours);
         emit PriceUpdate(collateral.tokenAddress, collateral.price);
     }
 
@@ -186,21 +191,26 @@ contract Bank is BankStorage, Initializable {
      * @dev Use this function to get and update the price for the debt token
      * using the Tellor Oracle.
      */
-    function updateDebtPrice() external onlyOwner {
-        bool ifRetrieve;
-        (ifRetrieve, debt.price, debt.lastUpdatedAt) = getCurrentValue(
+    function updateDebtPrice() external {
+        require(
+            hasRole(REPORTER_ROLE, msg.sender) ||
+            hasRole(DEFAULT_ADMIN_ROLE, msg.sender), "not reporter or admin");
+        (, debt.price, debt.lastUpdatedAt) = getCurrentValue(
             debt.tellorRequestId
         ); //,now - 1 hours);
         emit PriceUpdate(debt.tokenAddress, debt.price);
     }
 
     /**
-     * @dev Anyone can use this function to liquidate a vault's debt,
+     * @dev Only keepers or admins can use this function to liquidate a vault's debt,
      * the bank admins gets the collateral liquidated, liquidated collateral
      * is charged a 10% fee which gets paid to the bankFactoryOwner
      * @param vaultOwner is the user the bank admins wants to liquidate
      */
-    function liquidate(address vaultOwner) external onlyOwner {
+    function liquidate(address vaultOwner) external {
+        require(
+            hasRole(KEEPER_ROLE, msg.sender) ||
+            hasRole(DEFAULT_ADMIN_ROLE, msg.sender), "not keeper or admin");
         // Require undercollateralization
         require(
             getVaultCollateralizationRatio(vaultOwner) <
@@ -351,5 +361,39 @@ contract Bank is BankStorage, Initializable {
         uint256 _value = oracle.retrieveData(_requestId, _time);
         if (_value > 0) return (true, _value, _time);
         return (false, 0, _time);
+    }
+
+    /**
+     * @dev Allows admin to add address to keeper role
+     * @param keeper address of new keeper
+     */
+    function addKeeper(address keeper) external {
+        require(keeper != address(0), "operation not allowed");
+        grantRole(KEEPER_ROLE, keeper);
+    }
+
+    /**
+     * @dev Allows admin to remove address from keeper role
+     * @param oldKeeper address of old keeper
+     */
+    function revokeKeeper(address oldKeeper) external {
+        revokeRole(KEEPER_ROLE, oldKeeper);
+    }
+
+    /**
+     * @dev Allows admin to add address to reporter role
+     * @param updater address of new reporter
+     */
+    function addReporter(address updater) external {
+        require(updater != address(0), "operation not allowed");
+        grantRole(REPORTER_ROLE, updater);
+    }
+
+    /**
+     * @dev Allows admin to remove address from reporter role
+     * @param oldUpdater address of old reporter
+     */
+    function revokeReporter(address oldUpdater) external {
+        revokeRole(REPORTER_ROLE, oldUpdater);
     }
 }
