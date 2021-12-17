@@ -36,29 +36,6 @@ contract Bank is BankStorage, AccessControlEnumerable, Initializable {
         reserve.oracleContract = oracleContract;
     }
 
-    /*Modifiers*/
-    modifier onlyOwner() {
-        require(_owner == msg.sender, "IS NOT OWNER");
-        _;
-    }
-
-    /*Functions*/
-    /**
-     * @dev Returns the owner of the bank
-     */
-    function owner() public view returns (address) {
-        return _owner;
-    }
-
-    /**
-     * @dev Transfers ownership of the contract to a new account (`newOwner`).
-     * Can only be called by the current owner.
-     * NOTE: Override this to add changing the
-     */
-    function transferOwnership(address newOwner) public onlyOwner {
-        _owner = newOwner;
-    }
-
     /**
      * @dev This function sets the fundamental parameters for the bank
      *      and assigns the first admin
@@ -245,7 +222,6 @@ contract Bank is BankStorage, AccessControlEnumerable, Initializable {
     function vaultDeposit(uint256 amount) external {
         require(amount > 0, "Amount is zero !!");
         vaults[msg.sender].collateralAmount += amount;
-        reserve.collateralBalance += amount;
         IERC20(collateral.tokenAddress).safeTransferFrom(
             msg.sender,
             address(this),
@@ -268,7 +244,6 @@ contract Bank is BankStorage, AccessControlEnumerable, Initializable {
             reserve.collateralizationRatio) * 100;
         maxBorrow *= debt.priceGranularity;
         maxBorrow /= collateral.priceGranularity;
-        maxBorrow -= vaults[msg.sender].debtAmount;
         vaults[msg.sender].debtAmount +=
             amount +
             ((amount * reserve.originationFee) / 10000);

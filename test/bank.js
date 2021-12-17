@@ -229,30 +229,30 @@ contract("Bank", function (_accounts) {
   });
 
   it('should allow the user to borrow', async function () {
-    await this.dt.approve(this.bank.address, this.depositAmount);
-    await this.bank.reserveDeposit(this.depositAmount);
+    await this.dt.approve(this.bank.address, this.depositAmount.mul(new BN(2)));
+    await this.bank.reserveDeposit(this.depositAmount.mul(new BN(2)));
+    await this.ct.approve(this.bank.address, this.depositAmount, { from: _accounts[1] });
+    await this.bank.vaultDeposit(this.depositAmount, { from: _accounts[1] });
+    await this.bank.vaultBorrow(this.borrowAmount, { from: _accounts[1] });
     await this.ct.approve(this.bank.address, this.depositAmount, { from: _accounts[1] });
     await this.bank.vaultDeposit(this.depositAmount, { from: _accounts[1] });
     await this.bank.vaultBorrow(this.smallBorrowAmount, { from: _accounts[1] });
     await time.increase(60 * 60 * 24 * 2 + 10);
-    await this.bank.vaultBorrow(this.smallBorrowAmount, { from: _accounts[1] });
     //await this.bank.vaultBorrow(this.smallBorrowAmount, {from: _accounts[1]});
     const collateralAmount = await this.bank.getVaultCollateralAmount({ from: _accounts[1] });
-    const debtAmount = await this.bank.getVaultDebtAmount({ from: _accounts[1] });
-    expect(collateralAmount).to.be.bignumber.equal(this.depositAmount);
+    const debtAmount = await this.bank.getVaultRepayAmount({ from: _accounts[1] });
+    expect(collateralAmount).to.be.bignumber.equal(this.depositAmount.mul(new BN(2)));
     // Calculate borrowed amount, use pays origination fee on 2 borrows
-    var s_amount = new BN(this.smallBorrowAmount);
+    var s_amount = (new BN(this.smallBorrowAmount)).add(new BN(this.borrowAmount));
     var b_amount = s_amount.add(s_amount.mul(new BN(ORIGINATION_FEE)).div(new BN(10000)));
     var f_b_amount = b_amount.add(b_amount.mul(new BN(INTEREST_RATE)).div(new BN(10000)).div(new BN(365)));
     f_b_amount = f_b_amount.add(b_amount.mul(new BN(INTEREST_RATE)).div(new BN(10000)).div(new BN(365)));
-    f_b_amount = f_b_amount.add(s_amount.mul(new BN(ORIGINATION_FEE)).div(new BN(10000)));
-    f_b_amount = f_b_amount.add(s_amount);
     expect(debtAmount).to.be.bignumber.equal(f_b_amount.toString());
 
     const collateralBalance = await this.ct.balanceOf(this.bank.address);
     const debtBalance = await this.dt.balanceOf(this.bank.address);
-    expect(collateralBalance).to.be.bignumber.equal(this.depositAmount);
-    expect(debtBalance).to.be.bignumber.equal(ether(new BN(60)));
+    expect(collateralBalance).to.be.bignumber.equal((this.depositAmount.mul(new BN(2))));
+    expect(debtBalance).to.be.bignumber.equal((this.depositAmount.mul(new BN(2))).sub(s_amount));
   });
 
   it('should not allow the user to borrow above collateralization ratio', async function () {
