@@ -22,7 +22,7 @@ import { FunctionFragment, EventFragment, Result } from "@ethersproject/abi";
 interface BankStorageInterface extends ethers.utils.Interface {
   functions: {
     "KEEPER_ROLE()": FunctionFragment;
-    "PRICE_UPDATER_ROLE()": FunctionFragment;
+    "REPORTER_ROLE()": FunctionFragment;
     "getCollateralTokenAddress()": FunctionFragment;
     "getCollateralTokenLastUpdatedAt()": FunctionFragment;
     "getCollateralTokenPrice()": FunctionFragment;
@@ -50,7 +50,7 @@ interface BankStorageInterface extends ethers.utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "PRICE_UPDATER_ROLE",
+    functionFragment: "REPORTER_ROLE",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -133,7 +133,7 @@ interface BankStorageInterface extends ethers.utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "PRICE_UPDATER_ROLE",
+    functionFragment: "REPORTER_ROLE",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -236,11 +236,11 @@ export class BankStorage extends Contract {
       0: string;
     }>;
 
-    PRICE_UPDATER_ROLE(overrides?: CallOverrides): Promise<{
+    REPORTER_ROLE(overrides?: CallOverrides): Promise<{
       0: string;
     }>;
 
-    "PRICE_UPDATER_ROLE()"(overrides?: CallOverrides): Promise<{
+    "REPORTER_ROLE()"(overrides?: CallOverrides): Promise<{
       0: string;
     }>;
 
@@ -433,9 +433,9 @@ export class BankStorage extends Contract {
 
   "KEEPER_ROLE()"(overrides?: CallOverrides): Promise<string>;
 
-  PRICE_UPDATER_ROLE(overrides?: CallOverrides): Promise<string>;
+  REPORTER_ROLE(overrides?: CallOverrides): Promise<string>;
 
-  "PRICE_UPDATER_ROLE()"(overrides?: CallOverrides): Promise<string>;
+  "REPORTER_ROLE()"(overrides?: CallOverrides): Promise<string>;
 
   getCollateralTokenAddress(overrides?: CallOverrides): Promise<string>;
 
@@ -560,9 +560,9 @@ export class BankStorage extends Contract {
 
     "KEEPER_ROLE()"(overrides?: CallOverrides): Promise<string>;
 
-    PRICE_UPDATER_ROLE(overrides?: CallOverrides): Promise<string>;
+    REPORTER_ROLE(overrides?: CallOverrides): Promise<string>;
 
-    "PRICE_UPDATER_ROLE()"(overrides?: CallOverrides): Promise<string>;
+    "REPORTER_ROLE()"(overrides?: CallOverrides): Promise<string>;
 
     getCollateralTokenAddress(overrides?: CallOverrides): Promise<string>;
 
@@ -694,9 +694,9 @@ export class BankStorage extends Contract {
 
     "KEEPER_ROLE()"(overrides?: CallOverrides): Promise<BigNumber>;
 
-    PRICE_UPDATER_ROLE(overrides?: CallOverrides): Promise<BigNumber>;
+    REPORTER_ROLE(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "PRICE_UPDATER_ROLE()"(overrides?: CallOverrides): Promise<BigNumber>;
+    "REPORTER_ROLE()"(overrides?: CallOverrides): Promise<BigNumber>;
 
     getCollateralTokenAddress(overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -811,13 +811,9 @@ export class BankStorage extends Contract {
 
     "KEEPER_ROLE()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    PRICE_UPDATER_ROLE(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
+    REPORTER_ROLE(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    "PRICE_UPDATER_ROLE()"(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
+    "REPORTER_ROLE()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     getCollateralTokenAddress(
       overrides?: CallOverrides

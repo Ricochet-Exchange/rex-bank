@@ -8,6 +8,8 @@ import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts/access/AccessControlEnumerable.sol";
 
+import "hardhat/console.sol";
+
 /**
  * @title Bank
  * This contract allows the owner to deposit reserves(debt token), earn interest and
@@ -50,6 +52,7 @@ contract Bank is BankStorage, AccessControlEnumerable, Initializable {
         address payable oracleContract
     ) public initializer {
         //set up as admin / owner
+        console.log("Bank.init() has been called");
         _setupRole(DEFAULT_ADMIN_ROLE, creator);
         reserve.interestRate = interestRate;
         reserve.originationFee = originationFee;
@@ -69,8 +72,7 @@ contract Bank is BankStorage, AccessControlEnumerable, Initializable {
         uint256 collateralTokenTellorRequestId,
         uint256 collateralTokenPriceGranularity,
         uint256 collateralTokenPrice
-    ) public {
-        // onlyRole(DEFAULT_ADMIN_ROLE) {
+    ) public onlyRole(DEFAULT_ADMIN_ROLE) {
         require(
             collateral.tokenAddress == address(0) &&
                 collateralToken != address(0),
@@ -90,8 +92,7 @@ contract Bank is BankStorage, AccessControlEnumerable, Initializable {
         uint256 debtTokenTellorRequestId,
         uint256 debtTokenPriceGranularity,
         uint256 debtTokenPrice
-    ) public {
-        // onlyRole(DEFAULT_ADMIN_ROLE) {
+    ) public onlyRole(DEFAULT_ADMIN_ROLE) {
         require(
             debt.tokenAddress == address(0) && debtToken != address(0),
             "!setable"
@@ -108,7 +109,7 @@ contract Bank is BankStorage, AccessControlEnumerable, Initializable {
      */
     function reserveDeposit(uint256 amount)
         external
-    // onlyRole(DEFAULT_ADMIN_ROLE)
+        onlyRole(DEFAULT_ADMIN_ROLE)
     {
         require(amount > 0, "Amount is zero !!");
         reserve.debtBalance += amount;
@@ -127,7 +128,7 @@ contract Bank is BankStorage, AccessControlEnumerable, Initializable {
      */
     function reserveWithdraw(uint256 amount)
         external
-    // onlyRole(DEFAULT_ADMIN_ROLE)
+        onlyRole(DEFAULT_ADMIN_ROLE)
     {
         require(
             IERC20(debt.tokenAddress).balanceOf(address(this)) >= amount,
@@ -147,7 +148,7 @@ contract Bank is BankStorage, AccessControlEnumerable, Initializable {
   */
     function reserveWithdrawCollateral(uint256 amount)
         external
-    // onlyRole(DEFAULT_ADMIN_ROLE)
+        onlyRole(DEFAULT_ADMIN_ROLE)
     {
         require(
             reserve.collateralBalance >= amount,
@@ -172,7 +173,7 @@ contract Bank is BankStorage, AccessControlEnumerable, Initializable {
      */
     function updateCollateralPrice() external {
         require(
-            hasRole(PRICE_UPDATER_ROLE, msg.sender) ||
+            hasRole(REPORTER_ROLE, msg.sender) ||
                 hasRole(DEFAULT_ADMIN_ROLE, msg.sender),
             "not price updater or admin"
         );
@@ -188,7 +189,7 @@ contract Bank is BankStorage, AccessControlEnumerable, Initializable {
      */
     function updateDebtPrice() external {
         require(
-            hasRole(PRICE_UPDATER_ROLE, msg.sender) ||
+            hasRole(REPORTER_ROLE, msg.sender) ||
                 hasRole(DEFAULT_ADMIN_ROLE, msg.sender),
             "not price updater or admin"
         );
@@ -392,16 +393,16 @@ contract Bank is BankStorage, AccessControlEnumerable, Initializable {
      * @dev Allows admin to add address to price updater role
      * @param updater address of new price updater
      */
-    function addPriceUpdater(address updater) external {
+    function addReporter(address updater) external {
         require(updater != address(0), "operation not allowed");
-        grantRole(PRICE_UPDATER_ROLE, updater);
+        grantRole(REPORTER_ROLE, updater);
     }
 
     /**
      * @dev Allows admin to remove address from price updater role
      * @param oldUpdater address of old price updater
      */
-    function revokePriceUpdater(address oldUpdater) external {
-        revokeRole(PRICE_UPDATER_ROLE, oldUpdater);
+    function revokeReporter(address oldUpdater) external {
+        revokeRole(REPORTER_ROLE, oldUpdater);
     }
 }

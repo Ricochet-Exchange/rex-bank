@@ -24,9 +24,9 @@ interface BankInterface extends ethers.utils.Interface {
   functions: {
     "DEFAULT_ADMIN_ROLE()": FunctionFragment;
     "KEEPER_ROLE()": FunctionFragment;
-    "PRICE_UPDATER_ROLE()": FunctionFragment;
+    "REPORTER_ROLE()": FunctionFragment;
     "addKeeper(address)": FunctionFragment;
-    "addPriceUpdater(address)": FunctionFragment;
+    "addReporter(address)": FunctionFragment;
     "getBankFactoryOwner()": FunctionFragment;
     "getCollateralTokenAddress()": FunctionFragment;
     "getCollateralTokenLastUpdatedAt()": FunctionFragment;
@@ -60,7 +60,7 @@ interface BankInterface extends ethers.utils.Interface {
     "reserveWithdraw(uint256)": FunctionFragment;
     "reserveWithdrawCollateral(uint256)": FunctionFragment;
     "revokeKeeper(address)": FunctionFragment;
-    "revokePriceUpdater(address)": FunctionFragment;
+    "revokeReporter(address)": FunctionFragment;
     "revokeRole(bytes32,address)": FunctionFragment;
     "setBankFactoryOwner(address)": FunctionFragment;
     "setCollateral(address,uint256,uint256,uint256)": FunctionFragment;
@@ -84,14 +84,11 @@ interface BankInterface extends ethers.utils.Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "PRICE_UPDATER_ROLE",
+    functionFragment: "REPORTER_ROLE",
     values?: undefined
   ): string;
   encodeFunctionData(functionFragment: "addKeeper", values: [string]): string;
-  encodeFunctionData(
-    functionFragment: "addPriceUpdater",
-    values: [string]
-  ): string;
+  encodeFunctionData(functionFragment: "addReporter", values: [string]): string;
   encodeFunctionData(
     functionFragment: "getBankFactoryOwner",
     values?: undefined
@@ -229,7 +226,7 @@ interface BankInterface extends ethers.utils.Interface {
     values: [string]
   ): string;
   encodeFunctionData(
-    functionFragment: "revokePriceUpdater",
+    functionFragment: "revokeReporter",
     values: [string]
   ): string;
   encodeFunctionData(
@@ -287,12 +284,12 @@ interface BankInterface extends ethers.utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "PRICE_UPDATER_ROLE",
+    functionFragment: "REPORTER_ROLE",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "addKeeper", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "addPriceUpdater",
+    functionFragment: "addReporter",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -413,7 +410,7 @@ interface BankInterface extends ethers.utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "revokePriceUpdater",
+    functionFragment: "revokeReporter",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "revokeRole", data: BytesLike): Result;
@@ -510,11 +507,11 @@ export class Bank extends Contract {
       0: string;
     }>;
 
-    PRICE_UPDATER_ROLE(overrides?: CallOverrides): Promise<{
+    REPORTER_ROLE(overrides?: CallOverrides): Promise<{
       0: string;
     }>;
 
-    "PRICE_UPDATER_ROLE()"(overrides?: CallOverrides): Promise<{
+    "REPORTER_ROLE()"(overrides?: CallOverrides): Promise<{
       0: string;
     }>;
 
@@ -528,12 +525,12 @@ export class Bank extends Contract {
       overrides?: Overrides
     ): Promise<ContractTransaction>;
 
-    addPriceUpdater(
+    addReporter(
       updater: string,
       overrides?: Overrides
     ): Promise<ContractTransaction>;
 
-    "addPriceUpdater(address)"(
+    "addReporter(address)"(
       updater: string,
       overrides?: Overrides
     ): Promise<ContractTransaction>;
@@ -890,12 +887,12 @@ export class Bank extends Contract {
       overrides?: Overrides
     ): Promise<ContractTransaction>;
 
-    revokePriceUpdater(
+    revokeReporter(
       oldUpdater: string,
       overrides?: Overrides
     ): Promise<ContractTransaction>;
 
-    "revokePriceUpdater(address)"(
+    "revokeReporter(address)"(
       oldUpdater: string,
       overrides?: Overrides
     ): Promise<ContractTransaction>;
@@ -1051,9 +1048,9 @@ export class Bank extends Contract {
 
   "KEEPER_ROLE()"(overrides?: CallOverrides): Promise<string>;
 
-  PRICE_UPDATER_ROLE(overrides?: CallOverrides): Promise<string>;
+  REPORTER_ROLE(overrides?: CallOverrides): Promise<string>;
 
-  "PRICE_UPDATER_ROLE()"(overrides?: CallOverrides): Promise<string>;
+  "REPORTER_ROLE()"(overrides?: CallOverrides): Promise<string>;
 
   addKeeper(
     keeper: string,
@@ -1065,12 +1062,12 @@ export class Bank extends Contract {
     overrides?: Overrides
   ): Promise<ContractTransaction>;
 
-  addPriceUpdater(
+  addReporter(
     updater: string,
     overrides?: Overrides
   ): Promise<ContractTransaction>;
 
-  "addPriceUpdater(address)"(
+  "addReporter(address)"(
     updater: string,
     overrides?: Overrides
   ): Promise<ContractTransaction>;
@@ -1338,12 +1335,12 @@ export class Bank extends Contract {
     overrides?: Overrides
   ): Promise<ContractTransaction>;
 
-  revokePriceUpdater(
+  revokeReporter(
     oldUpdater: string,
     overrides?: Overrides
   ): Promise<ContractTransaction>;
 
-  "revokePriceUpdater(address)"(
+  "revokeReporter(address)"(
     oldUpdater: string,
     overrides?: Overrides
   ): Promise<ContractTransaction>;
@@ -1495,9 +1492,9 @@ export class Bank extends Contract {
 
     "KEEPER_ROLE()"(overrides?: CallOverrides): Promise<string>;
 
-    PRICE_UPDATER_ROLE(overrides?: CallOverrides): Promise<string>;
+    REPORTER_ROLE(overrides?: CallOverrides): Promise<string>;
 
-    "PRICE_UPDATER_ROLE()"(overrides?: CallOverrides): Promise<string>;
+    "REPORTER_ROLE()"(overrides?: CallOverrides): Promise<string>;
 
     addKeeper(keeper: string, overrides?: CallOverrides): Promise<void>;
 
@@ -1506,9 +1503,9 @@ export class Bank extends Contract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    addPriceUpdater(updater: string, overrides?: CallOverrides): Promise<void>;
+    addReporter(updater: string, overrides?: CallOverrides): Promise<void>;
 
-    "addPriceUpdater(address)"(
+    "addReporter(address)"(
       updater: string,
       overrides?: CallOverrides
     ): Promise<void>;
@@ -1774,12 +1771,12 @@ export class Bank extends Contract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    revokePriceUpdater(
+    revokeReporter(
       oldUpdater: string,
       overrides?: CallOverrides
     ): Promise<void>;
 
-    "revokePriceUpdater(address)"(
+    "revokeReporter(address)"(
       oldUpdater: string,
       overrides?: CallOverrides
     ): Promise<void>;
@@ -1960,9 +1957,9 @@ export class Bank extends Contract {
 
     "KEEPER_ROLE()"(overrides?: CallOverrides): Promise<BigNumber>;
 
-    PRICE_UPDATER_ROLE(overrides?: CallOverrides): Promise<BigNumber>;
+    REPORTER_ROLE(overrides?: CallOverrides): Promise<BigNumber>;
 
-    "PRICE_UPDATER_ROLE()"(overrides?: CallOverrides): Promise<BigNumber>;
+    "REPORTER_ROLE()"(overrides?: CallOverrides): Promise<BigNumber>;
 
     addKeeper(keeper: string, overrides?: Overrides): Promise<BigNumber>;
 
@@ -1971,9 +1968,9 @@ export class Bank extends Contract {
       overrides?: Overrides
     ): Promise<BigNumber>;
 
-    addPriceUpdater(updater: string, overrides?: Overrides): Promise<BigNumber>;
+    addReporter(updater: string, overrides?: Overrides): Promise<BigNumber>;
 
-    "addPriceUpdater(address)"(
+    "addReporter(address)"(
       updater: string,
       overrides?: Overrides
     ): Promise<BigNumber>;
@@ -2230,12 +2227,12 @@ export class Bank extends Contract {
       overrides?: Overrides
     ): Promise<BigNumber>;
 
-    revokePriceUpdater(
+    revokeReporter(
       oldUpdater: string,
       overrides?: Overrides
     ): Promise<BigNumber>;
 
-    "revokePriceUpdater(address)"(
+    "revokeReporter(address)"(
       oldUpdater: string,
       overrides?: Overrides
     ): Promise<BigNumber>;
@@ -2370,13 +2367,9 @@ export class Bank extends Contract {
 
     "KEEPER_ROLE()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    PRICE_UPDATER_ROLE(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
+    REPORTER_ROLE(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
-    "PRICE_UPDATER_ROLE()"(
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
+    "REPORTER_ROLE()"(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     addKeeper(
       keeper: string,
@@ -2388,12 +2381,12 @@ export class Bank extends Contract {
       overrides?: Overrides
     ): Promise<PopulatedTransaction>;
 
-    addPriceUpdater(
+    addReporter(
       updater: string,
       overrides?: Overrides
     ): Promise<PopulatedTransaction>;
 
-    "addPriceUpdater(address)"(
+    "addReporter(address)"(
       updater: string,
       overrides?: Overrides
     ): Promise<PopulatedTransaction>;
@@ -2702,12 +2695,12 @@ export class Bank extends Contract {
       overrides?: Overrides
     ): Promise<PopulatedTransaction>;
 
-    revokePriceUpdater(
+    revokeReporter(
       oldUpdater: string,
       overrides?: Overrides
     ): Promise<PopulatedTransaction>;
 
-    "revokePriceUpdater(address)"(
+    "revokeReporter(address)"(
       oldUpdater: string,
       overrides?: Overrides
     ): Promise<PopulatedTransaction>;
