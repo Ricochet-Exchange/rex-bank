@@ -1,5 +1,7 @@
 import { assert, expect } from "chai";
-import { ethers } from "hardhat";
+import { ethers } from 'hardhat';
+
+// import { ethers, deployments, getNamedAccounts } from "hardhat";
 import { Bank, BankFactory, GLDToken, TellorPlayground, USDToken } from "../typechain";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { ContractTransaction, Signer } from "ethers";
@@ -51,7 +53,7 @@ describe("BankFactory", function () {
   let largeBorrowAmount = ethers.BigNumber.from(75);
   let smallBorrowAmount = ethers.BigNumber.from(20);
   const TWO = ethers.BigNumber.from(2);
-  const ONE = ethers.BigNumber.from(1);
+  const ONE = ethers.constants.One;    // the same as "ethers.BigNumber.from(1);"
   const ZERO = ethers.BigNumber.from(0);
 
   before(async function () {
@@ -201,7 +203,7 @@ describe("BankFactory", function () {
       const DEFAULT_ADMIN_ROLE = "0x0000000000000000000000000000000000000000000000000000000000000000";
       // bytes32 public constant DEFAULT_ADMIN_ROLE = 0x00;  // Solidity code
       // const KEEPER_ROLE = web3.utils.soliditySha3("KEEPER_ROLE");
-      const ADMIN_ROLE = ethers.utils.solidityKeccak256(["string"], ["DEFAULT_ADMIN_ROLE"]);
+      // const ADMIN_ROLE = ethers.utils.solidityKeccak256(["string"], ["DEFAULT_ADMIN_ROLE"]);
       const KEEPER_ROLE = ethers.utils.solidityKeccak256(["string"], ["KEEPER_ROLE"]);
       const REPORTER_ROLE = ethers.utils.solidityKeccak256(["string"], ["REPORTER_ROLE"]);
       newBank = randomUser6.address;
@@ -209,19 +211,24 @@ describe("BankFactory", function () {
       // myBank2 = await deployBank(bankInstance2, newBank);
 
       // Bank set up
-      const CT = await ethers.getContractFactory("GLDToken");
-      const DT = await ethers.getContractFactory("USDToken");
-      ctInstance = await CT.deploy(ethers.BigNumber.from(10000));
-      dtInstance = await DT.deploy(ethers.BigNumber.from(10000));
-
-      await bankInstance2.init(deployer.address, BANK_NAME, INTEREST_RATE, ORIGINATION_FEE,
+      const CT2 = await ethers.getContractFactory("GLDToken");
+      const DT2 = await ethers.getContractFactory("USDToken");
+      const ctInstance2 = await CT2.deploy(ethers.BigNumber.from(10000));
+      const dtInstance2 = await DT2.deploy(ethers.BigNumber.from(10000));
+      // bankInstance2();
+      // deployer.address
+      const testingAddress = "0x70997970c51812dc3a010c7d01b50e0d17dc79c8";
+      let deploySigner = await ethers.getSigner(testingAddress);
+      console.log("=========== OAOAOAOAOA 111111 =======");
+      await bankInstance2.connect(deploySigner).init(deploySigner.address, BANK_NAME, INTEREST_RATE, ORIGINATION_FEE,
         COLLATERALIZATION_RATIO, LIQUIDATION_PENALTY, PERIOD, randomUser6.address, TELLOR_ORACLE_ADDRESS);
       // await bankInstance2.connect(randomUser).init(deployer.address, BANK_NAME, INTEREST_RATE, ORIGINATION_FEE,
       //   COLLATERALIZATION_RATIO, LIQUIDATION_PENALTY, PERIOD, randomUser6.address, TELLOR_ORACLE_ADDRESS);
-      await bankInstance2.setCollateral(ctInstance.address, 2, 1000, 1000);  // Using connect() leads to an ex. error
-      await bankInstance2.setDebt(dtInstance.address, 1, 1000, 1000); // Using connect() leads to an ex. error
-      await ctInstance.transfer(randomUser2.address, ethers.BigNumber.from(500));
-      await dtInstance.transfer(randomUser2.address, ethers.BigNumber.from(500));
+      await bankInstance2.setCollateral(ctInstance2.address, 2, 1000, 1000);  // Using connect() leads to an ex. error
+      console.log("=========== OAOAOAOAOA 222222 =======");
+      await bankInstance2.setDebt(dtInstance2.address, 1, 1000, 1000); // Using connect() leads to an ex. error
+      await ctInstance2.transfer(deploySigner.address, ethers.BigNumber.from(500));
+      await dtInstance2.transfer(deploySigner.address, ethers.BigNumber.from(500));
       // set keepers
       await bankInstance2.addKeeper(randomUser3.address);
       await bankInstance2.addKeeper(randomUser4.address);
@@ -323,26 +330,96 @@ describe("BankFactory", function () {
       // ===============================================================================
       // it('should allow admin to deposit reserves', async function () {
       // ===============================================================================
-      // let depositAmount = ethers.BigNumber.from(100);
-      await dtInstance.approve(bankInstance2.address, depositAmount);
-      // SFSG
+      // USDT are the debt tokens                      // depositAmount = 100
+      await dtInstance2.approve(bankInstance2.address, largeDepositAmount);     // JR
+      // await dtInstance2.allowance(deploySigner.address, bankInstance2.address); // JR
+      // SFSG (so far so good))
+      // const { tokenOwner } = await getNamedAccounts();
 
-      await bankInstance2.connect(adminSigner).reserveDeposit(depositAmount);
+      console.log("  ===== Bank---> deployer.address: " + await deployer.address);
+      // console.log("  ===== Bank---> admin.getBalance(): " + (await bankInstance2.getbal .getBalanceof()));
+      // let deploySigner = await ethers.getSigner(testingAddress);
+      // Putting "connect(adminSigner)" or not has the same effect ---> Error: VM Exception while processing transaction: reverted with reason string 'ERC20: transfer amount exceeds balance'
+      console.log("  ===== Bank---> admin.BalanceOf_USDToken(): " + await dtInstance2.balanceOf(deploySigner.address));
+      console.log("  ===== Bank---> admin.BalanceOf_GLDToken(): " + await ctInstance2.balanceOf(deploySigner.address));
+      // await bankInstance2.connect(deploySigner).reserveDeposit(depositAmount); // 'ERC20: transfer amount exceeds allowance'
+      // await bankInstance2.connect(adminSigner).reserveDeposit(depositAmount);  // 'ERC20: transfer amount exceeds allowance'
+      // await bankInstance2.connect(randomUser2).reserveDeposit(depositAmount);     // AccessControl error
+      let adminAllowance = await dtInstance2.allowance(adminSigner.address, bankInstance2.address);
+      console.log("  ===== Bank---> adminAllowance: " + adminAllowance);
+      // await bankInstance2.reserveDeposit(ethers.BigNumber.from(100));  // depositAmount);
+      // console.log("  ===== Bank---> admin.BalanceOf_GLDToken(): " + await ctInstance2.balanceOf(deploySigner.address));
       // const reserveBalance2 = await bankInstance2.getReserveBalance();
-      // const tokenBalance2 = await dtInstance.balanceOf(bankInstance2.address);
+      // const tokenBalance2 = await dtInstance2.balanceOf(bankInstance2.address);
       // assert(reserveBalance2.eq(depositAmount));
       // assert(tokenBalance2.eq(depositAmount));
-      //   expect(tokenBalance).to.be.bignumber.equal(depositAmount);
+
+      // ===============================================================================
+      // it('should allow admin to withdraw reserves', async function () {
+      // ===============================================================================
+      await dtInstance2.approve(bankInstance2.address, depositAmount);
+      // await bankInstance2.reserveDeposit(depositAmount);
+      // const beforeReserveBalance = await bankInstance2.getReserveBalance();
+      // await bankInstance2.reserveWithdraw(depositAmount);
+      // const afterReserveBalance = await bankInstance2.getReserveBalance();
+      // const bankTokenBalance = await dtInstance2.balanceOf(bankInstance2.address);
+      // const bankFactoryOwner = await bankInstance2.getBankFactoryOwner();
+      // const bankCreatorBalance = await dtInstance2.balanceOf(deploySigner.address);
+      // const bankFactoryOwnerBalance = await dtInstance2.balanceOf(bankFactoryOwner); /// TD
+      // const feeAmt = depositAmount.div(ethers.BigNumber.from(200));
+      // assert(beforeReserveBalance.eq(depositAmount));
+      // assert(afterReserveBalance.eq(ethers.constants.Zero));
+      // assert(bankTokenBalance.eq(ethers.constants.Zero));
+      // assert(bankFactoryOwnerBalance.eq(feeAmt));
+
+      // ===============================================================================
+      // it('should not allow non-admin to deposit reserves', async function () {
+      // ===============================================================================
+      await expect(bankInstance2.connect(randomUser2).reserveDeposit(ethers.BigNumber.from(100))).to.be.revertedWith("AccessControl");
+
+      // ===============================================================================
+      // it('should not allow non-admin to withdraw reserves', async function () {
+      // ===============================================================================
+      await expect(bankInstance2.connect(randomUser2).reserveWithdraw(ethers.BigNumber.from(100))).to.be.revertedWith("AccessControl");
+
+      // ===============================================================================
+      // it('should allow user to deposit collateral into vault', async function () {
+      // ===============================================================================
+      // await this.ct.approve(this.bank.address, this.depositAmount, { from: _accounts[1] });
+      // await this.bank.vaultDeposit(this.depositAmount, { from: _accounts[1] });
+      // const collateralAmount = await this.bank.getVaultCollateralAmount({ from: _accounts[1] });
+      // const debtAmount = await this.bank.getVaultDebtAmount({ from: _accounts[1] });
+      // const tokenBalance = await this.ct.balanceOf(this.bank.address);
+      // expect(collateralAmount).to.be.bignumber.equal(this.depositAmount);
+      // expect(debtAmount).to.be.bignumber.equal(this.zero);
+      // expect(tokenBalance).to.be.bignumber.equal(this.depositAmount);
+
+      // ===============================================================================
+      // it('should allow user to withdraw collateral from vault', async function () {
+      // ===============================================================================
+      // await this.ct.approve(this.bank.address, this.depositAmount, { from: _accounts[1] });
+      // await this.bank.vaultDeposit(this.depositAmount, { from: _accounts[1] });
+      // await this.bank.vaultWithdraw(this.depositAmount, { from: _accounts[1] });
+      // const collateralAmount = await this.bank.getVaultCollateralAmount({ from: _accounts[1] });
+      // const debtAmount = await this.bank.getVaultDebtAmount({ from: _accounts[1] });
+      // const tokenBalance = await this.ct.balanceOf(this.bank.address);
+      // expect(collateralAmount).to.be.bignumber.equal(this.zero);
+      // expect(debtAmount).to.be.bignumber.equal(this.zero);
+      // expect(tokenBalance).to.be.bignumber.equal(this.zero);
+
+
+
+
     });
 
-
-    async function deployBank(myBankInstance: Bank, myNewBank: string): Promise<Bank> {
-      let myBank = await myBankInstance.attach(myNewBank);
-      console.log("===== newBank: " + myNewBank);
-      return await myBank.deployed();
-    }
-
   });
+
+
+  async function deployBank(myBankInstance: Bank, myNewBank: string): Promise<Bank> {
+    let myBank = await myBankInstance.attach(myNewBank);
+    console.log("===== newBank: " + myNewBank);
+    return await myBank.deployed();
+  }
 
 
   describe("getNumberOfBanks", () => {
