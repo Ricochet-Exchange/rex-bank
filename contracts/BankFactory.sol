@@ -20,8 +20,6 @@ contract BankFactory is Ownable {
 
     constructor(address _bankAddress) {
         bankAddress = _bankAddress;
-        console.log("BankFactory constructor called with bankAddress: ");
-        console.log(bankAddress);
     }
 
     function createBank(
@@ -33,11 +31,6 @@ contract BankFactory is Ownable {
         uint256 period,
         address payable oracleAddress
     ) public returns (address) {
-        console.log("Inside BankFactory.createBank. Parameters: ");
-        console.log(interestRate);
-        console.log(originationFee);
-        console.log(period);
-        console.log(oracleAddress);
         address clone = Clones.clone(bankAddress);
         Bank(clone).init(
             msg.sender,
