@@ -14,8 +14,8 @@ contract BankStorage {
     // role identifier for keeper that can make liquidations
     bytes32 public constant KEEPER_ROLE = keccak256("KEEPER_ROLE");
     // role identifier for price updater
-    bytes32 public constant PRICE_UPDATER_ROLE =
-        keccak256("PRICE_UPDATER_ROLE");
+    bytes32 public constant REPORTER_ROLE =
+        keccak256("REPORTER_ROLE");
 
     struct Reserve {
         uint256 collateralBalance;
