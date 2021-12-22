@@ -364,34 +364,39 @@ describe("Bank", function () {
     assert(debtBalance.eq(depositAmount.sub(borrowAmount)));
   });
 
-  // ===============================================================================
-  // it('should accrue interest on a vault\'s borrowed amount with repayment', async function () {
-  // ===============================================================================
-  // await dtInstance2.approve(bankInstance2.address, depositAmount);
-  // await bankInstance2.reserveDeposit(depositAmount);
-  // await ctInstance2.connect(randomUser2).approve(bankInstance2.address, depositAmount);
-  // await bankInstance2.connect(randomUser2).vaultDeposit(depositAmount);
-  // await bankInstance2.connect(randomUser2).vaultBorrow(borrowAmount);
-  // await time.increase(60 * 60 * 24 + 10) // Let one days pass
-  // let repayAmount = await bankInstance2.connect(randomUser2).getVaultRepayAmount();
-  // let b_amount = borrowAmount;
-  // b_amount = b_amount.add(b_amount.mul(ethers.BigNumber.from(ORIGINATION_FEE)).div(BIGNUMBER_10000));
-  // b_amount = b_amount.add(b_amount.mul(ethers.BigNumber.from(INTEREST_RATE)).div(BIGNUMBER_10000).div(BIGNUMBER_365)); // Day 1 interest rate
-  // assert(repayAmount.eq(b_amount));
+  it('should accrue interest on a vault\'s borrowed amount with repayment', async function () {
+    // hardhat function to deal with time
+    const increaseTime = async (seconds: any) => {
+      await network.provider.send("evm_increaseTime", [seconds]);
+      await network.provider.send("evm_mine");
+    };
 
-  // await dtInstance2.connect(randomUser2).approve(bankInstance2.address, smallBorrowAmount);
-  // await bankInstance2.connect(randomUser2).vaultRepay(smallBorrowAmount);
-  // await time.increase(60 * 60 * 24 + 10) // Let one days pass
-  // b_amount = b_amount.sub(smallBorrowAmount);
-  // b_amount = b_amount.add(b_amount.mul(ethers.BigNumber.from(INTEREST_RATE)).div(BIGNUMBER_10000).div(BIGNUMBER_365)); // Day 1 interest rate
-  // let repayAmount = await bankInstance2.connect(randomUser2).getVaultRepayAmount();
-  // assert(repayAmount.eq(b_amount));
+    await dtInstance2.connect(randomUser2).approve(bankInstance2.address, depositAmount);
+    await bankInstance2.connect(randomUser2).reserveDeposit(depositAmount);
+    await ctInstance2.connect(randomUser2).approve(bankInstance2.address, depositAmount);
+    await bankInstance2.connect(randomUser2).vaultDeposit(depositAmount);
+    await bankInstance2.connect(randomUser2).vaultBorrow(borrowAmount);
+    await increaseTime(60 * 60 * 24 + 10) // Let one days pass
+    let repayAmount = await bankInstance2.connect(randomUser2).getVaultRepayAmount();
+    let b_amount = borrowAmount;
+    b_amount = b_amount.add(b_amount.mul(ethers.BigNumber.from(ORIGINATION_FEE)).div(BIGNUMBER_10000));
+    b_amount = b_amount.add(b_amount.mul(ethers.BigNumber.from(INTEREST_RATE)).div(BIGNUMBER_10000).div(DAYS_IN_A_YEAR)); // Day 1 interest rate
+    assert(repayAmount.eq(b_amount));
 
-  // const collateralBalance = await ctInstance2.balanceOf(bankInstance2.address);
-  // const debtBalance = await dtInstance2.balanceOf(bankInstance2.address);
-  // // Calculate debt, collateral left after borrow
-  // expect(collateralBalance.eq(depositAmount));
-  // expect(debtBalance.eq(depositAmount.sub(borrowAmount.sub(smallBorrowAmount))));
+    await dtInstance2.connect(randomUser2).approve(bankInstance2.address, smallBorrowAmount);
+    await bankInstance2.connect(randomUser2).vaultRepay(smallBorrowAmount);
+    await increaseTime(60 * 60 * 24 + 10) // Let one days pass
+    b_amount = b_amount.sub(smallBorrowAmount);
+    b_amount = b_amount.add(b_amount.mul(ethers.BigNumber.from(INTEREST_RATE)).div(BIGNUMBER_10000).div(DAYS_IN_A_YEAR)); // Day 1 interest rate
+    repayAmount = await bankInstance2.connect(randomUser2).getVaultRepayAmount();
+    assert(repayAmount.eq(b_amount));
+
+    const collateralBalance = await ctInstance2.balanceOf(bankInstance2.address);
+    const debtBalance = await dtInstance2.balanceOf(bankInstance2.address);
+    // Calculate debt, collateral left after borrow
+    expect(collateralBalance.eq(depositAmount));
+    expect(debtBalance.eq(depositAmount.sub(borrowAmount.sub(smallBorrowAmount))));
+  });
 
   it('should not update prices if not admin / reporter', async function () {
     await expect(bankInstance2.connect(randomUser4).updateCollateralPrice()).to.be.revertedWith("not price updater or admin");
