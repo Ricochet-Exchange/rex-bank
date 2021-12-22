@@ -267,7 +267,7 @@ describe("Bank", function () {
     await expect(bankInstance2.connect(randomUser2).vaultWithdraw(largeDepositAmount)).to.be.revertedWith("CANNOT WITHDRAW MORE COLLATERAL");
   });
 
-  it('should not allow user to withdraw collateral from vault if undercollateralized', async function () {
+  it('should not allow user to withdraw collateral from vault if undercollateralized', async function () {   // Not passed
     await dtInstance2.connect(randomUser2).approve(bankInstance2.address, depositAmount);
     await bankInstance2.connect(randomUser2).reserveDeposit(depositAmount);
     await ctInstance2.connect(randomUser2).approve(bankInstance2.address, depositAmount);
@@ -276,7 +276,7 @@ describe("Bank", function () {
     await expect(bankInstance2.connect(randomUser2).vaultWithdraw(largeDepositAmount)).to.be.revertedWith("CANNOT UNDERCOLLATERALIZE VAULT");
   });  // Error ---> I get 'NOT ENOUGH COLLATERAL'
 
-  it('should add origination fee to a vault\'s borrowed amount', async function () {
+  it('should add origination fee to a vault\'s borrowed amount', async function () {   // Not passed
     await dtInstance2.connect(randomUser2).approve(bankInstance2.address, depositAmount);
     await bankInstance2.connect(randomUser2).reserveDeposit(depositAmount);
     await ctInstance2.connect(randomUser2).approve(bankInstance2.address, depositAmount);
@@ -297,7 +297,7 @@ describe("Bank", function () {
   });  // Error ---> I get 'NOT ENOUGH COLLATERAL'
 
   it('should allow the user to borrow', async function () {  // Error A: AssertionError: Unspecified AssertionError
-    // hardat function to deal with time
+    // hardhat function to deal with time
     const increaseTime = async (seconds: any) => {
       await network.provider.send("evm_increaseTime", [seconds]);
       await network.provider.send("evm_mine");
@@ -308,13 +308,11 @@ describe("Bank", function () {
     await ctInstance2.connect(randomUser2).approve(bankInstance2.address, depositAmount);
     await bankInstance2.connect(randomUser2).vaultDeposit(depositAmount);
     await bankInstance2.connect(randomUser2).vaultBorrow(smallBorrowAmount);
-    await increaseTime(60 * 60 * 24 * 2 + 10); 
+    await increaseTime(60 * 60 * 24 * 2 + 10);
     await bankInstance2.connect(randomUser2).vaultBorrow(smallBorrowAmount);
     const collateralAmount = await bankInstance2.connect(randomUser2).getVaultCollateralAmount();
     const debtAmount = await bankInstance2.connect(randomUser2).getVaultDebtAmount();
-    console.log("AAA - allow user to borrow - collateralAmount " + collateralAmount);
-    console.log("BBB - allow user to borrow - depositAmount " + depositAmount);
-    assert(collateralAmount.eq(depositAmount));    // Error A, because the big number is too large ??
+    assert(collateralAmount.eq(depositAmount));
     // Calculate borrowed amount, use pays origination fee on 2 borrows
     let s_amount = smallBorrowAmount;
     let b_amount = s_amount.add(s_amount.mul(ethers.BigNumber.from(ORIGINATION_FEE)).div(BIGNUMBER_10000));
@@ -322,49 +320,49 @@ describe("Bank", function () {
     f_b_amount = f_b_amount.add(b_amount.mul(ethers.BigNumber.from(INTEREST_RATE)).div(BIGNUMBER_10000)).div(DAYS_IN_A_YEAR);
     f_b_amount = f_b_amount.add(s_amount.mul(ethers.BigNumber.from(ORIGINATION_FEE)).div(BIGNUMBER_10000));
     f_b_amount = f_b_amount.add(s_amount);
-    console.log("BBB - allow user to borrow - debtAmount " + debtAmount);
-    console.log("BBB - allow user to borrow - f_b_Amount " + f_b_amount);
-    assert(debtAmount.eq(f_b_amount));   // Error - It turns out (f_b_Amount * 2) = debtAmount
-
     console.log("CCCC - allow user to borrow - collateralAmount " + collateralAmount);
     const collateralBalance = await ctInstance2.connect(randomUser2).balanceOf(bankInstance2.address);
     const debtBalance = await dtInstance2.connect(randomUser2).balanceOf(bankInstance2.address);
-    assert(collateralBalance.eq(depositAmount));   // Error A, because the big number is too large ??       
-    console.log("DD - allow user to borrow - debtBalance: " + debtBalance);
-    assert(debtBalance.eq(ethers.BigNumber.from(60)));
-  });  
+    assert(collateralBalance.eq(depositAmount));
+    assert(debtBalance.eq(ethers.utils.parseUnits("60")));
+  });
 
-  // ===============================================================================
-  // it('should not allow the user to borrow above collateralization ratio', async function () {
-  // ===============================================================================
-  // await dtInstance2.approve(bankInstance2.address, depositAmount);
-  // await bankInstance2.reserveDeposit(depositAmount);
-  // await ctInstance2.connect(randomUser2).approve(bankInstance2.address, depositAmount);
-  // await bankInstance2.connect(randomUser2).vaultDeposit(depositAmount);    // "66600000000000000000" ??
-  // await expect(bankInstance2.connect(randomUser2).vaultBorrow("66600000000000000000")).to.be.revertedWith("NOT ENOUGH COLLATERAL");
-  // await bankInstance2.connect(randomUser2).vaultBorrow(ethers.BigNumber.from(66));
-  // await expect(bankInstance2.connect(randomUser2).vaultBorrow(ethers.constants.One)).to.be.revertedWith("NOT ENOUGH COLLATERAL");
+  it('should not allow the user to borrow above collateralization ratio', async function () {
+    await dtInstance2.connect(randomUser2).approve(bankInstance2.address, depositAmount);
+    await bankInstance2.connect(randomUser2).reserveDeposit(depositAmount);
+    await ctInstance2.connect(randomUser2).approve(bankInstance2.address, depositAmount);
+    await bankInstance2.connect(randomUser2).vaultDeposit(depositAmount);    // "66600000000000000000" ??
+    await expect(bankInstance2.connect(randomUser2).vaultBorrow("66600000000000000000")).to.be.revertedWith("NOT ENOUGH COLLATERAL");
+    // await expect(bankInstance2.connect(randomUser2).vaultBorrow(ethers.utils.parseUnits("70"))).to.be.revertedWith("NOT ENOUGH COLLATERAL");
+    await bankInstance2.connect(randomUser2).vaultBorrow(ethers.utils.parseUnits("66"));
+    await expect(bankInstance2.connect(randomUser2).vaultBorrow(ethers.constants.One)).to.be.revertedWith("NOT ENOUGH COLLATERAL");
+  });
 
-  // ===============================================================================
-  // it('should accrue interest on a vault\'s borrowed amount', async function () {
-  // ===============================================================================
-  // await dtInstance2.approve(bankInstance2.address, depositAmount);
-  // await bankInstance2.reserveDeposit(depositAmount);
-  // await ctInstance2.connect(randomUser2).approve(bankInstance2.address, depositAmount);
-  // await bankInstance2.connect(randomUser2).vaultDeposit(depositAmount);
-  // await bankInstance2.connect(randomUser2).vaultBorrow(borrowAmount);
-  // await time.increase(60 * 60 * 24 * 2 + 10) // Let two days pass
-  // const repayAmount2 = await bankInstance2.connect(randomUser2).getVaultRepayAmount();
-  // let b_amount3 = borrowAmount;
-  // b_amount3 = b_amount3.add(b_amount3.mul(ethers.BigNumber.from(ORIGINATION_FEE)).div(BIGNUMBER_10000));
-  // let f_b_amount3 = b_amount3.add(b_amount.mul(ethers.BigNumber.from(INTEREST_RATE)).div(BIGNUMBER_10000).div(BIGNUMBER_365)); // Day 1 interest rate
-  // f_b_amount3 = f_b_amount3.add(b_amount.mul(ethers.BigNumber.from(INTEREST_RATE)).div(BIGNUMBER_10000).div(BIGNUMBER_365)); // Day 2 interest rate
-  // assert(repayAmount2.eq(f_b_amount3));
-  // const collateralBalance3 = await ctInstance2.balanceOf(bankInstance2.address);
-  // const debtBalance3 = await dtInstance2.balanceOf(bankInstance2.address);
-  // // Calculate debt, collateral left after borrow
-  // assert(collateralBalance3.eq(depositAmount));
-  // assert(debtBalance3.eq(depositAmount.sub(borrowAmount)));
+  it('should accrue interest on a vault\'s borrowed amount', async function () {      // Passed !!
+    // hardhat function to deal with time
+    const increaseTime = async (seconds: any) => {
+      await network.provider.send("evm_increaseTime", [seconds]);
+      await network.provider.send("evm_mine");
+    };
+
+    await dtInstance2.connect(randomUser2).approve(bankInstance2.address, depositAmount);
+    await bankInstance2.connect(randomUser2).reserveDeposit(depositAmount);
+    await ctInstance2.connect(randomUser2).approve(bankInstance2.address, depositAmount);
+    await bankInstance2.connect(randomUser2).vaultDeposit(depositAmount);
+    await bankInstance2.connect(randomUser2).vaultBorrow(borrowAmount);
+    await increaseTime(60 * 60 * 24 * 2 + 10) // Let two days pass
+    const repayAmount = await bankInstance2.connect(randomUser2).getVaultRepayAmount();
+    let b_amount = borrowAmount;
+    b_amount = b_amount.add(b_amount.mul(ethers.BigNumber.from(ORIGINATION_FEE)).div(BIGNUMBER_10000));
+    let f_b_amount = b_amount.add(b_amount.mul(ethers.BigNumber.from(INTEREST_RATE)).div(BIGNUMBER_10000).div(DAYS_IN_A_YEAR)); // Day 1 interest rate
+    f_b_amount = f_b_amount.add(b_amount.mul(ethers.BigNumber.from(INTEREST_RATE)).div(BIGNUMBER_10000).div(DAYS_IN_A_YEAR)); // Day 2 interest rate
+    assert(repayAmount.eq(f_b_amount));
+    const collateralBalance = await ctInstance2.balanceOf(bankInstance2.address);
+    const debtBalance = await dtInstance2.balanceOf(bankInstance2.address);
+    // Calculate debt, collateral left after borrow
+    assert(collateralBalance.eq(depositAmount));
+    assert(debtBalance.eq(depositAmount.sub(borrowAmount)));
+  });
 
   // ===============================================================================
   // it('should accrue interest on a vault\'s borrowed amount with repayment', async function () {
