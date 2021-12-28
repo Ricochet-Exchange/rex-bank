@@ -108,7 +108,7 @@ contract Bank is BankStorage, AccessControlEnumerable, Initializable {
      */
     function reserveDeposit(uint256 amount)
         external
-    // onlyRole(DEFAULT_ADMIN_ROLE)
+        onlyRole(DEFAULT_ADMIN_ROLE)
     {
         require(amount > 0, "Amount is zero !!");
         reserve.debtBalance += amount;
@@ -147,7 +147,7 @@ contract Bank is BankStorage, AccessControlEnumerable, Initializable {
   */
     function reserveWithdrawCollateral(uint256 amount)
         external
-    // onlyRole(DEFAULT_ADMIN_ROLE)
+        onlyRole(DEFAULT_ADMIN_ROLE)
     {
         require(
             reserve.collateralBalance >= amount,
