@@ -1,9 +1,11 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.4;
 
 import "./Bank.sol";
 import "@openzeppelin/contracts/proxy/Clones.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
+
+import "hardhat/console.sol";
 
 contract BankFactory is Ownable {
     /*Variables*/
@@ -28,7 +30,7 @@ contract BankFactory is Ownable {
         uint256 liquidationPenalty,
         uint256 period,
         address payable oracleAddress
-    ) public {
+    ) public returns (address) {
         address clone = Clones.clone(bankAddress);
         Bank(clone).init(
             msg.sender,
@@ -44,6 +46,7 @@ contract BankFactory is Ownable {
         BankTag memory newBankTag = BankTag(clone);
         _banks.push(newBankTag);
         emit BankCreated(clone, msg.sender);
+        return clone;
     }
 
     function getNumberOfBanks() public view returns (uint256) {

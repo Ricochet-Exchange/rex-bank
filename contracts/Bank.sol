@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.4;
 
 import "./BankStorage.sol";
 import "./ITellor.sol";
@@ -8,15 +8,15 @@ import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts/access/AccessControlEnumerable.sol";
 
+import "hardhat/console.sol";
+
 /**
  * @title Bank
  * This contract allows the owner to deposit reserves(debt token), earn interest and
  * origination fees from users that borrow against their collateral.
  * The oracle for Bank is Tellor.
  */
-
 contract Bank is BankStorage, AccessControlEnumerable, Initializable {
-
     using SafeERC20 for IERC20;
 
     address private _bankFactoryOwner;
@@ -95,7 +95,11 @@ contract Bank is BankStorage, AccessControlEnumerable, Initializable {
         uint256 collateralTokenPriceGranularity,
         uint256 collateralTokenPrice
     ) public onlyRole(DEFAULT_ADMIN_ROLE) {
-        require(collateral.tokenAddress == address(0) && collateralToken != address(0), "!setable");
+        require(
+            collateral.tokenAddress == address(0) &&
+                collateralToken != address(0),
+            "!setable"
+        );
         collateral.tokenAddress = collateralToken;
         collateral.price = collateralTokenPrice;
         collateral.priceGranularity = collateralTokenPriceGranularity;
@@ -110,11 +114,11 @@ contract Bank is BankStorage, AccessControlEnumerable, Initializable {
         uint256 debtTokenTellorRequestId,
         uint256 debtTokenPriceGranularity,
         uint256 debtTokenPrice
-    )
-        public
-        onlyRole(DEFAULT_ADMIN_ROLE)
-    {
-        require(debt.tokenAddress == address(0) && debtToken != address(0), "!setable");
+    ) public onlyRole(DEFAULT_ADMIN_ROLE) {
+        require(
+            debt.tokenAddress == address(0) && debtToken != address(0),
+            "!setable"
+        );
         debt.tokenAddress = debtToken;
         debt.price = debtTokenPrice;
         debt.priceGranularity = debtTokenPriceGranularity;
@@ -125,7 +129,10 @@ contract Bank is BankStorage, AccessControlEnumerable, Initializable {
      * @dev This function allows the Bank owner to deposit the reserve (debt tokens)
      * @param amount is the amount to deposit
      */
-    function reserveDeposit(uint256 amount) external onlyRole(DEFAULT_ADMIN_ROLE) {
+    function reserveDeposit(uint256 amount)
+        external
+        onlyRole(DEFAULT_ADMIN_ROLE)
+    {
         require(amount > 0, "Amount is zero !!");
         reserve.debtBalance += amount;
         IERC20(debt.tokenAddress).safeTransferFrom(
@@ -141,7 +148,10 @@ contract Bank is BankStorage, AccessControlEnumerable, Initializable {
      *      Withdraws incur a 0.5% fee paid to the bankFactoryOwner
      * @param amount is the amount to withdraw
      */
-    function reserveWithdraw(uint256 amount) external onlyRole(DEFAULT_ADMIN_ROLE) {
+    function reserveWithdraw(uint256 amount)
+        external
+        onlyRole(DEFAULT_ADMIN_ROLE)
+    {
         require(
             IERC20(debt.tokenAddress).balanceOf(address(this)) >= amount,
             "NOT ENOUGH DEBT TOKENS IN RESERVE"
@@ -158,7 +168,10 @@ contract Bank is BankStorage, AccessControlEnumerable, Initializable {
          Withdraws incur a 0.5% fee paid to the bankFactoryOwner
   * @param amount is the amount to withdraw
   */
-    function reserveWithdrawCollateral(uint256 amount) external onlyRole(DEFAULT_ADMIN_ROLE) {
+    function reserveWithdrawCollateral(uint256 amount)
+        external
+        onlyRole(DEFAULT_ADMIN_ROLE)
+    {
         require(
             reserve.collateralBalance >= amount,
             "NOT ENOUGH COLLATERAL IN RESERVE"
@@ -170,7 +183,10 @@ contract Bank is BankStorage, AccessControlEnumerable, Initializable {
             msg.sender,
             amount - feeAmount
         );
-        IERC20(collateral.tokenAddress).safeTransfer(_bankFactoryOwner, feeAmount);
+        IERC20(collateral.tokenAddress).safeTransfer(
+            _bankFactoryOwner,
+            feeAmount
+        );
     }
 
     /**
@@ -180,7 +196,9 @@ contract Bank is BankStorage, AccessControlEnumerable, Initializable {
     function updateCollateralPrice() external {
         require(
             hasRole(REPORTER_ROLE, msg.sender) ||
-            hasRole(DEFAULT_ADMIN_ROLE, msg.sender), "not reporter or admin");
+                hasRole(DEFAULT_ADMIN_ROLE, msg.sender),
+            "not price updater or admin"
+        );
         (, collateral.price, collateral.lastUpdatedAt) = getCurrentValue(
             collateral.tellorRequestId
         ); //,now - 1 hours);
@@ -194,7 +212,9 @@ contract Bank is BankStorage, AccessControlEnumerable, Initializable {
     function updateDebtPrice() external {
         require(
             hasRole(REPORTER_ROLE, msg.sender) ||
-            hasRole(DEFAULT_ADMIN_ROLE, msg.sender), "not reporter or admin");
+                hasRole(DEFAULT_ADMIN_ROLE, msg.sender),
+            "not price updater or admin"
+        );
         (, debt.price, debt.lastUpdatedAt) = getCurrentValue(
             debt.tellorRequestId
         ); //,now - 1 hours);
@@ -210,7 +230,9 @@ contract Bank is BankStorage, AccessControlEnumerable, Initializable {
     function liquidate(address vaultOwner) external {
         require(
             hasRole(KEEPER_ROLE, msg.sender) ||
-            hasRole(DEFAULT_ADMIN_ROLE, msg.sender), "not keeper or admin");
+                hasRole(DEFAULT_ADMIN_ROLE, msg.sender),
+            "not keeper or admin"
+        );
         // Require undercollateralization
         require(
             getVaultCollateralizationRatio(vaultOwner) <
@@ -234,7 +256,10 @@ contract Bank is BankStorage, AccessControlEnumerable, Initializable {
         reserve.collateralBalance += collateralToLiquidate - feeAmount;
         vaults[vaultOwner].collateralAmount -= collateralToLiquidate;
         vaults[vaultOwner].debtAmount = 0;
-        IERC20(collateral.tokenAddress).safeTransfer(_bankFactoryOwner, feeAmount);
+        IERC20(collateral.tokenAddress).safeTransfer(
+            _bankFactoryOwner,
+            feeAmount
+        );
         emit Liquidation(vaultOwner, debtOwned);
     }
 
@@ -272,8 +297,14 @@ contract Bank is BankStorage, AccessControlEnumerable, Initializable {
         vaults[msg.sender].debtAmount +=
             amount +
             ((amount * reserve.originationFee) / 10000);
-        require(vaults[msg.sender].debtAmount < maxBorrow, "NOT ENOUGH COLLATERAL");
-        require(amount <= IERC20(debt.tokenAddress).balanceOf(address(this)), "NOT ENOUGH RESERVES");
+        require(
+            vaults[msg.sender].debtAmount < maxBorrow,
+            "NOT ENOUGH COLLATERAL"
+        );
+        require(
+            amount <= IERC20(debt.tokenAddress).balanceOf(address(this)),
+            "NOT ENOUGH RESERVES"
+        );
         if (block.timestamp - vaults[msg.sender].createdAt > reserve.period) {
             // Only adjust if more than 1 interest rate period has past
             vaults[msg.sender].createdAt = block.timestamp;
@@ -381,8 +412,8 @@ contract Bank is BankStorage, AccessControlEnumerable, Initializable {
     }
 
     /**
-     * @dev Allows admin to add address to reporter role
-     * @param updater address of new reporter
+     * @dev Allows admin to add address to price updater role
+     * @param updater address of new price updater
      */
     function addReporter(address updater) external {
         require(updater != address(0), "operation not allowed");
@@ -390,8 +421,8 @@ contract Bank is BankStorage, AccessControlEnumerable, Initializable {
     }
 
     /**
-     * @dev Allows admin to remove address from reporter role
-     * @param oldUpdater address of old reporter
+     * @dev Allows admin to remove address from price updater role
+     * @param oldUpdater address of old price updater
      */
     function revokeReporter(address oldUpdater) external {
         revokeRole(REPORTER_ROLE, oldUpdater);

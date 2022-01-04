@@ -1,0 +1,6 @@
+{
+  "compilerType": "native",
+  "sourceDirectory": "./contracts",
+  "outputDirectory": "./build",
+  "typechainEnabled": true
+}

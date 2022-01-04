@@ -1,5 +1,30 @@
-# Commodo Framework
-This is a framework for managing fixed-rate collateral-backed lending on Ethereum. This repository contains the core smart contracts and DApp code.
+# Rex-bank
+
+This is Ricochet project for managing fixed-rate collateral-backed lending on Ethereum. This repository contains the core smart contracts and the tests written in *Typescript* using the framework *hardhat* and the *ethers* library.
+A role-based access is now used in the Rex Bank.
+The modifiers in the *reserveDeposit* and *reserveWithdrawCollateral* functions have been commented, because the old tests were written when the access was simple (admin and users).
+
+The linter points out some code improvements:
+- some error messages are too long.
+- *block.timestamp* and related functions should not be used to make time calculations.
+- Mark visibility of state variables in *BankStorage.sol*.
+
+#### Current state of the code
+
+Two test cases are failing:
+- *should not allow user to withdraw collateral from vault if undercollateralized* 
+- *should add origination fee to a vault's borrowed amount*
+
+Both with the same message error: 
+*Error: VM Exception while processing transaction: reverted with reason string 'NOT ENOUGH COLLATERAL'*
+
+The 'should calculate correct collateralization ratio for a user\'s vault' and 'should liquidate undercollateralized vault' test cases are commented, because they interact with the oracle and it has to be mocked. 
+However, the code has been rewritten in ethers, except for the *web3.eth.sendTransaction* function. 
+
+## Performance optimizations
+
+For faster runs of your tests and scripts, consider skipping ts-node's type checking by setting the environment variable `TS_NODE_TRANSPILE_ONLY` to `1` in hardhat's environment. For more details see [the documentation](https://hardhat.org/guides/typescript.html#performance-optimizations).
+
 
 # Design Considerations
 
@@ -22,8 +47,31 @@ On deployment, the bank _owner_ specifies the following parameters:
 
 Once deployed, the bank owner must deposit some debt tokens into the bank's reserve. After depositing debt tokens, users can deposit collateral tokens and borrow the bank's debt tokens. During the borrow, the borrower is charged an origination fee and then interest will accumulate until they repay what they've borrowed plus interest and fees. If at anytime the price of the collateral falls, then the bank owner will liquidate the borrowers collateral to repay their debt.
 
+# Local Development 
+As of December 2021, the project was migrated from Truffle to *hardhat version 2.8.0.* and *waffle*
+Solidity version changed from 0.5.0 to >=0.8.4.
+
+Tools used for testing
+- node version 16.6.1 and npm version 7.2.0.3. 
+- All the tests are written in *Typescript* 4.5.2. 
+- *ethers* version 5.5.2 and Chai matchers. 
+
+### Compiling
+```
+npx hardhat compile
+```
+### Testing
+```
+npx hardhat test
+```
+### Generating the json files
+```
+npm run build
+```
+
+
 # Deployment
-For deployment on localhost, testnet or mainnet, edit the `migrations/3_tellor_contracts.js` with the parameters you're interested in using. An example configuration:
+For deployment on localhost, testnet or mainnet, edit the parameters you're interested in using. An example configuration:
 ```
 let daiAddress = "0x5592EC0cfb4dbc12D3aB100b257153436a1f0FEa";
 let trbAddress = "0xfe41cb708cd98c5b20423433309e55b53f79134a";
@@ -46,7 +94,7 @@ await deployer.deploy(Bank, interestRate, originationFee, collateralizationRatio
 Replace the values with those you wish to use for your bank deployment and visit the `Bank.sol` constructor for more details about these parameters.
 
 
-# Local Development
+# Local Development (deprecated)
 First, `truffle migrate` the contract to deploy to Ganache, then setup the contract using `truffle console`.
 
 From the console, approve and deposit debt tokens (i.e. `USDToken`) into the bank's reserve.
@@ -58,14 +106,14 @@ await dt.approve(bank.address, web3.utils.toWei("1000", "ether"), {from: account
 await bank.reserveDeposit(web3.utils.toWei("1000", "ether"), {from: accounts[0]})
 ```
 
-## Running the DApp
+## Running the DApp (deprecated)
 You can start the DApp using npm:
 ```
 export PORT=3000
 npm run dev
 ```
 
-## Working with the Tellor Oracle on Localhost
+## Working with the Tellor Oracle on Localhost (deprecated)
 Initialize the oracle objects and get accounts:
 ```
 let oracle = await TellorMaster.deployed()
@@ -96,7 +144,7 @@ And you can update the price with:
 await bank.updatePrice({from: accounts[0]})
 ```
 
-# Testing
+# Testing (deprecated)
 There are unit tests for the smart contract functionality which you can run using:
 ```
 truffle test
@@ -112,3 +160,4 @@ In addition to the unit tests, you can run these tests manually after the contra
 - [ ] - Repay all the debt and withdraw all collateral
 - [ ] With a borrower undercollateralized, liquidate the borrower
 - [ ] As the owner, withdraw collateral and debt
+
